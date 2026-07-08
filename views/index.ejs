@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title><%= company.name %> — Site Barriers & Signage</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a href="/" class="brand"><span class="mark">SG</span> SiteGuard</a>
+  <nav>
+    <a href="#catalog">Catalog</a>
+    <a href="/admin/login">Admin</a>
+  </nav>
+</header>
+
+<div class="hazard-rule"></div>
+
+<section class="hero">
+  <div class="hero-inner">
+    <span class="eyebrow">Order Ref. Ready in 24h</span>
+    <h1><%= company.tagline %></h1>
+    <p>Browse <%= items.length %>+ barriers, signboards and site-protection items, add what your site needs, and submit your order directly — no back-and-forth emails required.</p>
+    <div class="hero-stats">
+      <div><span class="num"><%= items.length %>+</span><span class="label">Catalog Items</span></div>
+      <div><span class="num">24h</span><span class="label">Dispatch Prep</span></div>
+      <div><span class="num"><%= categories.length %></span><span class="label">Categories</span></div>
+    </div>
+  </div>
+</section>
+
+<main class="catalog-wrap" id="catalog">
+  <div class="catalog-header">
+    <h2>Catalog</h2>
+    <div class="search-box">
+      <input type="text" id="searchInput" placeholder="Search items or SKU…">
+    </div>
+  </div>
+
+  <div class="category-tabs" id="categoryTabs">
+    <button class="active" data-cat="all">All</button>
+    <% categories.forEach(cat => { %>
+      <button data-cat="<%= cat %>"><%= cat %></button>
+    <% }) %>
+  </div>
+
+  <div class="item-grid" id="itemGrid">
+    <% items.forEach(item => { %>
+      <div class="item-card" data-cat="<%= item.category %>" data-name="<%= item.name.toLowerCase() %>" data-sku="<%= item.sku.toLowerCase() %>">
+        <span class="item-sku"><%= item.sku %></span>
+        <h3><%= item.name %></h3>
+        <span class="item-cat"><%= item.category %></span>
+        <span class="item-price">€<%= item.price.toFixed(2) %></span>
+        <div class="item-actions">
+          <input type="number" class="qty-input" value="1" min="1" data-item-id="<%= item.id %>">
+          <button class="btn btn-block add-to-cart"
+            data-id="<%= item.id %>" data-name="<%= item.name.replace(/"/g, '&quot;') %>" data-price="<%= item.price %>">
+            Add to order
+          </button>
+        </div>
+      </div>
+    <% }) %>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <%= company.name %> · <%= company.email %> · <%= company.phone %> — Orders also accepted by email and added to your account by our team.
+</footer>
+
+<!-- Cart FAB -->
+<div class="cart-fab" id="cartFab">Order <span class="count" id="cartCount">0</span></div>
+
+<div class="drawer-overlay" id="drawerOverlay"></div>
+<div class="drawer" id="cartDrawer">
+  <div class="drawer-header">
+    <h3>Your Order</h3>
+    <button class="drawer-close" id="drawerClose">&times;</button>
+  </div>
+  <div class="drawer-body" id="cartLines">
+    <div class="empty-cart">No items added yet. Browse the catalog and click "Add to order".</div>
+  </div>
+  <div class="drawer-form" id="checkoutForm" style="display:none;">
+    <div class="cart-total"><span>Total</span><span id="cartTotal">€0.00</span></div>
+    <label>Your name *</label>
+    <input type="text" id="f_name" required>
+    <label>Company</label>
+    <input type="text" id="f_company">
+    <label>Email *</label>
+    <input type="email" id="f_email" required>
+    <label>Phone *</label>
+    <input type="text" id="f_phone" required>
+    <label>Delivery / site address</label>
+    <input type="text" id="f_address">
+    <label>City</label>
+    <input type="text" id="f_city">
+    <label>Needed by (date)</label>
+    <input type="date" id="f_needed_by">
+    <label>Notes</label>
+    <textarea id="f_notes" rows="2"></textarea>
+    <button class="btn btn-block" id="submitOrderBtn" style="margin-top:16px;">Submit order</button>
+    <div id="orderResult" style="margin-top:12px; font-size:13px;"></div>
+  </div>
+</div>
+
+<script src="/js/cart.js"></script>
+</body>
+</html>

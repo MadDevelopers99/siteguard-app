@@ -1,0 +1,850 @@
+[
+  {
+    "sku": "FEN-0001",
+    "name": "Mobile Site Fence Panel 3.5m x 2m (Galvanized)",
+    "category": "Mobile Fencing & Barriers",
+    "price": 89,
+    "unit": "piece",
+    "description": "Mobile Site Fence Panel 3.5m x 2m (Galvanized) — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "FEN-0002",
+    "name": "Mobile Site Fence Panel 2.0m x 2m (Galvanized)",
+    "category": "Mobile Fencing & Barriers",
+    "price": 62,
+    "unit": "piece",
+    "description": "Mobile Site Fence Panel 2.0m x 2m (Galvanized) — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "FEN-0003",
+    "name": "Heavy-Duty Fence Foot / Concrete Base Block",
+    "category": "Mobile Fencing & Barriers",
+    "price": 24.5,
+    "unit": "piece",
+    "description": "Heavy-Duty Fence Foot / Concrete Base Block — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "FEN-0004",
+    "name": "Fence Panel Clamp Set (2 pcs)",
+    "category": "Mobile Fencing & Barriers",
+    "price": 6.9,
+    "unit": "piece",
+    "description": "Fence Panel Clamp Set (2 pcs) — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "FEN-0005",
+    "name": "Windscreen / Privacy Mesh for Fence Panel",
+    "category": "Mobile Fencing & Barriers",
+    "price": 34,
+    "unit": "piece",
+    "description": "Windscreen / Privacy Mesh for Fence Panel — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "FEN-0006",
+    "name": "Pedestrian Barrier 2m (Steel, Interlocking)",
+    "category": "Mobile Fencing & Barriers",
+    "price": 55,
+    "unit": "piece",
+    "description": "Pedestrian Barrier 2m (Steel, Interlocking) — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "FEN-0007",
+    "name": "Crowd Control Barrier 2.5m",
+    "category": "Mobile Fencing & Barriers",
+    "price": 68,
+    "unit": "piece",
+    "description": "Crowd Control Barrier 2.5m — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "FEN-0008",
+    "name": "Plastic Water-Fillable Barrier 1.2m",
+    "category": "Mobile Fencing & Barriers",
+    "price": 45,
+    "unit": "piece",
+    "description": "Plastic Water-Fillable Barrier 1.2m — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "FEN-0009",
+    "name": "Plastic Water-Fillable Barrier 2m",
+    "category": "Mobile Fencing & Barriers",
+    "price": 72,
+    "unit": "piece",
+    "description": "Plastic Water-Fillable Barrier 2m — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "FEN-0010",
+    "name": "Debris Safety Net for Scaffolding (10m roll)",
+    "category": "Mobile Fencing & Barriers",
+    "price": 58,
+    "unit": "piece",
+    "description": "Debris Safety Net for Scaffolding (10m roll) — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "FEN-0011",
+    "name": "Gate Panel for Mobile Fence (Lockable)",
+    "category": "Mobile Fencing & Barriers",
+    "price": 110,
+    "unit": "piece",
+    "description": "Gate Panel for Mobile Fence (Lockable) — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "FEN-0012",
+    "name": "Anti-Climb Fence Panel 2.3m",
+    "category": "Mobile Fencing & Barriers",
+    "price": 96,
+    "unit": "piece",
+    "description": "Anti-Climb Fence Panel 2.3m — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "TRB-0013",
+    "name": "Traffic Barrier Board (Bake) 1m Red/White",
+    "category": "Traffic & Road Barriers",
+    "price": 32,
+    "unit": "piece",
+    "description": "Traffic Barrier Board (Bake) 1m Red/White — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "TRB-0014",
+    "name": "Traffic Barrier Board (Bake) 2m Red/White",
+    "category": "Traffic & Road Barriers",
+    "price": 49,
+    "unit": "piece",
+    "description": "Traffic Barrier Board (Bake) 2m Red/White — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "TRB-0015",
+    "name": "Folding Traffic Barrier A-Frame",
+    "category": "Traffic & Road Barriers",
+    "price": 39,
+    "unit": "piece",
+    "description": "Folding Traffic Barrier A-Frame — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "TRB-0016",
+    "name": "Guardrail Section 4m (Steel, Road-Grade)",
+    "category": "Traffic & Road Barriers",
+    "price": 145,
+    "unit": "piece",
+    "description": "Guardrail Section 4m (Steel, Road-Grade) — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "TRB-0017",
+    "name": "Guardrail End Terminal",
+    "category": "Traffic & Road Barriers",
+    "price": 78,
+    "unit": "piece",
+    "description": "Guardrail End Terminal — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "TRB-0018",
+    "name": "Concrete Jersey Barrier 2m",
+    "category": "Traffic & Road Barriers",
+    "price": 210,
+    "unit": "piece",
+    "description": "Concrete Jersey Barrier 2m — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "TRB-0019",
+    "name": "Plastic Jersey Barrier 1.5m (Fillable)",
+    "category": "Traffic & Road Barriers",
+    "price": 95,
+    "unit": "piece",
+    "description": "Plastic Jersey Barrier 1.5m (Fillable) — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "TRB-0020",
+    "name": "Road Closure Barrier Gate 3m",
+    "category": "Traffic & Road Barriers",
+    "price": 165,
+    "unit": "piece",
+    "description": "Road Closure Barrier Gate 3m — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "TRB-0021",
+    "name": "Temporary Speed Bump 50cm Module",
+    "category": "Traffic & Road Barriers",
+    "price": 42,
+    "unit": "piece",
+    "description": "Temporary Speed Bump 50cm Module — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "TRB-0022",
+    "name": "Speed Bump End Cap (Pair)",
+    "category": "Traffic & Road Barriers",
+    "price": 12,
+    "unit": "piece",
+    "description": "Speed Bump End Cap (Pair) — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "TRB-0023",
+    "name": "Reflective Traffic Cone 50cm",
+    "category": "Traffic & Road Barriers",
+    "price": 8.5,
+    "unit": "piece",
+    "description": "Reflective Traffic Cone 50cm — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "TRB-0024",
+    "name": "Reflective Traffic Cone 75cm",
+    "category": "Traffic & Road Barriers",
+    "price": 12.9,
+    "unit": "piece",
+    "description": "Reflective Traffic Cone 75cm — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "TRB-0025",
+    "name": "Traffic Cone Sand Weight / Base",
+    "category": "Traffic & Road Barriers",
+    "price": 6,
+    "unit": "piece",
+    "description": "Traffic Cone Sand Weight / Base — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "TRB-0026",
+    "name": "Delineator Post 1m with Reflective Bands",
+    "category": "Traffic & Road Barriers",
+    "price": 14.5,
+    "unit": "piece",
+    "description": "Delineator Post 1m with Reflective Bands — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "TRB-0027",
+    "name": "Delineator Post Base (Rubber)",
+    "category": "Traffic & Road Barriers",
+    "price": 9,
+    "unit": "piece",
+    "description": "Delineator Post Base (Rubber) — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "SGN-0028",
+    "name": "Signboard 'Baustelle' (Construction Site) 60x60cm",
+    "category": "Warning & Regulatory Signboards",
+    "price": 28,
+    "unit": "piece",
+    "description": "Signboard 'Baustelle' (Construction Site) 60x60cm — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "SGN-0029",
+    "name": "Signboard 'Achtung Baustelle' (Warning) 90x60cm",
+    "category": "Warning & Regulatory Signboards",
+    "price": 36,
+    "unit": "piece",
+    "description": "Signboard 'Achtung Baustelle' (Warning) 90x60cm — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "SGN-0030",
+    "name": "Signboard 'Durchfahrt Verboten' (No Entry) 60x60cm",
+    "category": "Warning & Regulatory Signboards",
+    "price": 26,
+    "unit": "piece",
+    "description": "Signboard 'Durchfahrt Verboten' (No Entry) 60x60cm — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "SGN-0031",
+    "name": "Signboard 'Umleitung' (Diversion) 60x30cm",
+    "category": "Warning & Regulatory Signboards",
+    "price": 22,
+    "unit": "piece",
+    "description": "Signboard 'Umleitung' (Diversion) 60x30cm — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "SGN-0032",
+    "name": "Signboard 'Gefahr' (Danger) 40x40cm",
+    "category": "Warning & Regulatory Signboards",
+    "price": 19,
+    "unit": "piece",
+    "description": "Signboard 'Gefahr' (Danger) 40x40cm — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "SGN-0033",
+    "name": "Signboard 'Schutzhelm Tragen' (Hard Hat Required) 30x30cm",
+    "category": "Warning & Regulatory Signboards",
+    "price": 15,
+    "unit": "piece",
+    "description": "Signboard 'Schutzhelm Tragen' (Hard Hat Required) 30x30cm — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "SGN-0034",
+    "name": "Signboard 'Unbefugten Zutritt Verboten' (No Trespassing)",
+    "category": "Warning & Regulatory Signboards",
+    "price": 24,
+    "unit": "piece",
+    "description": "Signboard 'Unbefugten Zutritt Verboten' (No Trespassing) — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "SGN-0035",
+    "name": "Signboard 'Ausfahrt Baustelle' (Site Exit) 60x30cm",
+    "category": "Warning & Regulatory Signboards",
+    "price": 23,
+    "unit": "piece",
+    "description": "Signboard 'Ausfahrt Baustelle' (Site Exit) 60x30cm — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "SGN-0036",
+    "name": "Signboard 'Vorsicht Baustellenverkehr' (Site Traffic Caution)",
+    "category": "Warning & Regulatory Signboards",
+    "price": 27,
+    "unit": "piece",
+    "description": "Signboard 'Vorsicht Baustellenverkehr' (Site Traffic Caution) — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "SGN-0037",
+    "name": "Signboard 'Achtung Stufe' (Mind the Step) 30x30cm",
+    "category": "Warning & Regulatory Signboards",
+    "price": 14,
+    "unit": "piece",
+    "description": "Signboard 'Achtung Stufe' (Mind the Step) 30x30cm — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "SGN-0038",
+    "name": "Signboard 'Rutschgefahr' (Slip Hazard) 30x30cm",
+    "category": "Warning & Regulatory Signboards",
+    "price": 14,
+    "unit": "piece",
+    "description": "Signboard 'Rutschgefahr' (Slip Hazard) 30x30cm — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "SGN-0039",
+    "name": "Signboard 'Absperrung' (Cordoned Area) 60x40cm",
+    "category": "Warning & Regulatory Signboards",
+    "price": 21,
+    "unit": "piece",
+    "description": "Signboard 'Absperrung' (Cordoned Area) 60x40cm — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "SGN-0040",
+    "name": "Directional Arrow Sign Board 40x20cm",
+    "category": "Warning & Regulatory Signboards",
+    "price": 12.5,
+    "unit": "piece",
+    "description": "Directional Arrow Sign Board 40x20cm — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "SGN-0041",
+    "name": "Custom Printed Signboard (Client Logo/Text) A2",
+    "category": "Warning & Regulatory Signboards",
+    "price": 45,
+    "unit": "piece",
+    "description": "Custom Printed Signboard (Client Logo/Text) A2 — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "SGN-0042",
+    "name": "Custom Printed Signboard (Client Logo/Text) A1",
+    "category": "Warning & Regulatory Signboards",
+    "price": 62,
+    "unit": "piece",
+    "description": "Custom Printed Signboard (Client Logo/Text) A1 — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "SGN-0043",
+    "name": "Site Information Board (Bauschild) 200x150cm",
+    "category": "Warning & Regulatory Signboards",
+    "price": 320,
+    "unit": "piece",
+    "description": "Site Information Board (Bauschild) 200x150cm — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "SGN-0044",
+    "name": "Site Information Board (Bauschild) 150x100cm",
+    "category": "Warning & Regulatory Signboards",
+    "price": 240,
+    "unit": "piece",
+    "description": "Site Information Board (Bauschild) 150x100cm — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "SGN-0045",
+    "name": "Emergency Assembly Point Sign",
+    "category": "Warning & Regulatory Signboards",
+    "price": 18,
+    "unit": "piece",
+    "description": "Emergency Assembly Point Sign — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "SGN-0046",
+    "name": "Fire Extinguisher Location Sign",
+    "category": "Warning & Regulatory Signboards",
+    "price": 12,
+    "unit": "piece",
+    "description": "Fire Extinguisher Location Sign — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "SGN-0047",
+    "name": "First Aid Point Sign",
+    "category": "Warning & Regulatory Signboards",
+    "price": 12,
+    "unit": "piece",
+    "description": "First Aid Point Sign — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "LGT-0048",
+    "name": "Solar Warning Beacon (Amber Flash)",
+    "category": "Lighting & Signals",
+    "price": 34,
+    "unit": "piece",
+    "description": "Solar Warning Beacon (Amber Flash) — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "LGT-0049",
+    "name": "Battery Warning Lamp (Red, Continuous)",
+    "category": "Lighting & Signals",
+    "price": 22,
+    "unit": "piece",
+    "description": "Battery Warning Lamp (Red, Continuous) — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "LGT-0050",
+    "name": "Rechargeable LED Barrier Light",
+    "category": "Lighting & Signals",
+    "price": 29,
+    "unit": "piece",
+    "description": "Rechargeable LED Barrier Light — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "LGT-0051",
+    "name": "Site Floodlight Tower (Mobile, 2x LED 500W)",
+    "category": "Lighting & Signals",
+    "price": 480,
+    "unit": "piece",
+    "description": "Site Floodlight Tower (Mobile, 2x LED 500W) — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "LGT-0052",
+    "name": "Portable Site Light Mast 3m",
+    "category": "Lighting & Signals",
+    "price": 260,
+    "unit": "piece",
+    "description": "Portable Site Light Mast 3m — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "LGT-0053",
+    "name": "Traffic Signal Head (Temporary, Solar)",
+    "category": "Lighting & Signals",
+    "price": 610,
+    "unit": "piece",
+    "description": "Traffic Signal Head (Temporary, Solar) — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "LGT-0054",
+    "name": "Flashing Arrow Board (Trailer-Mounted)",
+    "category": "Lighting & Signals",
+    "price": 890,
+    "unit": "piece",
+    "description": "Flashing Arrow Board (Trailer-Mounted) — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "LGT-0055",
+    "name": "Reflective Warning Strip Roll (5m, Red/White)",
+    "category": "Lighting & Signals",
+    "price": 18,
+    "unit": "piece",
+    "description": "Reflective Warning Strip Roll (5m, Red/White) — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "LGT-0056",
+    "name": "Reflective Warning Strip Roll (5m, Yellow/Black)",
+    "category": "Lighting & Signals",
+    "price": 18,
+    "unit": "piece",
+    "description": "Reflective Warning Strip Roll (5m, Yellow/Black) — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "TPE-0057",
+    "name": "Barrier Tape Red/White 500m Roll",
+    "category": "Tapes, Nets & Ballast",
+    "price": 14,
+    "unit": "piece",
+    "description": "Barrier Tape Red/White 500m Roll — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "TPE-0058",
+    "name": "Barrier Tape Yellow/Black 500m Roll",
+    "category": "Tapes, Nets & Ballast",
+    "price": 14,
+    "unit": "piece",
+    "description": "Barrier Tape Yellow/Black 500m Roll — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "TPE-0059",
+    "name": "Barrier Chain Yellow/Black (Plastic) 25m",
+    "category": "Tapes, Nets & Ballast",
+    "price": 32,
+    "unit": "piece",
+    "description": "Barrier Chain Yellow/Black (Plastic) 25m — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "TPE-0060",
+    "name": "Barrier Post with Chain Hook (Portable)",
+    "category": "Tapes, Nets & Ballast",
+    "price": 27,
+    "unit": "piece",
+    "description": "Barrier Post with Chain Hook (Portable) — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "TPE-0061",
+    "name": "Debris Chute Section 1m",
+    "category": "Tapes, Nets & Ballast",
+    "price": 58,
+    "unit": "piece",
+    "description": "Debris Chute Section 1m — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "TPE-0062",
+    "name": "Debris Chute Funnel Top",
+    "category": "Tapes, Nets & Ballast",
+    "price": 95,
+    "unit": "piece",
+    "description": "Debris Chute Funnel Top — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "TPE-0063",
+    "name": "Ballast/Sandbag for Barrier Weighting",
+    "category": "Tapes, Nets & Ballast",
+    "price": 5.5,
+    "unit": "piece",
+    "description": "Ballast/Sandbag for Barrier Weighting — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "TPE-0064",
+    "name": "Concrete Ballast Block 25kg",
+    "category": "Tapes, Nets & Ballast",
+    "price": 19,
+    "unit": "piece",
+    "description": "Concrete Ballast Block 25kg — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "TPE-0065",
+    "name": "Concrete Ballast Block 40kg",
+    "category": "Tapes, Nets & Ballast",
+    "price": 29,
+    "unit": "piece",
+    "description": "Concrete Ballast Block 40kg — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "TPE-0066",
+    "name": "Tarpaulin Cover 4x6m (Site Material Protection)",
+    "category": "Tapes, Nets & Ballast",
+    "price": 48,
+    "unit": "piece",
+    "description": "Tarpaulin Cover 4x6m (Site Material Protection) — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "TPE-0067",
+    "name": "Tarpaulin Cover 6x8m",
+    "category": "Tapes, Nets & Ballast",
+    "price": 76,
+    "unit": "piece",
+    "description": "Tarpaulin Cover 6x8m — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "ACC-0068",
+    "name": "Pedestrian Turnstile Gate (Manual)",
+    "category": "Gates & Access Control",
+    "price": 320,
+    "unit": "piece",
+    "description": "Pedestrian Turnstile Gate (Manual) — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "ACC-0069",
+    "name": "Vehicle Access Gate 4m (Sliding)",
+    "category": "Gates & Access Control",
+    "price": 780,
+    "unit": "piece",
+    "description": "Vehicle Access Gate 4m (Sliding) — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "ACC-0070",
+    "name": "Site Entrance Barrier Arm (Manual)",
+    "category": "Gates & Access Control",
+    "price": 260,
+    "unit": "piece",
+    "description": "Site Entrance Barrier Arm (Manual) — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "ACC-0071",
+    "name": "Site Entrance Barrier Arm (Motorized)",
+    "category": "Gates & Access Control",
+    "price": 890,
+    "unit": "piece",
+    "description": "Site Entrance Barrier Arm (Motorized) — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "ACC-0072",
+    "name": "Wheel Wash / Mud Grid Panel",
+    "category": "Gates & Access Control",
+    "price": 410,
+    "unit": "piece",
+    "description": "Wheel Wash / Mud Grid Panel — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "ACC-0073",
+    "name": "Site Cabin Step Rail Kit",
+    "category": "Gates & Access Control",
+    "price": 145,
+    "unit": "piece",
+    "description": "Site Cabin Step Rail Kit — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "ACC-0074",
+    "name": "Lockable Site Access Gate 2m",
+    "category": "Gates & Access Control",
+    "price": 195,
+    "unit": "piece",
+    "description": "Lockable Site Access Gate 2m — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "MSC-0075",
+    "name": "Site Waste Skip Barrier Surround",
+    "category": "Site Furniture & Misc",
+    "price": 175,
+    "unit": "piece",
+    "description": "Site Waste Skip Barrier Surround — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "MSC-0076",
+    "name": "Bike/Ped Diversion Ramp (Rubber)",
+    "category": "Site Furniture & Misc",
+    "price": 88,
+    "unit": "piece",
+    "description": "Bike/Ped Diversion Ramp (Rubber) — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "MSC-0077",
+    "name": "Cable Protector Ramp 1m (3-Channel)",
+    "category": "Site Furniture & Misc",
+    "price": 62,
+    "unit": "piece",
+    "description": "Cable Protector Ramp 1m (3-Channel) — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "MSC-0078",
+    "name": "Cable Protector Ramp 1m (5-Channel)",
+    "category": "Site Furniture & Misc",
+    "price": 92,
+    "unit": "piece",
+    "description": "Cable Protector Ramp 1m (5-Channel) — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "MSC-0079",
+    "name": "Site Notice Board (Lockable, Glass Front)",
+    "category": "Site Furniture & Misc",
+    "price": 210,
+    "unit": "piece",
+    "description": "Site Notice Board (Lockable, Glass Front) — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "MSC-0080",
+    "name": "Visitor Sign-In Post with Sign Holder",
+    "category": "Site Furniture & Misc",
+    "price": 65,
+    "unit": "piece",
+    "description": "Visitor Sign-In Post with Sign Holder — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "MSC-0081",
+    "name": "Mobile Wash Station Barrier Screen",
+    "category": "Site Furniture & Misc",
+    "price": 130,
+    "unit": "piece",
+    "description": "Mobile Wash Station Barrier Screen — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "MSC-0082",
+    "name": "Scaffold Tower Guard Rail Kit",
+    "category": "Site Furniture & Misc",
+    "price": 155,
+    "unit": "piece",
+    "description": "Scaffold Tower Guard Rail Kit — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "MSC-0083",
+    "name": "Site Perimeter Warning Light Set (10 units)",
+    "category": "Site Furniture & Misc",
+    "price": 220,
+    "unit": "piece",
+    "description": "Site Perimeter Warning Light Set (10 units) — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "MSC-0084",
+    "name": "Anti-Trip Cable Cover 1.5m",
+    "category": "Site Furniture & Misc",
+    "price": 40,
+    "unit": "piece",
+    "description": "Anti-Trip Cable Cover 1.5m — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "MSC-0085",
+    "name": "Site Rest Bench (Weatherproof)",
+    "category": "Site Furniture & Misc",
+    "price": 145,
+    "unit": "piece",
+    "description": "Site Rest Bench (Weatherproof) — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "MSC-0086",
+    "name": "Smoking Shelter Barrier Screen",
+    "category": "Site Furniture & Misc",
+    "price": 190,
+    "unit": "piece",
+    "description": "Smoking Shelter Barrier Screen — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "MSC-0087",
+    "name": "Site Flagpole with Warning Flag",
+    "category": "Site Furniture & Misc",
+    "price": 55,
+    "unit": "piece",
+    "description": "Site Flagpole with Warning Flag — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "MSC-0088",
+    "name": "Muster Point Shelter Cover",
+    "category": "Site Furniture & Misc",
+    "price": 260,
+    "unit": "piece",
+    "description": "Muster Point Shelter Cover — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "MSC-0089",
+    "name": "Portable Handwash Station Screen",
+    "category": "Site Furniture & Misc",
+    "price": 110,
+    "unit": "piece",
+    "description": "Portable Handwash Station Screen — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "PPE-0090",
+    "name": "PPE Requirement Board (Helmet/Vest/Boots/Glasses)",
+    "category": "PPE & Compliance Boards",
+    "price": 42,
+    "unit": "piece",
+    "description": "PPE Requirement Board (Helmet/Vest/Boots/Glasses) — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "PPE-0091",
+    "name": "Site Induction Notice Board",
+    "category": "PPE & Compliance Boards",
+    "price": 58,
+    "unit": "piece",
+    "description": "Site Induction Notice Board — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "PPE-0092",
+    "name": "Emergency Contact Board (Customizable)",
+    "category": "PPE & Compliance Boards",
+    "price": 46,
+    "unit": "piece",
+    "description": "Emergency Contact Board (Customizable) — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "PPE-0093",
+    "name": "Environmental Compliance Sign Set (5 boards)",
+    "category": "PPE & Compliance Boards",
+    "price": 95,
+    "unit": "piece",
+    "description": "Environmental Compliance Sign Set (5 boards) — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "PPE-0094",
+    "name": "Noise Level Warning Sign",
+    "category": "PPE & Compliance Boards",
+    "price": 16,
+    "unit": "piece",
+    "description": "Noise Level Warning Sign — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "PPE-0095",
+    "name": "Dust Hazard Warning Sign",
+    "category": "PPE & Compliance Boards",
+    "price": 16,
+    "unit": "piece",
+    "description": "Dust Hazard Warning Sign — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "PPE-0096",
+    "name": "No Smoking Site Sign",
+    "category": "PPE & Compliance Boards",
+    "price": 13,
+    "unit": "piece",
+    "description": "No Smoking Site Sign — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "PPE-0097",
+    "name": "Site Opening Hours Board",
+    "category": "PPE & Compliance Boards",
+    "price": 24,
+    "unit": "piece",
+    "description": "Site Opening Hours Board — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "PPE-0098",
+    "name": "Weight Limit Sign (Vehicle Access)",
+    "category": "PPE & Compliance Boards",
+    "price": 22,
+    "unit": "piece",
+    "description": "Weight Limit Sign (Vehicle Access) — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "PPE-0099",
+    "name": "Height Restriction Sign (Vehicle Access)",
+    "category": "PPE & Compliance Boards",
+    "price": 22,
+    "unit": "piece",
+    "description": "Height Restriction Sign (Vehicle Access) — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "PPE-0100",
+    "name": "Site Map / Layout Display Board",
+    "category": "PPE & Compliance Boards",
+    "price": 165,
+    "unit": "piece",
+    "description": "Site Map / Layout Display Board — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "PPE-0101",
+    "name": "Considerate Constructors Notice Board",
+    "category": "PPE & Compliance Boards",
+    "price": 60,
+    "unit": "piece",
+    "description": "Considerate Constructors Notice Board — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "PPE-0102",
+    "name": "Site Safety Statistics Board (Days Since Incident)",
+    "category": "PPE & Compliance Boards",
+    "price": 78,
+    "unit": "piece",
+    "description": "Site Safety Statistics Board (Days Since Incident) — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "PPE-0103",
+    "name": "Underground Services Warning Sign",
+    "category": "PPE & Compliance Boards",
+    "price": 20,
+    "unit": "piece",
+    "description": "Underground Services Warning Sign — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "PPE-0104",
+    "name": "Overhead Cable Warning Sign",
+    "category": "PPE & Compliance Boards",
+    "price": 20,
+    "unit": "piece",
+    "description": "Overhead Cable Warning Sign — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "PPE-0105",
+    "name": "Crane Operation Zone Warning Sign",
+    "category": "PPE & Compliance Boards",
+    "price": 24,
+    "unit": "piece",
+    "description": "Crane Operation Zone Warning Sign — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  },
+  {
+    "sku": "PPE-0106",
+    "name": "Excavation Hazard Warning Sign",
+    "category": "PPE & Compliance Boards",
+    "price": 20,
+    "unit": "piece",
+    "description": "Excavation Hazard Warning Sign — suitable for construction site perimeter protection, signage, and traffic control. Rental and purchase available."
+  }
+]

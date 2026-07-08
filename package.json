@@ -1,0 +1,17 @@
+{
+  "name": "siteguard-orders",
+  "version": "1.0.0",
+  "description": "Ordering website + admin panel for a construction-site barrier & signage company",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "seed": "node db/seed.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "dotenv": "^16.4.5",
+    "ejs": "^3.1.10",
+    "express": "^4.19.2",
+    "express-session": "^1.18.0"
+  }
+}

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clients — SiteGuard Admin</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="admin-shell">
+  <%- include('../partials/admin-sidebar', { active: 'clients' }) %>
+
+  <div class="admin-main">
+    <div class="admin-topline">
+      <h1>Clients</h1>
+    </div>
+
+    <div class="data-table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Name</th><th>Company</th><th>Email</th><th>Phone</th><th>City</th>
+            <th>Registered Via</th><th>Orders</th><th>Total Spent</th><th>Since</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (clients.length === 0) { %>
+            <tr><td colspan="9" style="text-align:center; color:#8a8f90;">No clients yet.</td></tr>
+          <% } %>
+          <% clients.forEach(c => { %>
+            <tr>
+              <td><%= c.name %></td>
+              <td><%= c.company || '—' %></td>
+              <td><%= c.email || '—' %></td>
+              <td><%= c.phone || '—' %></td>
+              <td><%= c.city || '—' %></td>
+              <td><span class="badge badge-<%= c.source %>"><%= c.source %></span></td>
+              <td><%= c.order_count %></td>
+              <td>€<%= c.total_spent.toFixed(2) %></td>
+              <td><%= c.created_at %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+</body>
+</html>

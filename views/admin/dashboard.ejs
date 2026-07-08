@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Orders — SiteGuard Admin</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="admin-shell">
+  <%- include('../partials/admin-sidebar', { active: 'dashboard' }) %>
+
+  <div class="admin-main">
+    <div class="admin-topline">
+      <h1>Orders</h1>
+      <form class="logout-form" method="POST" action="/admin/logout">
+        <button type="submit">Log out (<%= adminName %>)</button>
+      </form>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat-card"><span class="num"><%= stats.total_orders || 0 %></span><span class="label">Total Orders</span></div>
+      <div class="stat-card"><span class="num"><%= stats.pending_count || 0 %></span><span class="label">Pending</span></div>
+      <div class="stat-card"><span class="num"><%= stats.email_count || 0 %></span><span class="label">From Email</span></div>
+      <div class="stat-card"><span class="num">€<%= (stats.total_value || 0).toFixed(2) %></span><span class="label">Total Value</span></div>
+    </div>
+
+    <form class="filter-bar" method="GET" action="/admin/dashboard">
+      <input type="text" name="q" placeholder="Search client, company, order #…" value="<%= filters.q %>">
+      <select name="status">
+        <option value="">All statuses</option>
+        <% ["pending","confirmed","dispatched","delivered","cancelled"].forEach(s => { %>
+          <option value="<%= s %>" <%= filters.status === s ? 'selected' : '' %>><%= s.charAt(0).toUpperCase() + s.slice(1) %></option>
+        <% }) %>
+      </select>
+      <select name="source">
+        <option value="">All sources</option>
+        <option value="website" <%= filters.source === 'website' ? 'selected' : '' %>>Website</option>
+        <option value="email" <%= filters.source === 'email' ? 'selected' : '' %>>Email (manual)</option>
+      </select>
+      <button class="btn btn-outline btn-sm" type="submit">Filter</button>
+      <a class="btn btn-sm" style="text-decoration:none;" href="/admin/orders/export.csv">Export to Excel (CSV)</a>
+    </form>
+
+    <div class="data-table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Order #</th>
+            <th>Date</th>
+            <th>Client</th>
+            <th>Company</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>City</th>
+            <th>Source</th>
+            <th>Status</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (orders.length === 0) { %>
+            <tr><td colspan="10" style="text-align:center; color:#8a8f90;">No orders match these filters.</td></tr>
+          <% } %>
+          <% orders.forEach(o => { %>
+            <tr>
+              <td><a class="order-link" href="/admin/orders/<%= o.id %>"><%= o.order_number %></a></td>
+              <td><%= o.created_at %></td>
+              <td><%= o.client_name %></td>
+              <td><%= o.client_company || '—' %></td>
+              <td><%= o.client_email || '—' %></td>
+              <td><%= o.client_phone || '—' %></td>
+              <td><%= o.client_city || '—' %></td>
+              <td><span class="badge badge-<%= o.source %>"><%= o.source %></span></td>
+              <td><span class="badge badge-<%= o.status %>"><%= o.status %></span></td>
+              <td>€<%= o.total.toFixed(2) %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+</body>
+</html>
