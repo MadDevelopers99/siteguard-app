@@ -270,6 +270,23 @@ table.data-table tr:hover td { background: #fbfaf7; }
 .order-line-item-row input { flex: 1; }
 .remove-line { color: var(--danger); background: none; border: none; cursor: pointer; font-size: 13px; }
 
+/* ---------- Client workspace tabs ---------- */
+.tabs { display: flex; gap: 4px; flex-wrap: wrap; border-bottom: 1px solid var(--concrete-2); margin-bottom: 20px; }
+.tab-btn {
+  background: none; border: none; border-bottom: 2px solid transparent;
+  padding: 10px 14px; font-family: var(--font-body); font-size: 14px; font-weight: 600;
+  color: var(--steel); cursor: pointer;
+}
+.tab-btn:hover { color: var(--ink); }
+.tab-btn.active { color: var(--ink); border-bottom-color: var(--amber); }
+.btn-disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
+
+.badge-active, .badge-normal, .badge-available { background: #dcf3e4; color: #1f7a44; }
+.badge-inactive { background: #eef1f2; color: var(--steel); }
+.badge-priority { background: #fdeccb; color: #a15b00; }
+.badge-overdue, .badge-needed { background: #fff3cd; color: #8a6300; }
+.badge-blocked { background: #f8d7da; color: #a12631; }
+
 footer.site-footer { background: var(--charcoal); color: #9aa6a9; padding: 24px 32px; font-size: 13px; text-align:center; }
 
 @media (max-width: 700px) {

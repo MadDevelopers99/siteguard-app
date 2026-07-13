@@ -1,0 +1,26 @@
+<div class="admin-card">
+  <h3>Requests</h3>
+  <a class="btn btn-sm" style="text-decoration:none;" href="/admin/requests/new?client_id=<%= client.id %>">+ New Request</a>
+
+  <div class="data-table-wrap" style="margin-top:16px;">
+    <table class="data-table">
+      <thead>
+        <tr><th>Request #</th><th>Type</th><th>Dates</th><th>Status</th><th>Total</th></tr>
+      </thead>
+      <tbody>
+        <% if (clientRequests.length === 0) { %>
+          <tr><td colspan="5" style="text-align:center; color:#8a8f90;">No requests yet.</td></tr>
+        <% } %>
+        <% clientRequests.forEach(r => { %>
+          <tr>
+            <td><a class="order-link" href="/admin/requests/<%= r.id %>"><%= r.request_number %></a></td>
+            <td><%= r.request_type || '—' %></td>
+            <td><%= r.date_from || '—' %> &rarr; <%= r.date_to || '—' %></td>
+            <td><span class="badge badge-active"><%= r.status %></span></td>
+            <td>€<%= (r.total_gross || 0).toFixed(2) %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</div>

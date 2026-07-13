@@ -18,11 +18,15 @@
       </form>
     </div>
 
+    <p style="color:var(--steel); margin:-14px 0 20px; font-size:14px;">
+      All orders placed through the website or logged manually from email — filter, search, or export to Excel below.
+    </p>
+
     <div class="stat-row">
       <div class="stat-card"><span class="num"><%= stats.total_orders || 0 %></span><span class="label">Total Orders</span></div>
       <div class="stat-card"><span class="num"><%= stats.pending_count || 0 %></span><span class="label">Pending</span></div>
-      <div class="stat-card"><span class="num"><%= stats.email_count || 0 %></span><span class="label">From Email</span></div>
       <div class="stat-card"><span class="num">€<%= (stats.total_value || 0).toFixed(2) %></span><span class="label">Total Value</span></div>
+      <div class="stat-card"><span class="num"><%= stats.email_count || 0 %></span><span class="label">From Email</span></div>
     </div>
 
     <form class="filter-bar" method="GET" action="/admin/dashboard">

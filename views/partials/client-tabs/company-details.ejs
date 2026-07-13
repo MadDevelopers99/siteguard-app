@@ -1,0 +1,53 @@
+<div class="admin-card">
+  <h3>Company Details</h3>
+  <form method="POST" action="/admin/clients/<%= client.id %>">
+    <div class="form-grid">
+      <div class="form-group"><label>Company Name</label><input type="text" name="company" value="<%= client.company || '' %>"></div>
+      <div class="form-group"><label>Main Contact Person</label><input type="text" name="name" value="<%= client.name || '' %>" required></div>
+      <div class="form-group">
+        <label>Client Type</label>
+        <select name="client_type">
+          <option value="">— select —</option>
+          <% CLIENT_TYPES.forEach(t => { %><option value="<%= t %>" <%= client.client_type === t ? 'selected' : '' %>><%= t %></option><% }) %>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Client Status</label>
+        <select name="client_status">
+          <% CLIENT_STATUSES.forEach(s => { %><option value="<%= s %>" <%= client.client_status === s ? 'selected' : '' %>><%= s %></option><% }) %>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Payment Status</label>
+        <select name="payment_status">
+          <% PAYMENT_STATUSES.forEach(s => { %><option value="<%= s %>" <%= client.payment_status === s ? 'selected' : '' %>><%= s %></option><% }) %>
+        </select>
+      </div>
+      <div class="form-group"><label>Debitor Number</label><input type="text" name="debitor_number" value="<%= client.debitor_number || '' %>"></div>
+      <div class="form-group"><label>Reference Number</label><input type="text" name="reference_number" value="<%= client.reference_number || '' %>"></div>
+      <div class="form-group"><label>VAT ID / USt-ID</label><input type="text" name="vat_id" value="<%= client.vat_id || '' %>"></div>
+      <div class="form-group"><label>HRB Number</label><input type="text" name="hrb_number" value="<%= client.hrb_number || '' %>"></div>
+    </div>
+
+    <h3 style="margin-top:22px;">Company Address</h3>
+    <div class="form-grid">
+      <div class="form-group"><label>Street</label><input type="text" name="street" value="<%= client.street || '' %>"></div>
+      <div class="form-group"><label>House Number</label><input type="text" name="house_number" value="<%= client.house_number || '' %>"></div>
+      <div class="form-group"><label>ZIP</label><input type="text" name="zip" value="<%= client.zip || '' %>"></div>
+      <div class="form-group"><label>City</label><input type="text" name="city" value="<%= client.city || '' %>"></div>
+      <div class="form-group"><label>Country</label><input type="text" name="country" value="<%= client.country || '' %>"></div>
+    </div>
+
+    <h3 style="margin-top:22px;">Business Details</h3>
+    <div class="form-grid">
+      <div class="form-group"><label>Industry</label><input type="text" name="industry" value="<%= client.industry || '' %>"></div>
+      <div class="form-group"><label>Company Size</label><input type="text" name="company_size" value="<%= client.company_size || '' %>"></div>
+      <div class="form-group"><label>Preferred Language</label><input type="text" name="preferred_language" value="<%= client.preferred_language || '' %>"></div>
+      <div class="form-group"><label>Internal Client Rating</label><input type="text" name="internal_rating" value="<%= client.internal_rating || '' %>"></div>
+      <div class="form-group"><label>General Email</label><input type="email" name="email" value="<%= client.email || '' %>"></div>
+      <div class="form-group"><label>General Phone</label><input type="text" name="phone" value="<%= client.phone || '' %>"></div>
+    </div>
+
+    <button class="btn btn-sm" type="submit" style="margin-top:16px;">Save</button>
+  </form>
+</div>

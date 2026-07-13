@@ -13,31 +13,51 @@
   <div class="admin-main">
     <div class="admin-topline">
       <h1>Clients</h1>
+      <div style="display:flex; gap:10px;">
+        <a class="btn btn-outline btn-sm" style="text-decoration:none;" href="/admin/clients/import">Import Client</a>
+        <a class="btn btn-sm" style="text-decoration:none;" href="/admin/clients/new">+ New Client</a>
+      </div>
     </div>
+
+    <form class="filter-bar" method="GET" action="/admin/clients">
+      <input type="text" name="q" placeholder="Search company, contact, email, city…" value="<%= filters.q %>">
+      <select name="status">
+        <option value="">All statuses</option>
+        <% CLIENT_STATUSES.forEach(s => { %>
+          <option value="<%= s %>" <%= filters.status === s ? 'selected' : '' %>><%= s.charAt(0).toUpperCase() + s.slice(1) %></option>
+        <% }) %>
+      </select>
+      <button class="btn btn-outline btn-sm" type="submit">Filter</button>
+    </form>
 
     <div class="data-table-wrap">
       <table class="data-table">
         <thead>
           <tr>
-            <th>Name</th><th>Company</th><th>Email</th><th>Phone</th><th>City</th>
-            <th>Registered Via</th><th>Orders</th><th>Total Spent</th><th>Since</th>
+            <th>Client ID</th><th>Company</th><th>Type</th><th>City</th>
+            <th>Main Contact</th><th>Phone</th><th>Email</th>
+            <th>Active Aufträge</th><th>Payment</th><th>Status</th><th>Last Activity</th>
           </tr>
         </thead>
         <tbody>
           <% if (clients.length === 0) { %>
-            <tr><td colspan="9" style="text-align:center; color:#8a8f90;">No clients yet.</td></tr>
+            <tr><td colspan="11" style="text-align:center; color:#8a8f90;">No clients match these filters.</td></tr>
           <% } %>
-          <% clients.forEach(c => { %>
-            <tr>
-              <td><%= c.name %></td>
-              <td><%= c.company || '—' %></td>
-              <td><%= c.email || '—' %></td>
-              <td><%= c.phone || '—' %></td>
+          <% clients.forEach(c => {
+               const mainContact = mainContactByClient[c.id];
+          %>
+            <tr onclick="window.location='/admin/clients/<%= c.id %>'" style="cursor:pointer;">
+              <td><%= displayClientId(c.id) %></td>
+              <td><%= c.company || c.name %></td>
+              <td><%= c.client_type || '—' %></td>
               <td><%= c.city || '—' %></td>
-              <td><span class="badge badge-<%= c.source %>"><%= c.source %></span></td>
-              <td><%= c.order_count %></td>
-              <td>€<%= c.total_spent.toFixed(2) %></td>
-              <td><%= c.created_at %></td>
+              <td><%= mainContact ? mainContact.name : c.name %></td>
+              <td><%= (mainContact && mainContact.phone) || c.phone || '—' %></td>
+              <td><%= (mainContact && mainContact.email) || c.email || '—' %></td>
+              <td><%= c.active_orders || 0 %></td>
+              <td><span class="badge badge-<%= c.payment_status || 'normal' %>"><%= c.payment_status || 'normal' %></span></td>
+              <td><span class="badge badge-<%= c.client_status || 'active' %>"><%= c.client_status || 'active' %></span></td>
+              <td><%= c.last_activity || '—' %></td>
             </tr>
           <% }) %>
         </tbody>

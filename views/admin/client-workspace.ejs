@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title><%= clientRow.company || clientRow.name %> — SiteGuard Admin</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="admin-shell">
+  <%- include('../partials/admin-sidebar', { active: 'clients' }) %>
+
+  <div class="admin-main">
+    <div class="admin-topline">
+      <h1><a href="/admin/clients" style="text-decoration:none;">Clients</a> &raquo; <%= clientRow.company || clientRow.name %></h1>
+    </div>
+
+    <div class="admin-card">
+      <div class="form-grid">
+        <div><strong>Company:</strong> <%= clientRow.company || '—' %></div>
+        <div><strong>Client ID:</strong> <%= displayClientId(clientRow.id) %></div>
+        <div><strong>Status:</strong> <span class="badge badge-<%= clientRow.client_status || 'active' %>"><%= clientRow.client_status || 'active' %></span></div>
+        <div><strong>City:</strong> <%= clientRow.city || '—' %></div>
+        <% const mainContact = preferredContact(contacts, 'Main Contact'); %>
+        <div><strong>Main Contact:</strong> <%= mainContact ? mainContact.name : clientRow.name %></div>
+        <div><strong>Active Aufträge:</strong> <%= activeOrders.length %></div>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <% const tabs = [
+        ['overview', 'Overview'],
+        ['company-details', 'Company Details'],
+        ['contacts', 'Contacts'],
+        ['locations', 'Locations'],
+        ['requests', 'Requests'],
+        ['auftraege', 'Aufträge'],
+        ['billing', 'Billing'],
+        ['documents', 'Documents'],
+        ['history', 'History'],
+        ['notes', 'Notes']
+      ]; %>
+      <% tabs.forEach(([key, label]) => { %>
+        <button type="button" class="tab-btn <%= tab === key ? 'active' : '' %>" data-tab="<%= key %>"><%= label %></button>
+      <% }) %>
+    </div>
+
+    <div class="tab-panel-wrap">
+      <div class="tab-panel" data-panel="overview" <%= tab === 'overview' ? '' : 'style="display:none;"' %>>
+        <%- include('../partials/client-tabs/overview', { client: clientRow, activeOrders, completedOrders, lastOrder, mapAlerts, displayClientId, clientRequests, documents }) %>
+      </div>
+      <div class="tab-panel" data-panel="company-details" <%= tab === 'company-details' ? '' : 'style="display:none;"' %>>
+        <%- include('../partials/client-tabs/company-details', { client: clientRow, CLIENT_TYPES, CLIENT_STATUSES, PAYMENT_STATUSES }) %>
+      </div>
+      <div class="tab-panel" data-panel="contacts" <%= tab === 'contacts' ? '' : 'style="display:none;"' %>>
+        <%- include('../partials/client-tabs/contacts', { client: clientRow, contacts, CONTACT_ROLES }) %>
+      </div>
+      <div class="tab-panel" data-panel="locations" <%= tab === 'locations' ? '' : 'style="display:none;"' %>>
+        <%- include('../partials/client-tabs/locations', { client: clientRow, locations, LOCATION_TYPES }) %>
+      </div>
+      <div class="tab-panel" data-panel="requests" <%= tab === 'requests' ? '' : 'style="display:none;"' %>>
+        <%- include('../partials/client-tabs/requests', { client: clientRow, clientRequests }) %>
+      </div>
+      <div class="tab-panel" data-panel="auftraege" <%= tab === 'auftraege' ? '' : 'style="display:none;"' %>>
+        <%- include('../partials/client-tabs/auftraege', { orders }) %>
+      </div>
+      <div class="tab-panel" data-panel="billing" <%= tab === 'billing' ? '' : 'style="display:none;"' %>>
+        <%- include('../partials/client-tabs/billing', { orders, totalSpent }) %>
+      </div>
+      <div class="tab-panel" data-panel="documents" <%= tab === 'documents' ? '' : 'style="display:none;"' %>>
+        <%- include('../partials/document-list', { entityType: 'client', entityId: clientRow.id, documents, DOCUMENT_CATEGORIES, DOCUMENT_STATUSES }) %>
+      </div>
+      <div class="tab-panel" data-panel="history" <%= tab === 'history' ? '' : 'style="display:none;"' %>>
+        <%- include('../partials/client-tabs/history', { history }) %>
+      </div>
+      <div class="tab-panel" data-panel="notes" <%= tab === 'notes' ? '' : 'style="display:none;"' %>>
+        <%- include('../partials/client-tabs/notes', { client: clientRow }) %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const key = btn.dataset.tab;
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b === btn));
+      document.querySelectorAll('.tab-panel').forEach(p => {
+        p.style.display = p.dataset.panel === key ? '' : 'none';
+      });
+      const url = new URL(window.location);
+      url.searchParams.set('tab', key);
+      window.history.replaceState({}, '', url);
+    });
+  });
+</script>
+</body>
+</html>

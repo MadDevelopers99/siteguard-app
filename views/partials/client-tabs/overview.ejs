@@ -1,0 +1,33 @@
+<div class="admin-card">
+  <h3>Summary</h3>
+  <div class="stat-row">
+    <div class="stat-card"><span class="num"><%= clientRequests.filter(r => r.status !== 'Auftrag Created').length %></span><span class="label">Open Requests</span></div>
+    <div class="stat-card"><span class="num"><%= activeOrders.length %></span><span class="label">Active Aufträge</span></div>
+    <div class="stat-card"><span class="num"><%= completedOrders.length %></span><span class="label">Completed Aufträge</span></div>
+    <div class="stat-card"><span class="num"><%= documents.length %></span><span class="label">Documents on File</span></div>
+    <div class="stat-card"><span class="num">—</span><span class="label">Unpaid Invoices</span></div>
+    <div class="stat-card"><span class="num"><%= lastOrder ? lastOrder.created_at : '—' %></span><span class="label">Last Auftrag</span></div>
+  </div>
+</div>
+
+<div class="admin-card">
+  <h3>Quick Actions</h3>
+  <div style="display:flex; gap:10px; flex-wrap:wrap;">
+    <a class="btn btn-outline btn-sm" style="text-decoration:none;" href="/admin/requests/new?client_id=<%= client.id %>">+ New Request</a>
+    <a class="btn btn-outline btn-sm" style="text-decoration:none;" href="/admin/clients/<%= client.id %>?tab=locations">+ New Location</a>
+    <a class="btn btn-outline btn-sm" style="text-decoration:none;" href="/admin/orders/new/form?client_id=<%= client.id %>">+ New Auftrag</a>
+    <button type="button" class="btn btn-outline btn-sm" onclick="document.querySelector('[data-tab=documents]').click()">Upload Document</button>
+    <button type="button" class="btn btn-outline btn-sm" onclick="document.querySelector('[data-tab=history]').click()">View History</button>
+  </div>
+</div>
+
+<div class="admin-card">
+  <h3>Alerts</h3>
+  <% if (mapAlerts.length === 0) { %>
+    <p style="color:#8a8f90;">No alerts.</p>
+  <% } else { %>
+    <ul style="margin:0; padding-left:20px;">
+      <% mapAlerts.forEach(a => { %><li><%= a %></li><% }) %>
+    </ul>
+  <% } %>
+</div>

@@ -1,0 +1,54 @@
+<div class="admin-card">
+  <h3>Documents</h3>
+  <div class="data-table-wrap">
+    <table class="data-table">
+      <thead>
+        <tr><th>Document</th><th>Category</th><th>Uploaded By</th><th>Date</th><th>Status</th><th>Version</th><th>Actions</th></tr>
+      </thead>
+      <tbody>
+        <% if (documents.length === 0) { %>
+          <tr><td colspan="7" style="text-align:center; color:#8a8f90;">No documents yet.</td></tr>
+        <% } %>
+        <% documents.forEach(d => { %>
+          <tr>
+            <td><a class="order-link" href="/admin/documents/<%= d.id %>/download"><%= d.original_name %></a></td>
+            <td><%= d.category %></td>
+            <td><%= d.uploaded_by || '—' %></td>
+            <td><%= d.created_at %></td>
+            <td>
+              <form method="POST" action="/admin/documents/<%= d.id %>/status" style="display:inline;">
+                <select name="status" onchange="this.form.submit()">
+                  <% DOCUMENT_STATUSES.forEach(s => { %>
+                    <option value="<%= s %>" <%= d.status === s ? 'selected' : '' %>><%= s %></option>
+                  <% }) %>
+                </select>
+              </form>
+            </td>
+            <td>v<%= d.version %></td>
+            <td>
+              <form method="POST" action="/admin/documents/<%= d.id %>/delete" style="margin:0;" onsubmit="return confirm('Delete this document?');">
+                <button type="submit" class="btn btn-outline btn-sm">Delete</button>
+              </form>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="admin-card">
+  <h3>Upload Document</h3>
+  <form method="POST" action="/admin/documents/upload" enctype="multipart/form-data" class="form-grid">
+    <input type="hidden" name="entity_type" value="<%= entityType %>">
+    <input type="hidden" name="entity_id" value="<%= entityId %>">
+    <div class="form-group">
+      <label>Category</label>
+      <select name="category">
+        <% DOCUMENT_CATEGORIES.forEach(c => { %><option value="<%= c %>"><%= c %></option><% }) %>
+      </select>
+    </div>
+    <div class="form-group"><label>File</label><input type="file" name="file" required></div>
+    <div class="form-group"><button class="btn btn-sm" type="submit">Upload</button></div>
+  </form>
+</div>

@@ -1,0 +1,12 @@
+<div class="admin-card">
+  <h3>History</h3>
+  <% if (history.length === 0) { %>
+    <p style="color:#8a8f90;">No activity yet.</p>
+  <% } else { %>
+    <ul style="margin:0; padding-left:20px;">
+      <% history.forEach(h => { %>
+        <li><span style="font-family: var(--font-mono); color:#8a8f90;"><%= h.date %></span> — <%= h.text %></li>
+      <% }) %>
+    </ul>
+  <% } %>
+</div>

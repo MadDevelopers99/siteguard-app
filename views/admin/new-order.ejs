@@ -30,7 +30,7 @@
             <select name="client_id">
               <option value="">— choose —</option>
               <% clients.forEach(c => { %>
-                <option value="<%= c.id %>"><%= c.name %><%= c.company ? ' — ' + c.company : '' %> (<%= c.email || 'no email' %>)</option>
+                <option value="<%= c.id %>" <%= String(preselectClientId) === String(c.id) ? 'selected' : '' %>><%= c.name %><%= c.company ? ' — ' + c.company : '' %> (<%= c.email || 'no email' %>)</option>
               <% }) %>
             </select>
           </div>

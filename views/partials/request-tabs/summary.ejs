@@ -1,0 +1,29 @@
+<div class="admin-card">
+  <h3>Summary</h3>
+  <div class="form-grid">
+    <div><strong>Client:</strong> <%= clientRow.company || clientRow.name %></div>
+    <div><strong>Request #:</strong> <%= request.request_number %></div>
+    <div><strong>Type:</strong> <%= request.request_type || '—' %></div>
+    <div><strong>Status:</strong> <%= request.status %></div>
+    <div><strong>Dates:</strong> <%= request.date_from || '—' %> &rarr; <%= request.date_to || '—' %></div>
+    <div><strong>Location:</strong> <%= location ? (location.street + (location.house_number ? ' ' + location.house_number : '') + ', ' + (location.city || '')) : '—' %></div>
+    <div><strong>KVR:</strong> <%= request.kvr_required ? request.kvr_status : 'Not Required' %></div>
+    <div><strong>Absicherung:</strong> <%= request.absicherung_required ? request.absicherung_type : 'Not Required' %></div>
+  </div>
+
+  <div style="text-align:right; margin-top:20px; font-family: var(--font-mono); font-size:22px; font-weight:600;">
+    Total: €<%= (request.total_gross || 0).toFixed(2) %>
+  </div>
+
+  <div style="margin-top:20px;">
+    <% if (order) { %>
+      <a class="btn" style="text-decoration:none;" href="/admin/orders/<%= order.id %>">View Auftrag <%= order.order_number %></a>
+    <% } else if (pricingRows.length === 0) { %>
+      <p style="color:#8a8f90;">Calculate pricing before creating the Auftrag.</p>
+    <% } else { %>
+      <form method="POST" action="/admin/requests/<%= request.id %>/create-auftrag">
+        <button class="btn" type="submit" style="font-size:16px; padding:12px 24px;">Create Auftrag</button>
+      </form>
+    <% } %>
+  </div>
+</div>

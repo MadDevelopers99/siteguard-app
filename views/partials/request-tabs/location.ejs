@@ -1,0 +1,37 @@
+<div class="admin-card">
+  <h3>Location</h3>
+  <% if (location) { %>
+    <p><strong>Current:</strong> <%= location.street %><%= location.house_number ? ' ' + location.house_number : '' %>, <%= location.zip || '' %> <%= location.city || '' %> (<%= location.location_type || 'no type' %>)</p>
+  <% } else { %>
+    <p style="color:#8a8f90;">No location set yet.</p>
+  <% } %>
+
+  <form method="POST" action="/admin/requests/<%= request.id %>/location" class="form-grid">
+    <div class="form-group">
+      <label>Select Existing Location</label>
+      <select name="location_id">
+        <option value="">— none —</option>
+        <% clientLocations.forEach(l => { %>
+          <option value="<%= l.id %>" <%= request.location_id === l.id ? 'selected' : '' %>><%= l.street %><%= l.house_number ? ' ' + l.house_number : '' %>, <%= l.city || '' %></option>
+        <% }) %>
+      </select>
+    </div>
+    <div class="form-group"><button class="btn btn-sm" type="submit">Use Selected Location</button></div>
+  </form>
+
+  <h3 style="margin-top:22px;">Or Add New Location</h3>
+  <form method="POST" action="/admin/requests/<%= request.id %>/location" class="form-grid">
+    <div class="form-group"><label>Street</label><input type="text" name="new_street"></div>
+    <div class="form-group"><label>House Number</label><input type="text" name="new_house_number"></div>
+    <div class="form-group"><label>ZIP</label><input type="text" name="new_zip"></div>
+    <div class="form-group"><label>City</label><input type="text" name="new_city"></div>
+    <div class="form-group">
+      <label>Location Type</label>
+      <select name="new_location_type">
+        <option value="">— select —</option>
+        <% REQUEST_TYPES.forEach(t => { %><option value="<%= t %>"><%= t %></option><% }) %>
+      </select>
+    </div>
+    <div class="form-group"><button class="btn btn-sm" type="submit">Add &amp; Use This Location</button></div>
+  </form>
+</div>

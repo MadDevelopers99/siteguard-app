@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Import Clients — SiteGuard Admin</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="admin-shell">
+  <%- include('../partials/admin-sidebar', { active: 'clients' }) %>
+
+  <div class="admin-main">
+    <div class="admin-topline">
+      <h1>Import Clients</h1>
+      <a href="/admin/clients" style="text-decoration:none; font-size:14px;">&larr; Back to clients</a>
+    </div>
+
+    <% if (result) { %>
+      <div class="admin-card">
+        <h3>Import Result</h3>
+        <p>Imported <strong><%= result.imported %></strong> of <%= result.total %> rows. Skipped <%= result.skipped %> (missing name/company).</p>
+      </div>
+    <% } %>
+
+    <div class="admin-card">
+      <h3>Upload CSV</h3>
+      <p style="color:#8a8f90;">First row must be a header with column names: <code>name, company, email, phone, city, client_type</code>. Only <code>name</code> or <code>company</code> is required.</p>
+      <form method="POST" action="/admin/clients/import" enctype="multipart/form-data">
+        <input type="file" name="file" accept=".csv" required>
+        <button class="btn btn-sm" type="submit" style="margin-left:10px;">Import</button>
+      </form>
+    </div>
+  </div>
+</div>
+</body>
+</html>

@@ -123,7 +123,14 @@ router.get("/orders/:id", (req, res) => {
     .prepare("SELECT * FROM order_items WHERE order_id = ?")
     .all(req.params.id);
 
-  res.render("admin/order-detail", { order, lineItems });
+  const linkedRequest = order.request_id
+    ? db.prepare("SELECT * FROM requests WHERE id = ?").get(order.request_id)
+    : null;
+  const requestPricing = linkedRequest
+    ? db.prepare("SELECT * FROM request_pricing WHERE request_id = ? ORDER BY sort_order, id").all(linkedRequest.id)
+    : [];
+
+  res.render("admin/order-detail", { order, lineItems, linkedRequest, requestPricing });
 });
 
 router.post("/orders/:id/status", (req, res) => {
@@ -139,7 +146,7 @@ router.post("/orders/:id/status", (req, res) => {
 router.get("/orders/new/form", (req, res) => {
   const items = db.prepare("SELECT * FROM items WHERE active = 1 ORDER BY category, name").all();
   const clients = db.prepare("SELECT * FROM clients ORDER BY name").all();
-  res.render("admin/new-order", { items, clients });
+  res.render("admin/new-order", { items, clients, preselectClientId: req.query.client_id || "" });
 });
 
 router.post("/orders/new", (req, res) => {
@@ -207,16 +214,13 @@ router.post("/orders/new", (req, res) => {
   }
 });
 
-// ---------- Clients list ----------
-router.get("/clients", (req, res) => {
-  const clients = db
-    .prepare(
-      `SELECT c.*, COUNT(o.id) AS order_count, COALESCE(SUM(o.total),0) AS total_spent
-       FROM clients c LEFT JOIN orders o ON o.client_id = c.id
-       GROUP BY c.id ORDER BY c.created_at DESC`
-    )
-    .all();
-  res.render("admin/clients", { clients });
-});
+// ---------- Clients (list, workspace, contacts, locations) ----------
+router.use("/clients", require("./admin-clients"));
+
+// ---------- Requests (Request-to-Auftrag builder) ----------
+router.use("/requests", require("./admin-requests"));
+
+// ---------- Documents (uploads for clients + requests) ----------
+router.use("/documents", require("./admin-documents"));
 
 module.exports = router;

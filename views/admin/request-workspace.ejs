@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title><%= displayRequestId(request.id) %> — SiteGuard Admin</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="admin-shell">
+  <%- include('../partials/admin-sidebar', { active: 'clients' }) %>
+
+  <div class="admin-main">
+    <div class="admin-topline">
+      <h1><a href="/admin/clients/<%= clientRow.id %>" style="text-decoration:none;"><%= clientRow.company || clientRow.name %></a> &raquo; <%= displayRequestId(request.id) %></h1>
+    </div>
+
+    <div class="admin-card">
+      <div class="form-grid">
+        <div><strong>Request #:</strong> <%= request.request_number %></div>
+        <div><strong>Status:</strong> <span class="badge badge-active"><%= request.status %></span></div>
+        <div><strong>Client:</strong> <%= clientRow.company || clientRow.name %></div>
+        <div><strong>Type:</strong> <%= request.request_type || '—' %></div>
+        <div><strong>Dates:</strong> <%= request.date_from || '—' %> &rarr; <%= request.date_to || '—' %></div>
+        <div><strong>Total (Gross):</strong> €<%= (request.total_gross || 0).toFixed(2) %></div>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <% const tabs = [
+        ['details', 'Details'],
+        ['location', 'Location'],
+        ['kvr', 'KVR / Permission'],
+        ['absicherung', 'Absicherung'],
+        ['inventory', 'Inventory'],
+        ['pricing', 'Pricing'],
+        ['documents', 'Documents'],
+        ['summary', 'Summary']
+      ]; %>
+      <% tabs.forEach(([key, label]) => { %>
+        <button type="button" class="tab-btn <%= tab === key ? 'active' : '' %>" data-tab="<%= key %>"><%= label %></button>
+      <% }) %>
+    </div>
+
+    <div class="tab-panel-wrap">
+      <div class="tab-panel" data-panel="details" <%= tab === 'details' ? '' : 'style="display:none;"' %>>
+        <%- include('../partials/request-tabs/details', { request, REQUEST_TYPES, URGENCY_OPTIONS }) %>
+      </div>
+      <div class="tab-panel" data-panel="location" <%= tab === 'location' ? '' : 'style="display:none;"' %>>
+        <%- include('../partials/request-tabs/location', { request, clientLocations, location, REQUEST_TYPES }) %>
+      </div>
+      <div class="tab-panel" data-panel="kvr" <%= tab === 'kvr' ? '' : 'style="display:none;"' %>>
+        <%- include('../partials/request-tabs/kvr', { request, KVR_STATUS_OPTIONS }) %>
+      </div>
+      <div class="tab-panel" data-panel="absicherung" <%= tab === 'absicherung' ? '' : 'style="display:none;"' %>>
+        <%- include('../partials/request-tabs/absicherung', { request, ABSICHERUNG_TYPE_OPTIONS }) %>
+      </div>
+      <div class="tab-panel" data-panel="inventory" <%= tab === 'inventory' ? '' : 'style="display:none;"' %>>
+        <%- include('../partials/request-tabs/inventory', { request, inventoryRows }) %>
+      </div>
+      <div class="tab-panel" data-panel="pricing" <%= tab === 'pricing' ? '' : 'style="display:none;"' %>>
+        <%- include('../partials/request-tabs/pricing', { request, pricingRows, MAP_FEE_TIERS, TRANSPORT_ZONES }) %>
+      </div>
+      <div class="tab-panel" data-panel="documents" <%= tab === 'documents' ? '' : 'style="display:none;"' %>>
+        <%- include('../partials/document-list', { entityType: 'request', entityId: request.id, documents, DOCUMENT_CATEGORIES, DOCUMENT_STATUSES }) %>
+      </div>
+      <div class="tab-panel" data-panel="summary" <%= tab === 'summary' ? '' : 'style="display:none;"' %>>
+        <%- include('../partials/request-tabs/summary', { request, clientRow, location, pricingRows, order }) %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const key = btn.dataset.tab;
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b === btn));
+      document.querySelectorAll('.tab-panel').forEach(p => {
+        p.style.display = p.dataset.panel === key ? '' : 'none';
+      });
+      const url = new URL(window.location);
+      url.searchParams.set('tab', key);
+      window.history.replaceState({}, '', url);
+    });
+  });
+</script>
+</body>
+</html>

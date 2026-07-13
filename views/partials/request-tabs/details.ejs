@@ -1,0 +1,35 @@
+<div class="admin-card">
+  <h3>Request Details</h3>
+  <form method="POST" action="/admin/requests/<%= request.id %>" class="form-grid">
+    <div class="form-group">
+      <label>Request Type</label>
+      <select name="request_type">
+        <option value="">— select —</option>
+        <% REQUEST_TYPES.forEach(t => { %><option value="<%= t %>" <%= request.request_type === t ? 'selected' : '' %>><%= t %></option><% }) %>
+      </select>
+    </div>
+    <div class="form-group"><label>Purpose</label><input type="text" name="purpose" value="<%= request.purpose || '' %>"></div>
+    <div class="form-group"><label>Date From</label><input type="date" name="date_from" value="<%= request.date_from || '' %>"></div>
+    <div class="form-group"><label>Date To</label><input type="date" name="date_to" value="<%= request.date_to || '' %>"></div>
+    <div class="form-group"><label>Time From</label><input type="time" name="time_from" value="<%= request.time_from || '' %>"></div>
+    <div class="form-group"><label>Time To</label><input type="time" name="time_to" value="<%= request.time_to || '' %>"></div>
+    <div class="form-group"><label>Number of Days</label><input type="number" name="number_of_days" min="1" value="<%= request.number_of_days || '' %>"></div>
+    <div class="form-group">
+      <label>Urgency</label>
+      <select name="urgency">
+        <% URGENCY_OPTIONS.forEach(u => { %><option value="<%= u %>" <%= request.urgency === u ? 'selected' : '' %>><%= u %></option><% }) %>
+      </select>
+    </div>
+    <div class="form-group"><label>Required Length (meters)</label><input type="number" step="0.1" name="required_length_meters" value="<%= request.required_length_meters || '' %>"></div>
+    <div class="form-group"><label>Parking Spaces</label><input type="number" name="parking_spaces" value="<%= request.parking_spaces || '' %>"></div>
+    <div class="form-group">
+      <label>Side</label>
+      <select name="side">
+        <option value="one" <%= request.side === 'one' ? 'selected' : '' %>>One Side</option>
+        <option value="both" <%= request.side === 'both' ? 'selected' : '' %>>Both Sides</option>
+      </select>
+    </div>
+    <div class="form-group full"><label>Special Instructions</label><textarea name="special_instructions" rows="3"><%= request.special_instructions || '' %></textarea></div>
+    <div class="form-group"><button class="btn btn-sm" type="submit">Save</button></div>
+  </form>
+</div>

@@ -1,0 +1,21 @@
+<div class="admin-card">
+  <h3>Absicherung</h3>
+  <form method="POST" action="/admin/requests/<%= request.id %>/absicherung" class="form-grid">
+    <div class="form-group"><label><input type="checkbox" name="absicherung_required" value="1" <%= request.absicherung_required ? 'checked' : '' %>> Absicherung Required</label></div>
+    <div class="form-group">
+      <label>Type of Absicherung</label>
+      <select name="absicherung_type">
+        <option value="">— select —</option>
+        <% ABSICHERUNG_TYPE_OPTIONS.forEach(t => { %><option value="<%= t %>" <%= request.absicherung_type === t ? 'selected' : '' %>><%= t %></option><% }) %>
+      </select>
+    </div>
+    <div class="form-group"><label><input type="checkbox" name="half_side_closure" value="1" <%= request.half_side_closure ? 'checked' : '' %>> Half-side Closure</label></div>
+    <div class="form-group"><label><input type="checkbox" name="full_closure" value="1" <%= request.full_closure ? 'checked' : '' %>> Full Closure</label></div>
+    <div class="form-group"><label><input type="checkbox" name="pedestrian_path_affected" value="1" <%= request.pedestrian_path_affected ? 'checked' : '' %>> Pedestrian Path Affected</label></div>
+    <div class="form-group"><label><input type="checkbox" name="cycle_lane_affected" value="1" <%= request.cycle_lane_affected ? 'checked' : '' %>> Cycle Lane Affected</label></div>
+    <div class="form-group"><label><input type="checkbox" name="traffic_plan_required" value="1" <%= request.traffic_plan_required ? 'checked' : '' %>> Traffic Plan Required</label></div>
+    <div class="form-group"><label><input type="checkbox" name="parked_vehicle_list_required" value="1" <%= request.parked_vehicle_list_required ? 'checked' : '' %>> Parked Vehicle List Required</label></div>
+    <div class="form-group full"><label>Safety Notes</label><textarea name="safety_notes" rows="3"><%= request.safety_notes || '' %></textarea></div>
+    <div class="form-group"><button class="btn btn-sm" type="submit">Save</button></div>
+  </form>
+</div>

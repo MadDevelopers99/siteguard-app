@@ -1,0 +1,23 @@
+<div class="admin-card">
+  <h3>Aufträge</h3>
+  <div class="data-table-wrap">
+    <table class="data-table">
+      <thead>
+        <tr><th>Order #</th><th>Date</th><th>Status</th><th>Total</th></tr>
+      </thead>
+      <tbody>
+        <% if (orders.length === 0) { %>
+          <tr><td colspan="4" style="text-align:center; color:#8a8f90;">No Aufträge yet.</td></tr>
+        <% } %>
+        <% orders.forEach(o => { %>
+          <tr>
+            <td><a class="order-link" href="/admin/orders/<%= o.id %>"><%= o.order_number %></a></td>
+            <td><%= o.created_at %></td>
+            <td><span class="badge badge-<%= o.status %>"><%= o.status %></span></td>
+            <td>€<%= o.total.toFixed(2) %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</div>

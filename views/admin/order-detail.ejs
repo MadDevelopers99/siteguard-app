@@ -50,29 +50,68 @@
       </form>
     </div>
 
-    <div class="admin-card">
-      <h3>Items</h3>
-      <div class="data-table-wrap">
-        <table class="data-table">
-          <thead>
-            <tr><th>Item</th><th>Unit Price</th><th>Qty</th><th>Line Total</th></tr>
-          </thead>
-          <tbody>
-            <% lineItems.forEach(li => { %>
-              <tr>
-                <td><%= li.item_name %></td>
-                <td>€<%= li.unit_price.toFixed(2) %></td>
-                <td><%= li.quantity %></td>
-                <td>€<%= li.line_total.toFixed(2) %></td>
-              </tr>
-            <% }) %>
-          </tbody>
-        </table>
+    <% if (linkedRequest) { %>
+      <div class="admin-card">
+        <h3>From Request <a class="order-link" href="/admin/requests/<%= linkedRequest.id %>"><%= linkedRequest.request_number %></a></h3>
+        <div class="form-grid">
+          <div><strong>Request Type:</strong> <%= linkedRequest.request_type || '—' %></div>
+          <div><strong>KVR:</strong> <%= linkedRequest.kvr_required ? linkedRequest.kvr_status : 'Not Required' %></div>
+          <div><strong>Absicherung:</strong> <%= linkedRequest.absicherung_required ? linkedRequest.absicherung_type : 'Not Required' %></div>
+        </div>
       </div>
-      <div style="text-align:right; margin-top:14px; font-family: var(--font-mono); font-size:20px; font-weight:600;">
-        Total: €<%= order.total.toFixed(2) %>
+
+      <div class="admin-card">
+        <h3>Pricing Breakdown</h3>
+        <div class="data-table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr><th>Price Item</th><th>Calculation Type</th><th>Qty</th><th>Unit Price</th><th>Days</th><th>Net Total</th></tr>
+            </thead>
+            <tbody>
+              <% requestPricing.forEach(p => { %>
+                <tr>
+                  <td><%= p.price_item %></td>
+                  <td><%= p.calculation_type %></td>
+                  <td><%= p.qty %></td>
+                  <td>€<%= p.unit_price.toFixed(2) %></td>
+                  <td><%= p.days || '—' %></td>
+                  <td>€<%= p.net_total.toFixed(2) %></td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+        <div style="text-align:right; margin-top:14px; font-family: var(--font-mono);">
+          <div>Subtotal Net: €<%= (linkedRequest.subtotal_net || 0).toFixed(2) %></div>
+          <div>VAT <%= linkedRequest.vat_rate || 19 %>%: €<%= (linkedRequest.vat_amount || 0).toFixed(2) %></div>
+          <div style="font-size:20px; font-weight:600;">Total Gross: €<%= order.total.toFixed(2) %></div>
+        </div>
       </div>
-    </div>
+    <% } else { %>
+      <div class="admin-card">
+        <h3>Items</h3>
+        <div class="data-table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr><th>Item</th><th>Unit Price</th><th>Qty</th><th>Line Total</th></tr>
+            </thead>
+            <tbody>
+              <% lineItems.forEach(li => { %>
+                <tr>
+                  <td><%= li.item_name %></td>
+                  <td>€<%= li.unit_price.toFixed(2) %></td>
+                  <td><%= li.quantity %></td>
+                  <td>€<%= li.line_total.toFixed(2) %></td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+        <div style="text-align:right; margin-top:14px; font-family: var(--font-mono); font-size:20px; font-weight:600;">
+          Total: €<%= order.total.toFixed(2) %>
+        </div>
+      </div>
+    <% } %>
   </div>
 </div>
 </body>
