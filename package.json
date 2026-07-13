@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "Ordering website + admin panel for a construction-site barrier & signage company",
   "main": "server.js",
+  "engines": {
+    "node": ">=22.5.0"
+  },
   "scripts": {
     "start": "node server.js",
     "seed": "node db/seed.js"
