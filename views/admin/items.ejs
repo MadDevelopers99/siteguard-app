@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Items — SiteGuard Admin</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="admin-shell">
+  <%- include('../partials/admin-sidebar', { active: 'items' }) %>
+
+  <div class="admin-main">
+    <div class="admin-topline">
+      <h1>Items</h1>
+      <a class="btn btn-sm" style="text-decoration:none;" href="/admin/items/new">+ New Item</a>
+    </div>
+
+    <p style="color:var(--steel); margin:-14px 0 20px; font-size:14px;">
+      These are the products shown on the public ordering site. Inactive items are hidden from customers but kept for order history.
+    </p>
+
+    <form class="filter-bar" method="GET" action="/admin/items">
+      <input type="text" name="q" placeholder="Search name or SKU…" value="<%= filters.q %>">
+      <select name="category">
+        <option value="">All categories</option>
+        <% categories.forEach(c => { %>
+          <option value="<%= c %>" <%= filters.category === c ? 'selected' : '' %>><%= c %></option>
+        <% }) %>
+      </select>
+      <select name="status">
+        <option value="">All statuses</option>
+        <option value="active" <%= filters.status === 'active' ? 'selected' : '' %>>Active</option>
+        <option value="inactive" <%= filters.status === 'inactive' ? 'selected' : '' %>>Inactive</option>
+      </select>
+      <button class="btn btn-outline btn-sm" type="submit">Filter</button>
+    </form>
+
+    <div class="data-table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>SKU</th><th>Name</th><th>Category</th><th>Price</th><th>Unit</th><th>Status</th><th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (items.length === 0) { %>
+            <tr><td colspan="7" style="text-align:center; color:#8a8f90;">No items match these filters.</td></tr>
+          <% } %>
+          <% items.forEach(i => { %>
+            <tr>
+              <td><%= i.sku %></td>
+              <td><%= i.name %></td>
+              <td><%= i.category || '—' %></td>
+              <td>€<%= i.price.toFixed(2) %></td>
+              <td><%= i.unit %></td>
+              <td><span class="badge badge-<%= i.active ? 'active' : 'inactive' %>"><%= i.active ? 'Active' : 'Inactive' %></span></td>
+              <td style="display:flex; gap:6px;">
+                <a class="btn btn-outline btn-sm" style="text-decoration:none;" href="/admin/items/<%= i.id %>/edit">Edit</a>
+                <form method="POST" action="/admin/items/<%= i.id %>/toggle" style="margin:0;">
+                  <button type="submit" class="btn btn-outline btn-sm"><%= i.active ? 'Deactivate' : 'Activate' %></button>
+                </form>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+</body>
+</html>

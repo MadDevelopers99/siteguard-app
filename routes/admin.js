@@ -220,6 +220,9 @@ router.use("/clients", require("./admin-clients"));
 // ---------- Requests (Request-to-Auftrag builder) ----------
 router.use("/requests", require("./admin-requests"));
 
+// ---------- Items (public storefront catalog) ----------
+router.use("/items", require("./admin-items"));
+
 // Note: /admin/documents is mounted directly in server.js (not here) so it's
 // reachable by Main Admin and Driver sessions too, not just Office Admin.
 

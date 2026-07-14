@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title><%= item ? 'Edit Item' : 'New Item' %> — SiteGuard Admin</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="admin-shell">
+  <%- include('../partials/admin-sidebar', { active: item ? 'items' : 'new-item' }) %>
+
+  <div class="admin-main">
+    <div class="admin-topline">
+      <h1><%= item && item.id ? 'Edit Item' : 'New Item' %></h1>
+      <a href="/admin/items" style="text-decoration:none; font-size:14px;">&larr; Back to items</a>
+    </div>
+
+    <% if (typeof error !== 'undefined' && error) { %>
+      <div class="error-msg"><%= error %></div>
+    <% } %>
+
+    <form method="POST" action="<%= item && item.id ? '/admin/items/' + item.id : '/admin/items' %>">
+      <div class="admin-card">
+        <div class="form-grid">
+          <div class="form-group"><label>SKU *</label><input type="text" name="sku" value="<%= item ? item.sku : '' %>" required></div>
+          <div class="form-group"><label>Name *</label><input type="text" name="name" value="<%= item ? item.name : '' %>" required></div>
+          <div class="form-group">
+            <label>Category</label>
+            <input type="text" name="category" value="<%= item ? (item.category || '') : '' %>" list="category-list">
+            <datalist id="category-list">
+              <% categories.forEach(c => { %><option value="<%= c %>"><% }) %>
+            </datalist>
+          </div>
+          <div class="form-group"><label>Price (€) *</label><input type="number" step="0.01" name="price" value="<%= item ? item.price : '' %>" required></div>
+          <div class="form-group"><label>Unit</label><input type="text" name="unit" value="<%= item ? (item.unit || 'piece') : 'piece' %>"></div>
+          <div class="form-group"><label><input type="checkbox" name="active" value="1" <%= !item || item.active ? 'checked' : '' %>> Active (visible on public site)</label></div>
+        </div>
+        <div class="form-group full" style="margin-top:10px;">
+          <label>Description</label>
+          <textarea name="description" rows="3"><%= item ? (item.description || '') : '' %></textarea>
+        </div>
+      </div>
+
+      <button class="btn" type="submit" style="font-size:16px; padding:12px 24px;"><%= item && item.id ? 'Save Changes' : 'Create Item' %></button>
+    </form>
+  </div>
+</div>
+</body>
+</html>
