@@ -197,7 +197,7 @@ CREATE TABLE IF NOT EXISTS request_pricing (
 
 CREATE TABLE IF NOT EXISTS documents (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  entity_type TEXT NOT NULL, -- 'client' or 'request'
+  entity_type TEXT NOT NULL, -- 'client', 'request', or 'order'
   entity_id INTEGER NOT NULL,
   category TEXT DEFAULT 'Other',
   original_name TEXT NOT NULL,
@@ -206,6 +206,74 @@ CREATE TABLE IF NOT EXISTS documents (
   status TEXT DEFAULT 'Uploaded',
   version INTEGER DEFAULT 1,
   created_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS drivers (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  email TEXT UNIQUE NOT NULL,
+  password_hash TEXT NOT NULL,
+  phone TEXT,
+  status TEXT DEFAULT 'Available', -- Available, Assigned, On Work, Loading, Unloading, On Break, Sick Leave, Absent, Completed
+  current_location TEXT,
+  created_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS order_operational_planning (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  order_id INTEGER UNIQUE NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
+  priority TEXT DEFAULT 'Normal',
+  execution_date TEXT,
+  setup_date TEXT,
+  setup_time TEXT,
+  removal_date TEXT,
+  removal_time TEXT,
+  expected_duration TEXT,
+  drivers_needed INTEGER DEFAULT 1,
+  vehicle_required TEXT,
+  special_equipment TEXT,
+  warehouse_prep_needed INTEGER DEFAULT 0,
+  route_notes TEXT,
+  internal_notes TEXT,
+  updated_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS order_driver_assignment (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  order_id INTEGER UNIQUE NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
+  primary_driver_id INTEGER REFERENCES drivers(id),
+  second_driver_id INTEGER REFERENCES drivers(id),
+  vehicle TEXT,
+  loading_time TEXT,
+  setup_time TEXT,
+  removal_time TEXT,
+  driver_instructions TEXT,
+  driver_checklist TEXT,
+  tablet_map_required INTEGER DEFAULT 1,
+  documents_visible_to_driver INTEGER DEFAULT 1,
+  driver_app_status TEXT DEFAULT 'Not Sent',
+  current_location TEXT,
+  issue_note TEXT,
+  driver_notes TEXT,
+  completion_time TEXT,
+  completion_status TEXT DEFAULT 'Waiting for Driver Submission',
+  signed_by_driver INTEGER DEFAULT 0,
+  updated_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS order_map (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  order_id INTEGER UNIQUE NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
+  map_status TEXT DEFAULT 'Map Needed',
+  sign_points TEXT,
+  lines TEXT,
+  polygons TEXT,
+  work_zone TEXT,
+  street_side TEXT,
+  setup_confirmed INTEGER DEFAULT 0,
+  driver_field_markings TEXT,
+  notes TEXT,
+  updated_at TEXT DEFAULT (datetime('now'))
 );
 
 CREATE INDEX IF NOT EXISTS idx_requests_client ON requests(client_id);
@@ -247,8 +315,44 @@ function ensureColumn(table, column, definition) {
 
 [
   ["request_id", "INTEGER REFERENCES requests(id)"],
-  ["location_id", "INTEGER REFERENCES client_locations(id)"]
+  ["location_id", "INTEGER REFERENCES client_locations(id)"],
+  ["main_admin_status", "TEXT DEFAULT 'Received from Office Admin'"],
+  ["return_reason", "TEXT"],
+  ["return_note", "TEXT"]
 ].forEach(([column, definition]) => ensureColumn("orders", column, definition));
+
+[["role", "TEXT DEFAULT 'office_admin'"]].forEach(([column, definition]) =>
+  ensureColumn("admins", column, definition)
+);
+
+[
+  ["main_admin_approved_qty", "REAL"],
+  ["main_admin_status", "TEXT DEFAULT 'Pending Review'"],
+  ["issued_qty", "REAL"],
+  ["used_qty", "REAL"],
+  ["returned_qty", "REAL"],
+  ["damaged_qty", "REAL"],
+  ["missing_qty", "REAL"],
+  ["final_status", "TEXT"]
+].forEach(([column, definition]) => ensureColumn("request_inventory", column, definition));
+
+// ---------- Main Admin account seed ----------
+// Idempotent, same pattern as the inventory catalog seed below: creates a second
+// admin role ("main_admin") on first boot if one doesn't already exist.
+const mainAdminCount = db.prepare("SELECT COUNT(*) AS n FROM admins WHERE role = 'main_admin'").get().n;
+if (mainAdminCount === 0) {
+  const bcrypt = require("bcryptjs");
+  const email = process.env.MAIN_ADMIN_EMAIL || "mainadmin@siteguard.de";
+  const password = process.env.MAIN_ADMIN_PASSWORD || "ChangeMe123!";
+  const name = process.env.MAIN_ADMIN_NAME || "Main Admin";
+  const hash = bcrypt.hashSync(password, 10);
+  db.prepare("INSERT INTO admins (email, password_hash, name, role) VALUES (?, ?, ?, 'main_admin')").run(
+    email,
+    hash,
+    name
+  );
+  console.log(`Created Main Admin account -> email: ${email} / password: ${password}`);
+}
 
 // ---------- Inventory catalog seed ----------
 // Materials used for Halteverbot/Absicherung planning (distinct from the public

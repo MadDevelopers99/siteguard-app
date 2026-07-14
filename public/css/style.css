@@ -264,6 +264,9 @@ table.data-table tr:hover td { background: #fbfaf7; }
 .login-card .brand { color: var(--ink); margin-bottom: 24px; }
 .login-card .brand .mark { }
 .error-msg { background: #f8d7da; color: #a12631; padding: 10px 14px; border-radius: var(--radius); font-size: 13px; margin-bottom: 16px; }
+.login-switch { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--concrete-2); font-size: 13px; color: var(--steel); text-align: center; }
+.login-switch a { color: var(--amber-dark); text-decoration: none; }
+.login-switch a:hover { text-decoration: underline; }
 
 .order-line-item-row { display: flex; gap: 10px; align-items: end; margin-bottom: 10px; }
 .order-line-item-row select { flex: 3; }
@@ -288,6 +291,34 @@ table.data-table tr:hover td { background: #fbfaf7; }
 .badge-blocked { background: #f8d7da; color: #a12631; }
 
 footer.site-footer { background: var(--charcoal); color: #9aa6a9; padding: 24px 32px; font-size: 13px; text-align:center; }
+
+/* ---------- Driver app (mobile/tablet, single column) ---------- */
+.driver-shell { max-width: 480px; margin: 0 auto; min-height: 100vh; background: var(--concrete); }
+.driver-topbar {
+  background: var(--charcoal); color: #fff; padding: 16px 20px;
+  display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 5;
+}
+.driver-topbar .brand { font-family: var(--font-display); font-size: 20px; }
+.driver-topbar a, .driver-topbar button { color: #cfd6d8; font-size: 13px; background: none; border: none; cursor: pointer; }
+.driver-main { padding: 16px; }
+.driver-card { background: #fff; border: 1px solid var(--concrete-2); border-radius: var(--radius); padding: 16px; margin-bottom: 14px; }
+.driver-card h3 { font-family: var(--font-display); font-size: 18px; margin: 0 0 10px; }
+.driver-job-item {
+  display: block; padding: 14px; border-bottom: 1px solid var(--concrete-2);
+  text-decoration: none; color: inherit;
+}
+.driver-job-item:last-child { border-bottom: none; }
+.driver-job-item .job-title { font-weight: 700; font-size: 15px; }
+.driver-job-item .job-meta { font-size: 13px; color: var(--steel); margin-top: 3px; }
+.driver-btn-lg {
+  display: block; width: 100%; padding: 16px; font-size: 16px; font-weight: 700; text-align: center;
+  background: var(--amber); color: var(--charcoal); border: none; border-radius: var(--radius);
+  margin-bottom: 10px; cursor: pointer; text-decoration: none; box-sizing: border-box;
+}
+.driver-btn-lg.outline { background: #fff; border: 2px solid var(--charcoal); color: var(--charcoal); }
+.driver-field { margin-bottom: 12px; }
+.driver-field label { display: block; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--steel); margin-bottom: 5px; }
+.driver-field input, .driver-field select, .driver-field textarea { width: 100%; padding: 12px; border: 1px solid var(--concrete-2); border-radius: var(--radius); font-family: var(--font-body); font-size: 15px; box-sizing: border-box; }
 
 @media (max-width: 700px) {
   .hero h1 { font-size: 36px; }

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Main Admin Dashboard — SiteGuard</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="admin-shell">
+  <%- include('../partials/main-admin-sidebar', { active: 'dashboard' }) %>
+
+  <div class="admin-main">
+    <div class="admin-topline">
+      <h1>Main Admin Dashboard</h1>
+      <form class="logout-form" method="POST" action="/main-admin/logout">
+        <button type="submit">Log out (<%= mainAdminName %>)</button>
+      </form>
+    </div>
+
+    <p style="color:var(--steel); margin:-14px 0 20px; font-size:14px;">
+      Operational overview — what needs attention right now.
+    </p>
+
+    <div class="stat-row">
+      <div class="stat-card"><span class="num"><%= stats.incoming %></span><span class="label">Incoming Aufträge</span></div>
+      <div class="stat-card"><span class="num"><%= stats.pendingReview %></span><span class="label">Pending Review</span></div>
+      <div class="stat-card"><span class="num"><%= stats.readyToAssign %></span><span class="label">Ready to Assign</span></div>
+      <div class="stat-card"><span class="num"><%= stats.assignedToday %></span><span class="label">Assigned Today</span></div>
+    </div>
+    <div class="stat-row">
+      <div class="stat-card"><span class="num"><%= stats.activeFieldWork %></span><span class="label">Active Field Work</span></div>
+      <div class="stat-card"><span class="num"><%= stats.driverCompleted %></span><span class="label">Driver Completed</span></div>
+      <div class="stat-card"><span class="num"><%= stats.inventoryIssues %></span><span class="label">Inventory Issues</span></div>
+      <div class="stat-card"><span class="num"><%= stats.completed %></span><span class="label">Completed Aufträge</span></div>
+    </div>
+
+    <div class="admin-card">
+      <h3>Quick Links</h3>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <a class="btn btn-outline btn-sm" style="text-decoration:none;" href="/main-admin/auftraege?status=Received%20from%20Office%20Admin">View Incoming</a>
+        <a class="btn btn-outline btn-sm" style="text-decoration:none;" href="/main-admin/auftraege">All Aufträge</a>
+        <a class="btn btn-outline btn-sm" style="text-decoration:none;" href="/main-admin/settings">Manage Drivers</a>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

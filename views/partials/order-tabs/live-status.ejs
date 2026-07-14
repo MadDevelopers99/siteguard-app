@@ -1,0 +1,30 @@
+<div class="admin-card">
+  <h3>Live Driver Status</h3>
+  <div class="form-grid">
+    <div><strong>Driver:</strong> <%= primaryDriver ? primaryDriver.name : '—' %><%= secondDriver ? ' + ' + secondDriver.name : '' %></div>
+    <div><strong>Status:</strong> <span class="badge badge-<%= statusBadgeClass(assignment.driver_app_status) %>"><%= assignment.driver_app_status %></span></div>
+    <div><strong>Location:</strong> <%= assignment.current_location || '—' %></div>
+    <div><strong>Last Update:</strong> <%= assignment.updated_at %></div>
+    <div><strong>Issue:</strong> <%= assignment.issue_note || 'None' %></div>
+  </div>
+
+  <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:16px;">
+    <% if (primaryDriver && primaryDriver.phone) { %>
+      <a class="btn btn-outline btn-sm" style="text-decoration:none;" href="tel:<%= primaryDriver.phone %>">Call Driver</a>
+    <% } %>
+    <form method="POST" action="/main-admin/auftraege/<%= order.id %>/reassign-driver" style="margin:0;" onsubmit="return confirm('Unassign the current driver?');">
+      <button type="submit" class="btn btn-outline btn-sm">Reassign Driver</button>
+    </form>
+    <form method="POST" action="/main-admin/auftraege/<%= order.id %>/emergency" style="margin:0;" onsubmit="return confirm('Mark this Auftrag as an emergency?');">
+      <button type="submit" class="btn btn-outline btn-sm">Mark Emergency</button>
+    </form>
+  </div>
+</div>
+
+<div class="admin-card">
+  <h3>Report Issue</h3>
+  <form method="POST" action="/main-admin/auftraege/<%= order.id %>/report-issue" class="form-grid">
+    <div class="form-group full"><label>Issue Note</label><textarea name="issue_note" rows="2"><%= assignment.issue_note || '' %></textarea></div>
+    <div class="form-group"><button class="btn btn-sm" type="submit">Save Issue Note</button></div>
+  </form>
+</div>

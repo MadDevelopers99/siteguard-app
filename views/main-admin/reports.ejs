@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reports — SiteGuard Main Admin</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="admin-shell">
+  <%- include('../partials/main-admin-sidebar', { active: 'reports' }) %>
+
+  <div class="admin-main">
+    <div class="admin-topline">
+      <h1>Reports</h1>
+      <form class="logout-form" method="POST" action="/main-admin/logout">
+        <button type="submit">Log out (<%= mainAdminName %>)</button>
+      </form>
+    </div>
+
+    <div class="admin-card">
+      <h3>Aufträge by Status</h3>
+      <div class="data-table-wrap">
+        <table class="data-table">
+          <thead><tr><th>Status</th><th>Count</th></tr></thead>
+          <tbody>
+            <% byStatus.forEach(s => { %>
+              <tr><td><%= s.status %></td><td><%= s.n %></td></tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="admin-card">
+      <h3>Inventory Issues</h3>
+      <div class="data-table-wrap">
+        <table class="data-table">
+          <thead><tr><th>Item</th><th>Issue</th><th>Count</th></tr></thead>
+          <tbody>
+            <% if (inventoryIssues.length === 0) { %>
+              <tr><td colspan="3" style="text-align:center; color:#8a8f90;">No inventory issues.</td></tr>
+            <% } %>
+            <% inventoryIssues.forEach(i => { %>
+              <tr><td><%= i.item_name %></td><td><%= i.main_admin_status %></td><td><%= i.n %></td></tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="admin-card">
+      <h3>Completed (Last 7 Days)</h3>
+      <div class="data-table-wrap">
+        <table class="data-table">
+          <thead><tr><th>Day</th><th>Completed</th></tr></thead>
+          <tbody>
+            <% if (completedLast7Days.length === 0) { %>
+              <tr><td colspan="2" style="text-align:center; color:#8a8f90;">No completions in the last 7 days.</td></tr>
+            <% } %>
+            <% completedLast7Days.forEach(d => { %>
+              <tr><td><%= d.day %></td><td><%= d.n %></td></tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

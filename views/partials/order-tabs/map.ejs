@@ -1,0 +1,19 @@
+<div class="admin-card">
+  <h3>Map & Field Control</h3>
+  <form method="POST" action="/main-admin/auftraege/<%= order.id %>/map" class="form-grid">
+    <div class="form-group">
+      <label>Map Status</label>
+      <select name="map_status">
+        <% MAP_STATUS_OPTIONS.forEach(s => { %><option value="<%= s %>" <%= map.map_status === s ? 'selected' : '' %>><%= s %></option><% }) %>
+      </select>
+    </div>
+    <div class="form-group"><label>Street Side</label><input type="text" name="street_side" value="<%= map.street_side || '' %>"></div>
+    <div class="form-group"><label><input type="checkbox" name="setup_confirmed" value="1" <%= map.setup_confirmed ? 'checked' : '' %>> Setup Confirmation</label></div>
+    <div class="form-group full"><label>Sign Points</label><textarea name="sign_points" rows="2" placeholder="e.g. Point A: 48.15,11.55"><%= map.sign_points || '' %></textarea></div>
+    <div class="form-group full"><label>Lines</label><textarea name="lines" rows="2"><%= map.lines || '' %></textarea></div>
+    <div class="form-group full"><label>Polygons / Work Zone</label><textarea name="work_zone" rows="2"><%= map.work_zone || '' %></textarea></div>
+    <div class="form-group full"><label>Notes</label><textarea name="notes" rows="2"><%= map.notes || '' %></textarea></div>
+    <div class="form-group"><button class="btn btn-sm" type="submit">Save Map Details</button></div>
+  </form>
+  <p style="color:#8a8f90; margin-top:14px;">Upload the office/operational/driver map files below (category "Map").</p>
+</div>

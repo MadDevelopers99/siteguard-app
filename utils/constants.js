@@ -73,6 +73,107 @@ const DOCUMENT_CATEGORIES = [
 
 const DOCUMENT_STATUSES = ["Uploaded", "Ready", "Needs Review", "Missing", "Rejected", "Replaced", "Approved"];
 
+// ---------- Main Admin / Driver workflow ----------
+
+const MAIN_ADMIN_STATUSES = [
+  "Received from Office Admin",
+  "Pending Main Admin Review",
+  "Returned to Office Admin",
+  "Approved for Operation",
+  "Inventory Review",
+  "Inventory Approved",
+  "Ready for Driver Assignment",
+  "Driver Assigned",
+  "Sent to Driver",
+  "Accepted by Driver",
+  "Driver Loading",
+  "On Route",
+  "Arrived on Site",
+  "In Progress",
+  "Driver Completed",
+  "Waiting Main Admin Review",
+  "Returned to Driver",
+  "Completion Approved",
+  "Completed",
+  "Sent Back to Office Admin",
+  "Archived",
+  "Cancelled"
+];
+
+const RETURN_REASONS = [
+  "KVR missing",
+  "Map unclear",
+  "Inventory plan wrong",
+  "Date/time conflict",
+  "Location incomplete",
+  "Absicherung unclear",
+  "Documents missing",
+  "Price issue",
+  "Other"
+];
+
+const INVENTORY_APPROVAL_STATUSES = [
+  "Pending Review",
+  "Edited by Main Admin",
+  "Approved for Warehouse",
+  "Needs Warehouse Check",
+  "Low Stock Warning",
+  "Not Available",
+  "Substitute Required",
+  "Ready for Driver Loading"
+];
+
+const DRIVER_STATUS_OPTIONS = [
+  "Available",
+  "Assigned",
+  "On Work",
+  "Loading",
+  "Unloading",
+  "On Break",
+  "Sick Leave",
+  "Absent",
+  "Completed"
+];
+
+const DRIVER_APP_STATUS_OPTIONS = [
+  "Not Sent",
+  "Sent to Driver",
+  "Accepted",
+  "Loading",
+  "On Route",
+  "Arrived",
+  "In Progress",
+  "Blocked",
+  "Setup Completed",
+  "Removal Completed",
+  "Submitted for Review"
+];
+
+const MAP_STATUS_OPTIONS = [
+  "Map Needed",
+  "Map Received",
+  "Map Edited",
+  "Map Approved",
+  "Sent to Driver",
+  "Driver Updated Map",
+  "Needs Correction",
+  "Final Map Approved"
+];
+
+const COMPLETION_STATUS_OPTIONS = [
+  "Waiting for Driver Submission",
+  "Submitted by Driver",
+  "Photos Missing",
+  "Inventory Report Missing",
+  "Map Update Missing",
+  "Needs Driver Correction",
+  "Ready for Main Admin Review",
+  "Approved by Main Admin",
+  "Rejected / Returned to Driver"
+];
+
+const PRIORITY_OPTIONS = ["Normal", "High", "Urgent"];
+
 module.exports = {
   REQUEST_TYPES,
   URGENCY_OPTIONS,
@@ -82,5 +183,13 @@ module.exports = {
   TRANSPORT_ZONES,
   REQUEST_STATUSES,
   DOCUMENT_CATEGORIES,
-  DOCUMENT_STATUSES
+  DOCUMENT_STATUSES,
+  MAIN_ADMIN_STATUSES,
+  RETURN_REASONS,
+  INVENTORY_APPROVAL_STATUSES,
+  DRIVER_STATUS_OPTIONS,
+  DRIVER_APP_STATUS_OPTIONS,
+  MAP_STATUS_OPTIONS,
+  COMPLETION_STATUS_OPTIONS,
+  PRIORITY_OPTIONS
 };

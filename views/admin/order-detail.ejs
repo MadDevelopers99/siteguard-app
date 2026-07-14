@@ -50,6 +50,19 @@
       </form>
     </div>
 
+    <div class="admin-card">
+      <h3>Operations (Main Admin)</h3>
+      <div class="form-grid">
+        <div><strong>Status:</strong> <span class="badge badge-<%= statusBadgeClass(order.main_admin_status) %>"><%= order.main_admin_status %></span></div>
+        <% if (order.return_reason) { %>
+          <div><strong>Return Reason:</strong> <%= order.return_reason %></div>
+        <% } %>
+      </div>
+      <% if (order.return_note) { %>
+        <p style="margin-top:10px; color:#8a8f90;"><%= order.return_note %></p>
+      <% } %>
+    </div>
+
     <% if (linkedRequest) { %>
       <div class="admin-card">
         <h3>From Request <a class="order-link" href="/admin/requests/<%= linkedRequest.id %>"><%= linkedRequest.request_number %></a></h3>

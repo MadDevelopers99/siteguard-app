@@ -1,0 +1,75 @@
+<div class="admin-card">
+  <h3>Driver Completion</h3>
+  <div class="form-grid">
+    <div><strong>Completion Status:</strong> <%= assignment.completion_status %></div>
+    <div><strong>Completion Time:</strong> <%= assignment.completion_time || '—' %></div>
+    <div><strong>Signed by Driver:</strong> <%= assignment.signed_by_driver ? 'Yes' : 'No' %></div>
+  </div>
+  <div style="margin-top:12px;">
+    <strong>Driver Notes:</strong>
+    <p style="color:#8a8f90;"><%= assignment.driver_notes || 'No notes submitted yet.' %></p>
+  </div>
+</div>
+
+<div class="admin-card">
+  <h3>Photos &amp; Parked Vehicle List</h3>
+  <div class="data-table-wrap">
+    <table class="data-table">
+      <thead><tr><th>File</th><th>Category</th><th>Uploaded By</th><th>Date</th></tr></thead>
+      <tbody>
+        <% const photoDocs = documents.filter(d => ['Photos', 'Other'].includes(d.category)); %>
+        <% if (photoDocs.length === 0) { %>
+          <tr><td colspan="4" style="text-align:center; color:#8a8f90;">No photos submitted yet.</td></tr>
+        <% } %>
+        <% photoDocs.forEach(d => { %>
+          <tr>
+            <td><a class="order-link" href="/admin/documents/<%= d.id %>/download"><%= d.original_name %></a></td>
+            <td><%= d.category %></td>
+            <td><%= d.uploaded_by || '—' %></td>
+            <td><%= d.created_at %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="admin-card">
+  <h3>Material Report (submitted by driver)</h3>
+  <div class="data-table-wrap">
+    <table class="data-table">
+      <thead><tr><th>Item</th><th>Used</th><th>Returned</th><th>Damaged</th><th>Missing</th></tr></thead>
+      <tbody>
+        <% if (inventoryRows.length === 0) { %>
+          <tr><td colspan="5" style="text-align:center; color:#8a8f90;">No inventory to report.</td></tr>
+        <% } %>
+        <% inventoryRows.forEach(r => { %>
+          <tr>
+            <td><%= r.item_name %></td>
+            <td><%= r.used_qty ?? '—' %></td>
+            <td><%= r.returned_qty ?? '—' %></td>
+            <td><%= r.damaged_qty ?? '—' %></td>
+            <td><%= r.missing_qty ?? '—' %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="admin-card">
+  <h3>Decision</h3>
+  <div style="display:flex; gap:10px; flex-wrap:wrap;">
+    <form method="POST" action="/main-admin/auftraege/<%= order.id %>/completion/approve" style="margin:0;">
+      <button type="submit" class="btn btn-sm">Approve Completion</button>
+    </form>
+    <form method="POST" action="/main-admin/auftraege/<%= order.id %>/completion/return" style="margin:0;">
+      <input type="hidden" name="completion_status" value="Needs Driver Correction">
+      <button type="submit" class="btn btn-outline btn-sm">Return to Driver</button>
+    </form>
+    <form method="POST" action="/main-admin/auftraege/<%= order.id %>/completion/return" style="margin:0;">
+      <input type="hidden" name="completion_status" value="Photos Missing">
+      <button type="submit" class="btn btn-outline btn-sm">Request More Photos</button>
+    </form>
+  </div>
+</div>

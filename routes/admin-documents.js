@@ -17,6 +17,18 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage, limits: { fileSize: 20 * 1024 * 1024 } });
 
+function uploaderName(req) {
+  return req.session.adminName || req.session.mainAdminName || req.session.driverName || "User";
+}
+
+function backToFor(req, entityType, entityId) {
+  if (entityType === "client") return `/admin/clients/${entityId}?tab=documents`;
+  if (entityType === "request") return `/admin/requests/${entityId}?tab=documents`;
+  // entityType === "order"
+  if (req.session.driverId) return `/driver/jobs/${entityId}`;
+  return `/main-admin/auftraege/${entityId}?tab=map`;
+}
+
 router.post("/upload", upload.single("file"), (req, res) => {
   const { entity_type, entity_id, category } = req.body;
   if (!req.file || !entity_type || !entity_id) {
@@ -26,12 +38,9 @@ router.post("/upload", upload.single("file"), (req, res) => {
   db.prepare(
     `INSERT INTO documents (entity_type, entity_id, category, original_name, stored_filename, uploaded_by, status)
      VALUES (?, ?, ?, ?, ?, ?, 'Uploaded')`
-  ).run(entity_type, entity_id, category || "Other", req.file.originalname, req.file.filename, req.session.adminName || "Admin");
+  ).run(entity_type, entity_id, category || "Other", req.file.originalname, req.file.filename, uploaderName(req));
 
-  const backTo = entity_type === "client"
-    ? `/admin/clients/${entity_id}?tab=documents`
-    : `/admin/requests/${entity_id}?tab=documents`;
-  res.redirect(backTo);
+  res.redirect(backToFor(req, entity_type, entity_id));
 });
 
 router.get("/:id/download", (req, res) => {
@@ -44,10 +53,7 @@ router.post("/:id/status", (req, res) => {
   const doc = db.prepare("SELECT * FROM documents WHERE id = ?").get(req.params.id);
   if (!doc) return res.status(404).send("Document not found");
   db.prepare("UPDATE documents SET status = ? WHERE id = ?").run(req.body.status, req.params.id);
-  const backTo = doc.entity_type === "client"
-    ? `/admin/clients/${doc.entity_id}?tab=documents`
-    : `/admin/requests/${doc.entity_id}?tab=documents`;
-  res.redirect(backTo);
+  res.redirect(backToFor(req, doc.entity_type, doc.entity_id));
 });
 
 router.post("/:id/delete", (req, res) => {
@@ -55,10 +61,7 @@ router.post("/:id/delete", (req, res) => {
   if (!doc) return res.status(404).send("Document not found");
   db.prepare("DELETE FROM documents WHERE id = ?").run(req.params.id);
   fs.unlink(path.join(uploadsDir, doc.stored_filename), () => {});
-  const backTo = doc.entity_type === "client"
-    ? `/admin/clients/${doc.entity_id}?tab=documents`
-    : `/admin/requests/${doc.entity_id}?tab=documents`;
-  res.redirect(backTo);
+  res.redirect(backToFor(req, doc.entity_type, doc.entity_id));
 });
 
 module.exports = router;

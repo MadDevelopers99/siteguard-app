@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title><%= order.order_number %> — SiteGuard Main Admin</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="admin-shell">
+  <%- include('../partials/main-admin-sidebar', { active: 'auftraege' }) %>
+
+  <div class="admin-main">
+    <div class="admin-topline">
+      <h1><a href="/main-admin/auftraege" style="text-decoration:none;">Aufträge</a> &raquo; <%= order.order_number %></h1>
+    </div>
+
+    <div class="admin-card">
+      <div class="form-grid">
+        <div><strong>Client:</strong> <%= order.client_company || order.client_name %></div>
+        <div><strong>Status:</strong> <span class="badge badge-<%= statusBadgeClass(order.main_admin_status) %>"><%= order.main_admin_status %></span></div>
+        <div><strong>Type:</strong> <%= request ? (request.request_type || '—') : '—' %></div>
+        <div><strong>Location:</strong> <%= location ? (location.street + ', ' + (location.city || '')) : '—' %></div>
+        <div><strong>Dates:</strong> <%= request ? (request.date_from || '—') + ' → ' + (request.date_to || '—') : '—' %></div>
+        <div><strong>Driver:</strong> <%= primaryDriver ? primaryDriver.name : 'Not assigned' %></div>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <% const tabs = [
+        ['review', 'Auftrag Review'],
+        ['planning', 'Operational Planning'],
+        ['inventory', 'Inventory Approval'],
+        ['assignment', 'Driver Assignment'],
+        ['live-status', 'Live Status'],
+        ['map', 'Map & Field Control'],
+        ['completion', 'Driver Completion'],
+        ['final-inventory', 'Final Inventory']
+      ]; %>
+      <% tabs.forEach(([key, label]) => { %>
+        <button type="button" class="tab-btn <%= tab === key ? 'active' : '' %>" data-tab="<%= key %>"><%= label %></button>
+      <% }) %>
+    </div>
+
+    <div class="tab-panel-wrap">
+      <div class="tab-panel" data-panel="review" <%= tab === 'review' ? '' : 'style="display:none;"' %>>
+        <%- include('../partials/order-tabs/review', { order, request, checklist, RETURN_REASONS }) %>
+      </div>
+      <div class="tab-panel" data-panel="planning" <%= tab === 'planning' ? '' : 'style="display:none;"' %>>
+        <%- include('../partials/order-tabs/planning', { order, planning, PRIORITY_OPTIONS }) %>
+      </div>
+      <div class="tab-panel" data-panel="inventory" <%= tab === 'inventory' ? '' : 'style="display:none;"' %>>
+        <%- include('../partials/order-tabs/inventory', { order, inventoryRows, INVENTORY_APPROVAL_STATUSES, statusBadgeClass }) %>
+      </div>
+      <div class="tab-panel" data-panel="assignment" <%= tab === 'assignment' ? '' : 'style="display:none;"' %>>
+        <%- include('../partials/order-tabs/assignment', { order, assignment, drivers, driverActiveCounts, primaryDriver, secondDriver, statusBadgeClass }) %>
+      </div>
+      <div class="tab-panel" data-panel="live-status" <%= tab === 'live-status' ? '' : 'style="display:none;"' %>>
+        <%- include('../partials/order-tabs/live-status', { order, assignment, primaryDriver, secondDriver, DRIVER_APP_STATUS_OPTIONS, statusBadgeClass }) %>
+      </div>
+      <div class="tab-panel" data-panel="map" <%= tab === 'map' ? '' : 'style="display:none;"' %>>
+        <%- include('../partials/order-tabs/map', { order, map, MAP_STATUS_OPTIONS }) %>
+        <%- include('../partials/document-list', { entityType: 'order', entityId: order.id, documents, DOCUMENT_CATEGORIES, DOCUMENT_STATUSES }) %>
+      </div>
+      <div class="tab-panel" data-panel="completion" <%= tab === 'completion' ? '' : 'style="display:none;"' %>>
+        <%- include('../partials/order-tabs/completion', { order, assignment, inventoryRows, documents, COMPLETION_STATUS_OPTIONS }) %>
+      </div>
+      <div class="tab-panel" data-panel="final-inventory" <%= tab === 'final-inventory' ? '' : 'style="display:none;"' %>>
+        <%- include('../partials/order-tabs/final-inventory', { order, inventoryRows }) %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const key = btn.dataset.tab;
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b === btn));
+      document.querySelectorAll('.tab-panel').forEach(p => {
+        p.style.display = p.dataset.panel === key ? '' : 'none';
+      });
+      const url = new URL(window.location);
+      url.searchParams.set('tab', key);
+      window.history.replaceState({}, '', url);
+    });
+  });
+</script>
+</body>
+</html>

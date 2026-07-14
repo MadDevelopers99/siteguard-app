@@ -1,0 +1,62 @@
+<div class="admin-card">
+  <h3>Inventory Approval</h3>
+  <p style="color:#8a8f90;">Office Admin's planned inventory. Edit the approved quantity/status per item, then save.</p>
+
+  <form method="POST" action="/main-admin/auftraege/<%= order.id %>/inventory">
+    <div class="data-table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr><th>Item</th><th>Planned Qty</th><th>Approved Qty</th><th>Status</th><th>Notes</th><th>Actions</th></tr>
+        </thead>
+        <tbody>
+          <% if (inventoryRows.length === 0) { %>
+            <tr><td colspan="6" style="text-align:center; color:#8a8f90;">No inventory planned for this Auftrag.</td></tr>
+          <% } %>
+          <% inventoryRows.forEach(r => { %>
+            <tr>
+              <td><input type="hidden" name="item_id" value="<%= r.id %>"><%= r.item_name %> <span style="color:#8a8f90;">(<%= r.category || '—' %>)</span></td>
+              <td><%= r.planned_qty %> <%= r.unit %></td>
+              <td><input type="number" step="0.1" name="approved_qty" value="<%= r.main_admin_approved_qty || r.planned_qty %>" style="width:90px;"></td>
+              <td>
+                <select name="item_status">
+                  <% INVENTORY_APPROVAL_STATUSES.forEach(s => { %>
+                    <option value="<%= s %>" <%= r.main_admin_status === s ? 'selected' : '' %>><%= s %></option>
+                  <% }) %>
+                </select>
+              </td>
+              <td><input type="text" name="item_notes" value="<%= r.notes || '' %>" style="width:140px;"></td>
+              <td>
+                <button type="submit" form="delete-item-<%= r.id %>" class="btn btn-outline btn-sm">Remove</button>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+    <button class="btn btn-sm" type="submit" style="margin-top:14px;">Save Inventory Approval</button>
+  </form>
+
+  <% inventoryRows.forEach(r => { %>
+    <form id="delete-item-<%= r.id %>" method="POST" action="/main-admin/auftraege/<%= order.id %>/inventory/<%= r.id %>/delete" style="display:none;"></form>
+  <% }) %>
+
+  <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:16px;">
+    <form method="POST" action="/main-admin/auftraege/<%= order.id %>/inventory/send-to-warehouse" style="margin:0;">
+      <button type="submit" class="btn btn-outline btn-sm">Send Inventory to Warehouse</button>
+    </form>
+    <form method="POST" action="/main-admin/auftraege/<%= order.id %>/ready-for-assignment" style="margin:0;">
+      <button type="submit" class="btn btn-sm">Mark Ready for Driver Assignment</button>
+    </form>
+  </div>
+</div>
+
+<div class="admin-card">
+  <h3>+ Add Item / Reserve Material</h3>
+  <form method="POST" action="/main-admin/auftraege/<%= order.id %>/inventory/add" class="form-grid">
+    <div class="form-group"><label>Item Name</label><input type="text" name="item_name" required></div>
+    <div class="form-group"><label>Category</label><input type="text" name="category"></div>
+    <div class="form-group"><label>Planned Qty</label><input type="number" step="0.1" name="planned_qty" required></div>
+    <div class="form-group"><label>Unit</label><input type="text" name="unit" value="pcs"></div>
+    <div class="form-group"><button class="btn btn-sm" type="submit">Add Item</button></div>
+  </form>
+</div>

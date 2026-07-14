@@ -1,0 +1,48 @@
+<div class="admin-card">
+  <h3>Review Checklist</h3>
+  <div class="data-table-wrap">
+    <table class="data-table">
+      <thead><tr><th>Check</th><th>Status</th></tr></thead>
+      <tbody>
+        <% checklist.checks.forEach(c => { %>
+          <tr>
+            <td><%= c.label %></td>
+            <td><span class="badge badge-<%= c.ok ? 'delivered' : 'pending' %>"><%= c.ok ? 'Done' : 'Needs check' %></span></td>
+          </tr>
+        <% }) %>
+        <tr>
+          <td><strong>Ready for operation</strong></td>
+          <td><span class="badge badge-<%= checklist.ready ? 'delivered' : 'cancelled' %>"><%= checklist.ready ? 'Yes' : 'No' %></span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="admin-card">
+  <h3>Review Decision</h3>
+  <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:20px;">
+    <form method="POST" action="/main-admin/auftraege/<%= order.id %>/approve" style="margin:0;">
+      <button type="submit" class="btn btn-sm">Approve for Operation</button>
+    </form>
+    <form method="POST" action="/main-admin/auftraege/<%= order.id %>/cancel" style="margin:0;" onsubmit="return confirm('Cancel this Auftrag?');">
+      <button type="submit" class="btn btn-outline btn-sm">Cancel Auftrag</button>
+    </form>
+  </div>
+
+  <h3>Return to Office Admin</h3>
+  <form method="POST" action="/main-admin/auftraege/<%= order.id %>/return" class="form-grid">
+    <div class="form-group">
+      <label>Reason</label>
+      <select name="return_reason">
+        <% RETURN_REASONS.forEach(r => { %><option value="<%= r %>"><%= r %></option><% }) %>
+      </select>
+    </div>
+    <div class="form-group full"><label>Note</label><textarea name="return_note" rows="2" placeholder="e.g. Map is not clear. Please upload the correct map with exact sign points and street side."></textarea></div>
+    <div class="form-group"><button class="btn btn-outline btn-sm" type="submit">Return to Office Admin</button></div>
+  </form>
+
+  <% if (order.return_reason) { %>
+    <p style="margin-top:14px; color:#8a8f90;"><strong>Last return reason:</strong> <%= order.return_reason %> — <%= order.return_note || '' %></p>
+  <% } %>
+</div>

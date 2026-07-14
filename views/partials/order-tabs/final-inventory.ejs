@@ -1,0 +1,53 @@
+<div class="admin-card">
+  <h3>Final Inventory Review</h3>
+  <p style="color:#8a8f90;">Compare approved vs. issued vs. used/returned/damaged/missing. Editing here does not touch stock — only "Approve Volatile Inventory" updates the main inventory.</p>
+
+  <form method="POST" action="/main-admin/auftraege/<%= order.id %>/final-inventory">
+    <div class="data-table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr><th>Item</th><th>Approved</th><th>Issued</th><th>Used</th><th>Returned</th><th>Damaged</th><th>Missing</th><th>Final Status</th></tr>
+        </thead>
+        <tbody>
+          <% if (inventoryRows.length === 0) { %>
+            <tr><td colspan="8" style="text-align:center; color:#8a8f90;">No inventory to review.</td></tr>
+          <% } %>
+          <% inventoryRows.forEach(r => { %>
+            <tr>
+              <td><input type="hidden" name="item_id" value="<%= r.id %>"><%= r.item_name %></td>
+              <td><%= r.main_admin_approved_qty ?? r.planned_qty %></td>
+              <td><input type="number" step="0.1" name="issued_qty" value="<%= r.issued_qty ?? '' %>" style="width:80px;"></td>
+              <td><input type="number" step="0.1" name="used_qty" value="<%= r.used_qty ?? '' %>" style="width:80px;"></td>
+              <td><input type="number" step="0.1" name="returned_qty" value="<%= r.returned_qty ?? '' %>" style="width:80px;"></td>
+              <td><input type="number" step="0.1" name="damaged_qty" value="<%= r.damaged_qty ?? '' %>" style="width:80px;"></td>
+              <td><input type="number" step="0.1" name="missing_qty" value="<%= r.missing_qty ?? '' %>" style="width:80px;"></td>
+              <td>
+                <select name="final_status">
+                  <% ['OK', 'Damaged', 'Missing', 'Needs Review'].forEach(s => { %>
+                    <option value="<%= s %>" <%= r.final_status === s ? 'selected' : '' %>><%= s %></option>
+                  <% }) %>
+                </select>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+    <button class="btn btn-sm" type="submit" style="margin-top:14px;">Save Final Inventory</button>
+  </form>
+</div>
+
+<div class="admin-card">
+  <h3>Decisions</h3>
+  <div style="display:flex; gap:10px; flex-wrap:wrap;">
+    <form method="POST" action="/main-admin/auftraege/<%= order.id %>/final-inventory/approve-volatile" style="margin:0;" onsubmit="return confirm('This updates main inventory stock. Continue?');">
+      <button type="submit" class="btn btn-sm">Approve Volatile Inventory</button>
+    </form>
+    <form method="POST" action="/main-admin/auftraege/<%= order.id %>/complete" style="margin:0;">
+      <button type="submit" class="btn btn-sm">Final Completion Approval</button>
+    </form>
+    <form method="POST" action="/main-admin/auftraege/<%= order.id %>/send-back" style="margin:0;">
+      <button type="submit" class="btn btn-outline btn-sm">Send Completed Auftrag to Office Admin</button>
+    </form>
+  </div>
+</div>

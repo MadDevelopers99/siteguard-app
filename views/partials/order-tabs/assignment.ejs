@@ -1,0 +1,61 @@
+<div class="admin-card">
+  <h3>Driver Availability</h3>
+  <div class="data-table-wrap">
+    <table class="data-table">
+      <thead><tr><th>Driver</th><th>Status</th><th>Active Jobs</th><th>Location</th></tr></thead>
+      <tbody>
+        <% if (drivers.length === 0) { %>
+          <tr><td colspan="4" style="text-align:center; color:#8a8f90;">No drivers yet — add one under Settings.</td></tr>
+        <% } %>
+        <% drivers.forEach(d => { %>
+          <tr>
+            <td><%= d.name %></td>
+            <td><%= d.status %></td>
+            <td><%= driverActiveCounts[d.id] || 0 %></td>
+            <td><%= d.current_location || '—' %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="admin-card">
+  <h3>Assign Driver</h3>
+  <form method="POST" action="/main-admin/auftraege/<%= order.id %>/assign-driver" class="form-grid">
+    <div class="form-group">
+      <label>Primary Driver</label>
+      <select name="primary_driver_id">
+        <option value="">— select —</option>
+        <% drivers.forEach(d => { %>
+          <option value="<%= d.id %>" <%= assignment.primary_driver_id === d.id ? 'selected' : '' %>><%= d.name %> (<%= d.status %>)</option>
+        <% }) %>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Second Driver</label>
+      <select name="second_driver_id">
+        <option value="">— none —</option>
+        <% drivers.forEach(d => { %>
+          <option value="<%= d.id %>" <%= assignment.second_driver_id === d.id ? 'selected' : '' %>><%= d.name %> (<%= d.status %>)</option>
+        <% }) %>
+      </select>
+    </div>
+    <div class="form-group"><label>Vehicle</label><input type="text" name="vehicle" value="<%= assignment.vehicle || '' %>"></div>
+    <div class="form-group"><label>Loading Time</label><input type="time" name="loading_time" value="<%= assignment.loading_time || '' %>"></div>
+    <div class="form-group"><label>Setup Time</label><input type="time" name="setup_time" value="<%= assignment.setup_time || '' %>"></div>
+    <div class="form-group"><label>Removal Time</label><input type="time" name="removal_time" value="<%= assignment.removal_time || '' %>"></div>
+    <div class="form-group full"><label>Driver Instructions</label><textarea name="driver_instructions" rows="2"><%= assignment.driver_instructions || '' %></textarea></div>
+    <div class="form-group full"><label>Driver Checklist</label><textarea name="driver_checklist" rows="2"><%= assignment.driver_checklist || '' %></textarea></div>
+    <div class="form-group"><label><input type="checkbox" name="tablet_map_required" value="1" <%= assignment.tablet_map_required ? 'checked' : '' %>> Tablet Map Required</label></div>
+    <div class="form-group"><label><input type="checkbox" name="documents_visible_to_driver" value="1" <%= assignment.documents_visible_to_driver ? 'checked' : '' %>> Documents Visible to Driver</label></div>
+    <div class="form-group"><button class="btn btn-sm" type="submit">Save Assignment</button></div>
+  </form>
+
+  <% if (primaryDriver) { %>
+    <form method="POST" action="/main-admin/auftraege/<%= order.id %>/send-to-driver" style="margin-top:16px;">
+      <button class="btn" type="submit">Send to Driver App</button>
+    </form>
+    <p style="color:#8a8f90; margin-top:8px;">Driver App Status: <span class="badge badge-<%= statusBadgeClass(assignment.driver_app_status) %>"><%= assignment.driver_app_status %></span></p>
+  <% } %>
+</div>

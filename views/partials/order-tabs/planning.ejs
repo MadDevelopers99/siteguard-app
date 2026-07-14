@@ -1,0 +1,24 @@
+<div class="admin-card">
+  <h3>Operational Planning</h3>
+  <form method="POST" action="/main-admin/auftraege/<%= order.id %>/planning" class="form-grid">
+    <div class="form-group">
+      <label>Auftrag Priority</label>
+      <select name="priority">
+        <% PRIORITY_OPTIONS.forEach(p => { %><option value="<%= p %>" <%= planning.priority === p ? 'selected' : '' %>><%= p %></option><% }) %>
+      </select>
+    </div>
+    <div class="form-group"><label>Execution Date</label><input type="date" name="execution_date" value="<%= planning.execution_date || '' %>"></div>
+    <div class="form-group"><label>Setup Date</label><input type="date" name="setup_date" value="<%= planning.setup_date || '' %>"></div>
+    <div class="form-group"><label>Setup Time</label><input type="time" name="setup_time" value="<%= planning.setup_time || '' %>"></div>
+    <div class="form-group"><label>Removal Date</label><input type="date" name="removal_date" value="<%= planning.removal_date || '' %>"></div>
+    <div class="form-group"><label>Removal Time</label><input type="time" name="removal_time" value="<%= planning.removal_time || '' %>"></div>
+    <div class="form-group"><label>Expected Duration</label><input type="text" name="expected_duration" value="<%= planning.expected_duration || '' %>" placeholder="e.g. 3 days"></div>
+    <div class="form-group"><label>Number of Drivers Needed</label><input type="number" name="drivers_needed" min="1" value="<%= planning.drivers_needed || 1 %>"></div>
+    <div class="form-group"><label>Vehicle Required</label><input type="text" name="vehicle_required" value="<%= planning.vehicle_required || '' %>"></div>
+    <div class="form-group"><label>Special Equipment Needed</label><input type="text" name="special_equipment" value="<%= planning.special_equipment || '' %>"></div>
+    <div class="form-group"><label><input type="checkbox" name="warehouse_prep_needed" value="1" <%= planning.warehouse_prep_needed ? 'checked' : '' %>> Warehouse Preparation Needed</label></div>
+    <div class="form-group full"><label>Route Notes</label><textarea name="route_notes" rows="2"><%= planning.route_notes || '' %></textarea></div>
+    <div class="form-group full"><label>Internal Operation Notes</label><textarea name="internal_notes" rows="2"><%= planning.internal_notes || '' %></textarea></div>
+    <div class="form-group"><button class="btn btn-sm" type="submit">Save Planning</button></div>
+  </form>
+</div>

@@ -3,7 +3,7 @@ const router = express.Router();
 const bcrypt = require("bcryptjs");
 const db = require("../db/database");
 const { requireAdmin } = require("../middleware/auth");
-const { generateOrderNumber } = require("../utils/helpers");
+const { generateOrderNumber, statusBadgeClass } = require("../utils/helpers");
 
 // ---------- Auth ----------
 router.get("/login", (req, res) => {
@@ -130,7 +130,7 @@ router.get("/orders/:id", (req, res) => {
     ? db.prepare("SELECT * FROM request_pricing WHERE request_id = ? ORDER BY sort_order, id").all(linkedRequest.id)
     : [];
 
-  res.render("admin/order-detail", { order, lineItems, linkedRequest, requestPricing });
+  res.render("admin/order-detail", { order, lineItems, linkedRequest, requestPricing, statusBadgeClass });
 });
 
 router.post("/orders/:id/status", (req, res) => {
@@ -220,7 +220,7 @@ router.use("/clients", require("./admin-clients"));
 // ---------- Requests (Request-to-Auftrag builder) ----------
 router.use("/requests", require("./admin-requests"));
 
-// ---------- Documents (uploads for clients + requests) ----------
-router.use("/documents", require("./admin-documents"));
+// Note: /admin/documents is mounted directly in server.js (not here) so it's
+// reachable by Main Admin and Driver sessions too, not just Office Admin.
 
 module.exports = router;

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title><%= job.order_number %> — SiteGuard Driver</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="driver-shell">
+  <div class="driver-topbar">
+    <a href="/driver/jobs" style="text-decoration:none;">&larr; My Jobs</a>
+    <span class="brand"><%= job.order_number %></span>
+  </div>
+
+  <div class="driver-main">
+    <div class="driver-card">
+      <h3>Job Info</h3>
+      <p><strong><%= job.client_company || job.client_name %></strong></p>
+      <p><%= location ? (location.street + (location.house_number ? ' ' + location.house_number : '') + ', ' + (location.zip || '') + ' ' + (location.city || '')) : 'No location set' %></p>
+      <p>Type: <%= job.request_type || '—' %><% if (job.purpose) { %> — <%= job.purpose %><% } %></p>
+      <p>Setup: <%= job.date_from || '—' %> <%= job.time_from || '' %></p>
+      <p>Removal: <%= job.date_to || '—' %> <%= job.time_to || '' %></p>
+      <% if (job.client_phone) { %>
+        <p>Emergency contact: <a href="tel:<%= job.client_phone %>"><%= job.client_phone %></a></p>
+      <% } %>
+      <% if (job.kvr_required) { %><p>KVR: <%= job.kvr_status %></p><% } %>
+      <% if (job.absicherung_required) { %><p>Absicherung: <%= job.absicherung_type %></p><% } %>
+      <% if (job.parked_vehicle_list_required) { %><p><strong>Parked vehicle list required.</strong></p><% } %>
+    </div>
+
+    <% if (assignment.driver_instructions || assignment.driver_checklist) { %>
+      <div class="driver-card">
+        <h3>Instructions</h3>
+        <% if (assignment.driver_instructions) { %><p><%= assignment.driver_instructions %></p><% } %>
+        <% if (assignment.driver_checklist) { %><p><strong>Checklist:</strong> <%= assignment.driver_checklist %></p><% } %>
+      </div>
+    <% } %>
+
+    <% if (map && (map.sign_points || map.work_zone || map.street_side)) { %>
+      <div class="driver-card">
+        <h3>Map / Work Zone</h3>
+        <% if (map.street_side) { %><p>Side: <%= map.street_side %></p><% } %>
+        <% if (map.sign_points) { %><p>Sign points: <%= map.sign_points %></p><% } %>
+        <% if (map.work_zone) { %><p>Work zone: <%= map.work_zone %></p><% } %>
+      </div>
+    <% } %>
+
+    <div class="driver-card">
+      <h3>Inventory to Load</h3>
+      <% if (inventoryRows.length === 0) { %>
+        <p style="color:#8a8f90;">No inventory listed.</p>
+      <% } %>
+      <ul style="margin:0; padding-left:20px;">
+        <% inventoryRows.forEach(r => { %>
+          <li><%= r.item_name %> — <%= r.main_admin_approved_qty ?? r.planned_qty %> <%= r.unit %></li>
+        <% }) %>
+      </ul>
+    </div>
+
+    <% if (documents.length > 0) { %>
+      <div class="driver-card">
+        <h3>Documents</h3>
+        <ul style="margin:0; padding-left:20px;">
+          <% documents.forEach(d => { %>
+            <li><a href="/admin/documents/<%= d.id %>/download"><%= d.category %>: <%= d.original_name %></a></li>
+          <% }) %>
+        </ul>
+      </div>
+    <% } %>
+
+    <div class="driver-card">
+      <h3>Update Status</h3>
+      <form method="POST" action="/driver/jobs/<%= job.id %>/status">
+        <div class="driver-field">
+          <label>Status</label>
+          <select name="driver_app_status">
+            <% DRIVER_APP_STATUS_OPTIONS.filter(s => !['Not Sent', 'Submitted for Review'].includes(s)).forEach(s => { %>
+              <option value="<%= s %>" <%= assignment.driver_app_status === s ? 'selected' : '' %>><%= s %></option>
+            <% }) %>
+          </select>
+        </div>
+        <div class="driver-field">
+          <label>Current Location</label>
+          <input type="text" name="current_location" value="<%= assignment.current_location || '' %>" placeholder="e.g. Terofalstr 55">
+        </div>
+        <div class="driver-field">
+          <label>Issue (if any)</label>
+          <textarea name="issue_note" rows="2"><%= assignment.issue_note || '' %></textarea>
+        </div>
+        <button class="driver-btn-lg" type="submit">Update Status</button>
+      </form>
+    </div>
+
+    <div class="driver-card">
+      <h3>Upload Photo / Parked Vehicle List</h3>
+      <form method="POST" action="/admin/documents/upload" enctype="multipart/form-data">
+        <input type="hidden" name="entity_type" value="order">
+        <input type="hidden" name="entity_id" value="<%= job.id %>">
+        <div class="driver-field">
+          <label>Category</label>
+          <select name="category">
+            <option value="Photos">Photos</option>
+            <option value="Parked Vehicle List">Parked Vehicle List</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div class="driver-field">
+          <label>File</label>
+          <input type="file" name="file" required>
+        </div>
+        <button class="driver-btn-lg outline" type="submit">Upload</button>
+      </form>
+      <% if (myDocuments.length > 0) { %>
+        <ul style="margin:10px 0 0; padding-left:20px;">
+          <% myDocuments.forEach(d => { %>
+            <li><a href="/admin/documents/<%= d.id %>/download"><%= d.original_name %></a></li>
+          <% }) %>
+        </ul>
+      <% } %>
+    </div>
+
+    <div class="driver-card">
+      <h3>Submit Completion</h3>
+      <form method="POST" action="/driver/jobs/<%= job.id %>/complete">
+        <p style="color:#8a8f90; font-size:13px;">Report material used/returned/damaged/missing below (per item).</p>
+        <% inventoryRows.forEach((r, idx) => { %>
+          <div class="driver-field">
+            <label><%= r.item_name %> — Used / Returned / Damaged / Missing</label>
+            <div style="display:flex; gap:6px;">
+              <input type="hidden" name="item_id" value="<%= r.id || '' %>">
+              <input type="number" step="0.1" name="used_qty" placeholder="Used" style="width:25%;">
+              <input type="number" step="0.1" name="returned_qty" placeholder="Returned" style="width:25%;">
+              <input type="number" step="0.1" name="damaged_qty" placeholder="Damaged" style="width:25%;">
+              <input type="number" step="0.1" name="missing_qty" placeholder="Missing" style="width:25%;">
+            </div>
+          </div>
+        <% }) %>
+        <div class="driver-field">
+          <label>Driver Notes</label>
+          <textarea name="driver_notes" rows="3"><%= assignment.driver_notes || '' %></textarea>
+        </div>
+        <button class="driver-btn-lg" type="submit" onclick="return confirm('Submit completion for Main Admin review?');">Submit Completion</button>
+      </form>
+    </div>
+  </div>
+</div>
+</body>
+</html>

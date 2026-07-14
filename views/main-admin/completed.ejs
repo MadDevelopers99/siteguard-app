@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Completed Aufträge — SiteGuard Main Admin</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="admin-shell">
+  <%- include('../partials/main-admin-sidebar', { active: 'completed' }) %>
+
+  <div class="admin-main">
+    <div class="admin-topline">
+      <h1>Completed Aufträge</h1>
+      <form class="logout-form" method="POST" action="/main-admin/logout">
+        <button type="submit">Log out (<%= mainAdminName %>)</button>
+      </form>
+    </div>
+
+    <div class="data-table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr><th>Auftrag ID</th><th>Client</th><th>Status</th><th>Updated</th></tr>
+        </thead>
+        <tbody>
+          <% if (orders.length === 0) { %>
+            <tr><td colspan="4" style="text-align:center; color:#8a8f90;">No completed Aufträge yet.</td></tr>
+          <% } %>
+          <% orders.forEach(o => { %>
+            <tr onclick="window.location='/main-admin/auftraege/<%= o.id %>'" style="cursor:pointer;">
+              <td><%= o.order_number %></td>
+              <td><%= o.client_company || o.client_name %></td>
+              <td><span class="badge badge-<%= statusBadgeClass(o.main_admin_status) %>"><%= o.main_admin_status %></span></td>
+              <td><%= o.updated_at %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+</body>
+</html>
