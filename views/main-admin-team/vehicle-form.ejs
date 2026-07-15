@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title><%= vehicle ? 'Edit Vehicle' : 'Add Vehicle' %> — SiteGuard</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="admin-shell">
+  <%- include('../partials/team-sidebar', { active: 'vehicles' }) %>
+
+  <div class="admin-main">
+    <div class="admin-topline">
+      <h1><%= vehicle ? 'Edit Vehicle' : 'Add Vehicle' %></h1>
+      <a href="/main-admin/team/vehicles" style="text-decoration:none; font-size:14px;">&larr; Back to vehicles</a>
+    </div>
+
+    <form method="POST" action="<%= vehicle ? '/main-admin/team/vehicles/' + vehicle.id : '/main-admin/team/vehicles' %>">
+      <div class="admin-card">
+        <div class="form-grid">
+          <div class="form-group"><label>Vehicle Name *</label><input type="text" name="vehicle_name" value="<%= vehicle ? vehicle.vehicle_name : '' %>" required></div>
+          <div class="form-group"><label>Plate Number</label><input type="text" name="plate_number" value="<%= vehicle ? (vehicle.plate_number || '') : '' %>"></div>
+          <div class="form-group">
+            <label>Vehicle Type</label>
+            <select name="vehicle_type">
+              <% VEHICLE_TYPES.forEach(t => { %><option value="<%= t %>" <%= vehicle && vehicle.vehicle_type === t ? 'selected' : '' %>><%= t %></option><% }) %>
+            </select>
+          </div>
+          <div class="form-group"><label>Capacity</label><input type="text" name="capacity" value="<%= vehicle ? (vehicle.capacity || '') : '' %>"></div>
+          <div class="form-group"><label>Fuel Type</label><input type="text" name="fuel_type" value="<%= vehicle ? (vehicle.fuel_type || '') : '' %>"></div>
+          <div class="form-group">
+            <label>Status</label>
+            <select name="status">
+              <% VEHICLE_STATUSES.forEach(s => { %><option value="<%= s %>" <%= vehicle && vehicle.status === s ? 'selected' : '' %>><%= s %></option><% }) %>
+            </select>
+          </div>
+          <div class="form-group"><label>Insurance Expiry</label><input type="date" name="insurance_expiry" value="<%= vehicle ? (vehicle.insurance_expiry || '') : '' %>"></div>
+          <div class="form-group"><label>TÜV Expiry</label><input type="date" name="tuv_expiry" value="<%= vehicle ? (vehicle.tuv_expiry || '') : '' %>"></div>
+          <div class="form-group"><label>Service Date</label><input type="date" name="service_date" value="<%= vehicle ? (vehicle.service_date || '') : '' %>"></div>
+        </div>
+        <div class="form-group full" style="margin-top:10px;">
+          <label>Notes</label>
+          <textarea name="notes" rows="2"><%= vehicle ? (vehicle.notes || '') : '' %></textarea>
+        </div>
+      </div>
+
+      <button class="btn" type="submit" style="font-size:16px; padding:12px 24px;"><%= vehicle ? 'Save Changes' : 'Add Vehicle' %></button>
+    </form>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,30 @@
+<div class="admin-card">
+  <h3>Assigned Vehicle</h3>
+  <% if (assignedVehicle) { %>
+    <div class="form-grid" style="margin-bottom:16px;">
+      <div><strong>Vehicle:</strong> <%= assignedVehicle.vehicle_name %> (<%= displayVehicleId(assignedVehicle.id) %>)</div>
+      <div><strong>Plate:</strong> <%= assignedVehicle.plate_number || '—' %></div>
+      <div><strong>Type:</strong> <%= assignedVehicle.vehicle_type || '—' %></div>
+      <div><strong>Status:</strong> <%= assignedVehicle.status %></div>
+    </div>
+    <form method="POST" action="/main-admin/team/drivers/<%= driver.id %>/remove-vehicle">
+      <button class="btn btn-outline btn-sm" type="submit">Remove Car</button>
+    </form>
+  <% } else { %>
+    <p style="color:#8a8f90; margin-bottom:16px;">No vehicle assigned.</p>
+  <% } %>
+
+  <h3 style="margin-top:22px;">Assign / Change Car</h3>
+  <form method="POST" action="/main-admin/team/drivers/<%= driver.id %>/assign-vehicle" class="form-grid">
+    <div class="form-group">
+      <label>Vehicle</label>
+      <select name="vehicle_id" required>
+        <option value="">— select —</option>
+        <% vehicles.forEach(v => { %>
+          <option value="<%= v.id %>" <%= assignedVehicle && assignedVehicle.id === v.id ? 'selected' : '' %>><%= v.vehicle_name %><%= v.assigned_driver_id && v.assigned_driver_id !== driver.id ? ' (currently assigned elsewhere)' : '' %></option>
+        <% }) %>
+      </select>
+    </div>
+    <div class="form-group"><button class="btn btn-sm" type="submit">Assign Car</button></div>
+  </form>
+</div>

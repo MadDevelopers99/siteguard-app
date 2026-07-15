@@ -276,10 +276,92 @@ CREATE TABLE IF NOT EXISTS order_map (
   updated_at TEXT DEFAULT (datetime('now'))
 );
 
+CREATE TABLE IF NOT EXISTS vehicles (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  vehicle_name TEXT NOT NULL,
+  plate_number TEXT,
+  vehicle_type TEXT,
+  capacity TEXT,
+  assigned_driver_id INTEGER REFERENCES drivers(id),
+  fuel_type TEXT,
+  insurance_expiry TEXT,
+  tuv_expiry TEXT,
+  service_date TEXT,
+  status TEXT DEFAULT 'Available',
+  notes TEXT,
+  created_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS driver_teams (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  main_driver_id INTEGER NOT NULL REFERENCES drivers(id),
+  bifahrer_id INTEGER REFERENCES drivers(id),
+  second_bifahrer_id INTEGER REFERENCES drivers(id),
+  vehicle_id INTEGER REFERENCES vehicles(id),
+  date TEXT,
+  time_from TEXT,
+  time_to TEXT,
+  status TEXT DEFAULT 'Planned',
+  notes TEXT,
+  created_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS driver_vacations (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  driver_id INTEGER NOT NULL REFERENCES drivers(id),
+  date_from TEXT NOT NULL,
+  date_to TEXT NOT NULL,
+  vacation_type TEXT DEFAULT 'Annual Leave',
+  status TEXT DEFAULT 'Planned',
+  replacement_needed INTEGER DEFAULT 0,
+  replacement_driver_id INTEGER REFERENCES drivers(id),
+  notes TEXT,
+  created_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS driver_absences (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  driver_id INTEGER NOT NULL REFERENCES drivers(id),
+  absence_type TEXT DEFAULT 'Sick Leave',
+  date_from TEXT NOT NULL,
+  date_to TEXT,
+  full_day INTEGER DEFAULT 1,
+  reason TEXT,
+  document_required INTEGER DEFAULT 0,
+  document_uploaded INTEGER DEFAULT 0,
+  status TEXT DEFAULT 'Active',
+  notes TEXT,
+  created_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS driver_notes (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  driver_id INTEGER NOT NULL REFERENCES drivers(id) ON DELETE CASCADE,
+  note_type TEXT DEFAULT 'General Note',
+  note_text TEXT NOT NULL,
+  is_pinned INTEGER DEFAULT 0,
+  is_private INTEGER DEFAULT 0,
+  created_by TEXT,
+  created_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS driver_history (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  driver_id INTEGER NOT NULL REFERENCES drivers(id) ON DELETE CASCADE,
+  action_text TEXT NOT NULL,
+  changed_by TEXT,
+  created_at TEXT DEFAULT (datetime('now'))
+);
+
 CREATE INDEX IF NOT EXISTS idx_requests_client ON requests(client_id);
 CREATE INDEX IF NOT EXISTS idx_request_inventory_request ON request_inventory(request_id);
 CREATE INDEX IF NOT EXISTS idx_request_pricing_request ON request_pricing(request_id);
 CREATE INDEX IF NOT EXISTS idx_documents_entity ON documents(entity_type, entity_id);
+CREATE INDEX IF NOT EXISTS idx_driver_teams_main ON driver_teams(main_driver_id);
+CREATE INDEX IF NOT EXISTS idx_driver_vacations_driver ON driver_vacations(driver_id);
+CREATE INDEX IF NOT EXISTS idx_driver_absences_driver ON driver_absences(driver_id);
+CREATE INDEX IF NOT EXISTS idx_driver_notes_driver ON driver_notes(driver_id);
+CREATE INDEX IF NOT EXISTS idx_driver_history_driver ON driver_history(driver_id);
 `);
 
 // ---------- Lightweight column migrations ----------
@@ -324,6 +406,30 @@ function ensureColumn(table, column, definition) {
 [["role", "TEXT DEFAULT 'office_admin'"]].forEach(([column, definition]) =>
   ensureColumn("admins", column, definition)
 );
+
+[
+  ["first_name", "TEXT"],
+  ["last_name", "TEXT"],
+  ["address", "TEXT"],
+  ["city", "TEXT"],
+  ["postal_code", "TEXT"],
+  ["emergency_contact_name", "TEXT"],
+  ["emergency_contact_phone", "TEXT"],
+  ["role", "TEXT DEFAULT 'Driver'"],
+  ["employment_type", "TEXT DEFAULT 'Full-time'"],
+  ["start_date", "TEXT"],
+  ["work_area", "TEXT"],
+  ["preferred_work_days", "TEXT"],
+  ["can_drive_vehicle", "INTEGER DEFAULT 1"],
+  ["can_work_as_bifahrer", "INTEGER DEFAULT 1"],
+  ["can_lead_team", "INTEGER DEFAULT 0"],
+  ["can_work_night_shift", "INTEGER DEFAULT 0"],
+  ["can_work_weekend", "INTEGER DEFAULT 0"],
+  ["availability_from", "TEXT"],
+  ["availability_until", "TEXT"],
+  ["assigned_vehicle_id", "INTEGER REFERENCES vehicles(id)"],
+  ["is_active", "INTEGER DEFAULT 1"]
+].forEach(([column, definition]) => ensureColumn("drivers", column, definition));
 
 [
   ["main_admin_approved_qty", "REAL"],

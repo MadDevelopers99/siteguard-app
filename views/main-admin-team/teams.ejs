@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bifahrer / Teams — SiteGuard</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="admin-shell">
+  <%- include('../partials/team-sidebar', { active: 'teams' }) %>
+
+  <div class="admin-main">
+    <div class="admin-topline">
+      <h1>Bifahrer / Team Pairing</h1>
+    </div>
+
+    <% if (error) { %><div class="error-msg"><%= error %></div><% } %>
+
+    <div class="admin-card">
+      <h3>Team Pairing Table</h3>
+      <div class="data-table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr><th>Main Driver</th><th>Bifahrer</th><th>Vehicle</th><th>Date</th><th>Status</th><th>Actions</th></tr>
+          </thead>
+          <tbody>
+            <% if (teams.length === 0) { %>
+              <tr><td colspan="6" style="text-align:center; color:#8a8f90;">No teams yet.</td></tr>
+            <% } %>
+            <% teams.forEach(t => { %>
+              <tr>
+                <td><%= t.main_driver_name %></td>
+                <td><%= t.bifahrer_name || '—' %><%= t.second_bifahrer_name ? ' + ' + t.second_bifahrer_name : '' %></td>
+                <td><%= t.vehicle_name || '—' %></td>
+                <td><%= t.date || '—' %></td>
+                <td><span class="badge badge-<%= statusBadgeClass(t.status) %>"><%= t.status %></span></td>
+                <td>
+                  <form method="POST" action="/main-admin/team/teams/<%= t.id %>/status" style="display:inline;">
+                    <select name="status" onchange="this.form.submit()">
+                      <% TEAM_STATUSES.forEach(s => { %><option value="<%= s %>" <%= t.status === s ? 'selected' : '' %>><%= s %></option><% }) %>
+                    </select>
+                  </form>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="admin-card">
+      <h3>+ Create Pairing</h3>
+      <form method="POST" action="/main-admin/team/teams" class="form-grid">
+        <div class="form-group">
+          <label>Main Driver</label>
+          <select name="main_driver_id" required>
+            <option value="">— select —</option>
+            <% drivers.forEach(d => { %><option value="<%= d.id %>"><%= d.name %> (<%= d.status %>)</option><% }) %>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Bifahrer</label>
+          <select name="bifahrer_id">
+            <option value="">— none —</option>
+            <% drivers.forEach(d => { %><option value="<%= d.id %>"><%= d.name %> (<%= d.status %>)</option><% }) %>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Second Bifahrer</label>
+          <select name="second_bifahrer_id">
+            <option value="">— none —</option>
+            <% drivers.forEach(d => { %><option value="<%= d.id %>"><%= d.name %></option><% }) %>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Vehicle</label>
+          <select name="vehicle_id">
+            <option value="">— none —</option>
+            <% vehicles.forEach(v => { %><option value="<%= v.id %>"><%= v.vehicle_name %></option><% }) %>
+          </select>
+        </div>
+        <div class="form-group"><label>Date</label><input type="date" name="date"></div>
+        <div class="form-group"><label>Time From</label><input type="time" name="time_from"></div>
+        <div class="form-group"><label>Time To</label><input type="time" name="time_to"></div>
+        <div class="form-group full"><label>Notes</label><textarea name="notes" rows="2"></textarea></div>
+        <div class="form-group"><button class="btn btn-sm" type="submit">+ Create Pairing</button></div>
+      </form>
+      <p style="color:#8a8f90; margin-top:10px; font-size:13px;">
+        Rules enforced: main driver and Bifahrer must not be Sick/Absent/Vacation/Not Available/Inactive, and a driver cannot be in two Active teams at once.
+      </p>
+    </div>
+  </div>
+</div>
+</body>
+</html>

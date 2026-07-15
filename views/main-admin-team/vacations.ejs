@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vacation Planner — SiteGuard</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="admin-shell">
+  <%- include('../partials/team-sidebar', { active: 'vacations' }) %>
+
+  <div class="admin-main">
+    <div class="admin-topline">
+      <h1>Vacation Planner</h1>
+    </div>
+
+    <div class="admin-card">
+      <h3>Vacation Table</h3>
+      <div class="data-table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr><th>Driver</th><th>From</th><th>To</th><th>Type</th><th>Status</th><th>Replacement</th><th>Actions</th></tr>
+          </thead>
+          <tbody>
+            <% if (vacations.length === 0) { %>
+              <tr><td colspan="7" style="text-align:center; color:#8a8f90;">No vacations planned.</td></tr>
+            <% } %>
+            <% vacations.forEach(v => { %>
+              <tr>
+                <td><%= v.driver_name %></td>
+                <td><%= v.date_from %></td>
+                <td><%= v.date_to %></td>
+                <td><%= v.vacation_type %></td>
+                <td><span class="badge badge-<%= statusBadgeClass(v.status) %>"><%= v.status %></span></td>
+                <td><%= v.replacement_needed ? (v.replacement_name || 'Needed') : 'No' %></td>
+                <td style="display:flex; gap:6px;">
+                  <% if (v.status !== 'Approved') { %>
+                    <form method="POST" action="/main-admin/team/vacations/<%= v.id %>/approve" style="margin:0;"><button class="btn btn-outline btn-sm" type="submit">Approve</button></form>
+                  <% } %>
+                  <% if (v.status !== 'Rejected') { %>
+                    <form method="POST" action="/main-admin/team/vacations/<%= v.id %>/reject" style="margin:0;"><button class="btn btn-outline btn-sm" type="submit">Reject</button></form>
+                  <% } %>
+                  <form method="POST" action="/main-admin/team/vacations/<%= v.id %>/cancel" style="margin:0;"><button class="btn btn-outline btn-sm" type="submit">Cancel</button></form>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="admin-card">
+      <h3>+ Plan Vacation</h3>
+      <form method="POST" action="/main-admin/team/vacations" class="form-grid">
+        <div class="form-group">
+          <label>Driver</label>
+          <select name="driver_id" required>
+            <option value="">— select —</option>
+            <% drivers.forEach(d => { %><option value="<%= d.id %>"><%= d.name %></option><% }) %>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Type</label>
+          <select name="vacation_type">
+            <% VACATION_TYPES.forEach(t => { %><option value="<%= t %>"><%= t %></option><% }) %>
+          </select>
+        </div>
+        <div class="form-group"><label>From</label><input type="date" name="date_from" required></div>
+        <div class="form-group"><label>To</label><input type="date" name="date_to" required></div>
+        <div class="form-group"><label><input type="checkbox" name="replacement_needed" value="1"> Replacement Driver Needed?</label></div>
+        <div class="form-group">
+          <label>Replacement Driver</label>
+          <select name="replacement_driver_id">
+            <option value="">— none —</option>
+            <% drivers.forEach(d => { %><option value="<%= d.id %>"><%= d.name %></option><% }) %>
+          </select>
+        </div>
+        <div class="form-group full"><label>Notes</label><textarea name="notes" rows="2"></textarea></div>
+        <div class="form-group"><button class="btn btn-sm" type="submit">+ Plan Vacation</button></div>
+      </form>
+    </div>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,45 @@
+<div class="admin-card">
+  <h3>Personal &amp; Work Details</h3>
+  <form method="POST" action="/main-admin/team/drivers/<%= driver.id %>">
+    <div class="form-grid">
+      <div class="form-group"><label>First Name</label><input type="text" name="first_name" value="<%= driver.first_name || '' %>" required></div>
+      <div class="form-group"><label>Last Name</label><input type="text" name="last_name" value="<%= driver.last_name || '' %>"></div>
+      <div class="form-group"><label>Phone</label><input type="text" name="phone" value="<%= driver.phone || '' %>"></div>
+      <div class="form-group"><label>Email</label><input type="email" name="email" value="<%= driver.email %>" required></div>
+      <div class="form-group"><label>Address</label><input type="text" name="address" value="<%= driver.address || '' %>"></div>
+      <div class="form-group"><label>City</label><input type="text" name="city" value="<%= driver.city || '' %>"></div>
+      <div class="form-group"><label>Postal Code</label><input type="text" name="postal_code" value="<%= driver.postal_code || '' %>"></div>
+      <div class="form-group"><label>Emergency Contact Name</label><input type="text" name="emergency_contact_name" value="<%= driver.emergency_contact_name || '' %>"></div>
+      <div class="form-group"><label>Emergency Contact Phone</label><input type="text" name="emergency_contact_phone" value="<%= driver.emergency_contact_phone || '' %>"></div>
+      <div class="form-group">
+        <label>Role</label>
+        <select name="role">
+          <% DRIVER_ROLES.forEach(r => { %><option value="<%= r %>" <%= driver.role === r ? 'selected' : '' %>><%= r %></option><% }) %>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Employment Type</label>
+        <select name="employment_type">
+          <% EMPLOYMENT_TYPES.forEach(t => { %><option value="<%= t %>" <%= driver.employment_type === t ? 'selected' : '' %>><%= t %></option><% }) %>
+        </select>
+      </div>
+      <div class="form-group"><label>Start Date</label><input type="date" name="start_date" value="<%= driver.start_date || '' %>"></div>
+      <div class="form-group">
+        <label>Work Area</label>
+        <select name="work_area">
+          <option value="">— select —</option>
+          <% WORK_AREAS.forEach(a => { %><option value="<%= a %>" <%= driver.work_area === a ? 'selected' : '' %>><%= a %></option><% }) %>
+        </select>
+      </div>
+      <div class="form-group"><label>Preferred Work Days</label><input type="text" name="preferred_work_days" value="<%= driver.preferred_work_days || '' %>"></div>
+    </div>
+    <div class="form-grid" style="margin-top:10px;">
+      <div class="form-group"><label><input type="checkbox" name="can_drive_vehicle" value="1" <%= driver.can_drive_vehicle ? 'checked' : '' %>> Can Drive Vehicle?</label></div>
+      <div class="form-group"><label><input type="checkbox" name="can_work_as_bifahrer" value="1" <%= driver.can_work_as_bifahrer ? 'checked' : '' %>> Can Work as Bifahrer?</label></div>
+      <div class="form-group"><label><input type="checkbox" name="can_lead_team" value="1" <%= driver.can_lead_team ? 'checked' : '' %>> Can Lead Team?</label></div>
+      <div class="form-group"><label><input type="checkbox" name="can_work_night_shift" value="1" <%= driver.can_work_night_shift ? 'checked' : '' %>> Can Work Night Shift?</label></div>
+      <div class="form-group"><label><input type="checkbox" name="can_work_weekend" value="1" <%= driver.can_work_weekend ? 'checked' : '' %>> Can Work Weekend?</label></div>
+    </div>
+    <button class="btn btn-sm" type="submit" style="margin-top:16px;">Save Changes</button>
+  </form>
+</div>

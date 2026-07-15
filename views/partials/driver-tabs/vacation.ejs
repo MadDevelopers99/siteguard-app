@@ -1,0 +1,23 @@
+<div class="admin-card">
+  <h3>Vacation History</h3>
+  <% if (vacations.length === 0) { %>
+    <p style="color:#8a8f90;">No vacations recorded.</p>
+  <% } else { %>
+    <div class="data-table-wrap">
+      <table class="data-table">
+        <thead><tr><th>From</th><th>To</th><th>Type</th><th>Status</th></tr></thead>
+        <tbody>
+          <% vacations.forEach(v => { %>
+            <tr>
+              <td><%= v.date_from %></td>
+              <td><%= v.date_to %></td>
+              <td><%= v.vacation_type %></td>
+              <td><span class="badge badge-<%= statusBadgeClass(v.status) %>"><%= v.status %></span></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+  <p style="color:#8a8f90; margin-top:14px;">Plan or approve vacations from <a href="/main-admin/team/vacations">Vacation Planner</a>.</p>
+</div>

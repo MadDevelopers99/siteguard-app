@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title><%= driver.name %> — SiteGuard</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="admin-shell">
+  <%- include('../partials/team-sidebar', { active: 'drivers' }) %>
+
+  <div class="admin-main">
+    <div class="admin-topline">
+      <h1><a href="/main-admin/team/drivers" style="text-decoration:none;">Driver List</a> &raquo; <%= driver.name %></h1>
+      <form method="POST" action="/main-admin/team/drivers/<%= driver.id %>/deactivate" onsubmit="return confirm('<%= driver.is_active ? 'Deactivate' : 'Reactivate' %> this driver?');">
+        <button type="submit" class="btn btn-outline btn-sm"><%= driver.is_active ? 'Deactivate Driver' : 'Reactivate Driver' %></button>
+      </form>
+    </div>
+
+    <div class="admin-card">
+      <div class="form-grid">
+        <div><strong>Driver ID:</strong> <%= displayDriverId(driver.id) %></div>
+        <div><strong>Status:</strong> <span class="badge badge-<%= statusBadgeClass(driver.status) %>"><%= driver.status %></span></div>
+        <div><strong>Role:</strong> <%= driver.role %></div>
+        <div><strong>Assigned Car:</strong> <%= assignedVehicle ? assignedVehicle.vehicle_name : 'None' %></div>
+        <div><strong>Work Area:</strong> <%= driver.work_area || '—' %></div>
+        <div><strong>Phone:</strong> <%= driver.phone || '—' %></div>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <% const tabs = [
+        ['overview', 'Overview'],
+        ['personal', 'Personal Details'],
+        ['availability', 'Availability'],
+        ['vehicle', 'Vehicle'],
+        ['team', 'Bifahrer / Team'],
+        ['vacation', 'Vacation'],
+        ['absence', 'Sick / Absence'],
+        ['documents', 'Documents'],
+        ['notes', 'Notes'],
+        ['history', 'History']
+      ]; %>
+      <% tabs.forEach(([key, label]) => { %>
+        <button type="button" class="tab-btn <%= tab === key ? 'active' : '' %>" data-tab="<%= key %>"><%= label %></button>
+      <% }) %>
+    </div>
+
+    <div class="tab-panel-wrap">
+      <div class="tab-panel" data-panel="overview" <%= tab === 'overview' ? '' : 'style="display:none;"' %>>
+        <%- include('../partials/driver-tabs/overview', { driver, assignedVehicle, teamsAsMain, driverNameById, vacations, documents }) %>
+      </div>
+      <div class="tab-panel" data-panel="personal" <%= tab === 'personal' ? '' : 'style="display:none;"' %>>
+        <%- include('../partials/driver-tabs/personal', { driver, DRIVER_ROLES, EMPLOYMENT_TYPES, WORK_AREAS }) %>
+      </div>
+      <div class="tab-panel" data-panel="availability" <%= tab === 'availability' ? '' : 'style="display:none;"' %>>
+        <%- include('../partials/driver-tabs/availability', { driver, DRIVER_STATUS_OPTIONS }) %>
+      </div>
+      <div class="tab-panel" data-panel="vehicle" <%= tab === 'vehicle' ? '' : 'style="display:none;"' %>>
+        <%- include('../partials/driver-tabs/vehicle', { driver, assignedVehicle, vehicles, displayVehicleId }) %>
+      </div>
+      <div class="tab-panel" data-panel="team" <%= tab === 'team' ? '' : 'style="display:none;"' %>>
+        <%- include('../partials/driver-tabs/team', { teamsAsMain, teamsAsBifahrer, driverNameById, statusBadgeClass }) %>
+      </div>
+      <div class="tab-panel" data-panel="vacation" <%= tab === 'vacation' ? '' : 'style="display:none;"' %>>
+        <%- include('../partials/driver-tabs/vacation', { driver, vacations, VACATION_TYPES, statusBadgeClass }) %>
+      </div>
+      <div class="tab-panel" data-panel="absence" <%= tab === 'absence' ? '' : 'style="display:none;"' %>>
+        <%- include('../partials/driver-tabs/absence', { driver, absences, ABSENCE_TYPES, statusBadgeClass }) %>
+      </div>
+      <div class="tab-panel" data-panel="documents" <%= tab === 'documents' ? '' : 'style="display:none;"' %>>
+        <%- include('../partials/document-list', { entityType: 'driver', entityId: driver.id, documents, DOCUMENT_CATEGORIES, DOCUMENT_STATUSES }) %>
+      </div>
+      <div class="tab-panel" data-panel="notes" <%= tab === 'notes' ? '' : 'style="display:none;"' %>>
+        <%- include('../partials/driver-tabs/notes', { driver, notes, DRIVER_NOTE_TYPES }) %>
+      </div>
+      <div class="tab-panel" data-panel="history" <%= tab === 'history' ? '' : 'style="display:none;"' %>>
+        <%- include('../partials/driver-tabs/history', { history }) %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const key = btn.dataset.tab;
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b === btn));
+      document.querySelectorAll('.tab-panel').forEach(p => {
+        p.style.display = p.dataset.panel === key ? '' : 'none';
+      });
+      const url = new URL(window.location);
+      url.searchParams.set('tab', key);
+      window.history.replaceState({}, '', url);
+    });
+  });
+</script>
+</body>
+</html>

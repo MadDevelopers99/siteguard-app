@@ -1,0 +1,24 @@
+<div class="admin-card">
+  <h3>Sick Leave &amp; Absence History</h3>
+  <% if (absences.length === 0) { %>
+    <p style="color:#8a8f90;">No sick leave or absence records.</p>
+  <% } else { %>
+    <div class="data-table-wrap">
+      <table class="data-table">
+        <thead><tr><th>Type</th><th>From</th><th>To</th><th>Status</th><th>Reason</th></tr></thead>
+        <tbody>
+          <% absences.forEach(a => { %>
+            <tr>
+              <td><%= a.absence_type %></td>
+              <td><%= a.date_from %></td>
+              <td><%= a.date_to || '—' %></td>
+              <td><span class="badge badge-<%= statusBadgeClass(a.status) %>"><%= a.status %></span></td>
+              <td><%= a.reason || '—' %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+  <p style="color:#8a8f90; margin-top:14px;">Add new records from <a href="/main-admin/team/absences">Sick &amp; Absence</a>.</p>
+</div>

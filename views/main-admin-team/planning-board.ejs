@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daily Planning Board — SiteGuard</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="admin-shell">
+  <%- include('../partials/team-sidebar', { active: 'planning-board' }) %>
+
+  <div class="admin-main">
+    <div class="admin-topline">
+      <h1>Daily Planning Board</h1>
+      <button class="btn btn-sm" onclick="window.print()">Print Daily Plan</button>
+    </div>
+    <p style="color:var(--steel); margin:-14px 0 20px; font-size:14px;">
+      Who is available today, who has a vehicle, and who is paired. Not connected to the Auftrag flow yet.
+    </p>
+
+    <div class="form-grid">
+      <div class="admin-card">
+        <h3>Available Drivers</h3>
+        <% if (available.length === 0) { %><p style="color:#8a8f90;">None.</p><% } %>
+        <ul style="margin:0; padding-left:20px;">
+          <% available.forEach(d => { %><li><%= d.name %></li><% }) %>
+        </ul>
+      </div>
+
+      <div class="admin-card">
+        <h3>Drivers with Vehicle</h3>
+        <% if (withVehicle.length === 0) { %><p style="color:#8a8f90;">None.</p><% } %>
+        <ul style="margin:0; padding-left:20px;">
+          <% withVehicle.forEach(d => { %><li><%= d.name %> — <%= vehicleNameById[d.assigned_vehicle_id] %></li><% }) %>
+        </ul>
+      </div>
+
+      <div class="admin-card">
+        <h3>Drivers without Vehicle</h3>
+        <% if (withoutVehicle.length === 0) { %><p style="color:#8a8f90;">None.</p><% } %>
+        <ul style="margin:0; padding-left:20px;">
+          <% withoutVehicle.forEach(d => { %><li><%= d.name %></li><% }) %>
+        </ul>
+      </div>
+
+      <div class="admin-card">
+        <h3>Planned / Active Teams</h3>
+        <% if (teams.length === 0) { %><p style="color:#8a8f90;">None.</p><% } %>
+        <ul style="margin:0; padding-left:20px;">
+          <% teams.forEach(t => { %><li><%= t.main_driver_name %><%= t.bifahrer_name ? ' + ' + t.bifahrer_name : '' %><%= t.vehicle_name ? ' — ' + t.vehicle_name : '' %></li><% }) %>
+        </ul>
+      </div>
+
+      <div class="admin-card">
+        <h3>Sick / Absent</h3>
+        <% if (sickAbsent.length === 0) { %><p style="color:#8a8f90;">None.</p><% } %>
+        <ul style="margin:0; padding-left:20px;">
+          <% sickAbsent.forEach(d => { %><li><%= d.name %> — <%= d.status %></li><% }) %>
+        </ul>
+      </div>
+
+      <div class="admin-card">
+        <h3>Vacation</h3>
+        <% if (onVacation.length === 0) { %><p style="color:#8a8f90;">None.</p><% } %>
+        <ul style="margin:0; padding-left:20px;">
+          <% onVacation.forEach(d => { %><li><%= d.name %></li><% }) %>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

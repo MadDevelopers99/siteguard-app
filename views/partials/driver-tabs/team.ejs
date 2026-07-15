@@ -1,0 +1,44 @@
+<div class="admin-card">
+  <h3>As Main Driver</h3>
+  <% if (teamsAsMain.length === 0) { %>
+    <p style="color:#8a8f90;">Not a main driver in any team.</p>
+  <% } else { %>
+    <div class="data-table-wrap">
+      <table class="data-table">
+        <thead><tr><th>Bifahrer</th><th>Date</th><th>Status</th></tr></thead>
+        <tbody>
+          <% teamsAsMain.forEach(t => { %>
+            <tr>
+              <td><%= t.bifahrer_id ? driverNameById[t.bifahrer_id] : '—' %></td>
+              <td><%= t.date || '—' %></td>
+              <td><span class="badge badge-<%= statusBadgeClass(t.status) %>"><%= t.status %></span></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</div>
+
+<div class="admin-card">
+  <h3>As Bifahrer</h3>
+  <% if (teamsAsBifahrer.length === 0) { %>
+    <p style="color:#8a8f90;">Not a Bifahrer in any team.</p>
+  <% } else { %>
+    <div class="data-table-wrap">
+      <table class="data-table">
+        <thead><tr><th>Main Driver</th><th>Date</th><th>Status</th></tr></thead>
+        <tbody>
+          <% teamsAsBifahrer.forEach(t => { %>
+            <tr>
+              <td><%= driverNameById[t.main_driver_id] %></td>
+              <td><%= t.date || '—' %></td>
+              <td><span class="badge badge-<%= statusBadgeClass(t.status) %>"><%= t.status %></span></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+  <p style="color:#8a8f90; margin-top:14px;">Create or manage pairings from <a href="/main-admin/team/teams">Bifahrer / Teams</a>.</p>
+</div>

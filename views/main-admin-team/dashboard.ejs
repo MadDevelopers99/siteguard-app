@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Driver Dashboard — SiteGuard</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="admin-shell">
+  <%- include('../partials/team-sidebar', { active: 'dashboard' }) %>
+
+  <div class="admin-main">
+    <div class="admin-topline">
+      <h1>Driver Dashboard</h1>
+      <a class="btn btn-sm" style="text-decoration:none;" href="/main-admin/team/drivers/new">+ Add Driver</a>
+    </div>
+
+    <p style="color:var(--steel); margin:-14px 0 20px; font-size:14px;">
+      Whole driver team situation in one screen. Not connected to the Auftrag flow yet.
+    </p>
+
+    <div class="stat-row">
+      <div class="stat-card"><span class="num"><%= stats.total %></span><span class="label">Total Drivers</span></div>
+      <div class="stat-card"><span class="num"><%= stats.availableToday %></span><span class="label">Available Today</span></div>
+      <div class="stat-card"><span class="num"><%= stats.onWork %></span><span class="label">On Work</span></div>
+      <div class="stat-card"><span class="num"><%= stats.sickLeave %></span><span class="label">Sick Leave</span></div>
+    </div>
+    <div class="stat-row">
+      <div class="stat-card"><span class="num"><%= stats.absent %></span><span class="label">Absent</span></div>
+      <div class="stat-card"><span class="num"><%= stats.vacation %></span><span class="label">Planned Vacation</span></div>
+      <div class="stat-card"><span class="num"><%= stats.withCar %></span><span class="label">Drivers with Car</span></div>
+      <div class="stat-card"><span class="num"><%= stats.withoutCar %></span><span class="label">Drivers without Car</span></div>
+    </div>
+    <div class="stat-row">
+      <div class="stat-card"><span class="num"><%= stats.openPairings %></span><span class="label">Open Bifahrer Pairings</span></div>
+    </div>
+
+    <div class="admin-card">
+      <h3>Quick Actions</h3>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <a class="btn btn-outline btn-sm" style="text-decoration:none;" href="/main-admin/team/drivers/new">+ Add Driver</a>
+        <a class="btn btn-outline btn-sm" style="text-decoration:none;" href="/main-admin/team/vehicles/new">+ Add Vehicle</a>
+        <a class="btn btn-outline btn-sm" style="text-decoration:none;" href="/main-admin/team/vacations">+ Plan Vacation</a>
+        <a class="btn btn-outline btn-sm" style="text-decoration:none;" href="/main-admin/team/absences">+ Mark Sick / Absent</a>
+        <a class="btn btn-outline btn-sm" style="text-decoration:none;" href="/main-admin/team/teams">+ Create Driver Pairing</a>
+      </div>
+    </div>
+
+    <div class="admin-card">
+      <h3>Driver Status Quick Table</h3>
+      <div class="data-table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr><th>Driver</th><th>Status</th><th>Car</th><th>Bifahrer</th><th>Vacation</th></tr>
+          </thead>
+          <tbody>
+            <% drivers.forEach(d => {
+                 const team = teamByDriver[d.id];
+                 const vac = vacationByDriver[d.id];
+            %>
+              <tr onclick="window.location='/main-admin/team/drivers/<%= d.id %>'" style="cursor:pointer;">
+                <td><%= d.name %></td>
+                <td><span class="badge badge-<%= statusBadgeClass(d.status) %>"><%= d.status %></span></td>
+                <td><%= d.vehicle_name || 'No car' %></td>
+                <td><%= team && team.bifahrer_id ? driverNameById[team.bifahrer_id] : 'No Bifahrer' %></td>
+                <td><%= vac ? (vac.date_from + ' – ' + vac.date_to) : 'No' %></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

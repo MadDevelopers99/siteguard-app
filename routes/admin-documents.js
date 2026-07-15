@@ -24,6 +24,7 @@ function uploaderName(req) {
 function backToFor(req, entityType, entityId) {
   if (entityType === "client") return `/admin/clients/${entityId}?tab=documents`;
   if (entityType === "request") return `/admin/requests/${entityId}?tab=documents`;
+  if (entityType === "driver") return `/main-admin/team/drivers/${entityId}?tab=documents`;
   // entityType === "order"
   if (req.session.driverId) return `/driver/jobs/${entityId}`;
   return `/main-admin/auftraege/${entityId}?tab=map`;

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Add Driver — SiteGuard</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="admin-shell">
+  <%- include('../partials/team-sidebar', { active: 'drivers' }) %>
+
+  <div class="admin-main">
+    <div class="admin-topline">
+      <h1>Add New Driver</h1>
+      <a href="/main-admin/team/drivers" style="text-decoration:none; font-size:14px;">&larr; Back to driver list</a>
+    </div>
+
+    <% if (error) { %><div class="error-msg"><%= error %></div><% } %>
+
+    <form method="POST" action="/main-admin/team/drivers">
+      <div class="admin-card">
+        <h3>Basic Information</h3>
+        <div class="form-grid">
+          <div class="form-group"><label>First Name</label><input type="text" name="first_name" required></div>
+          <div class="form-group"><label>Last Name</label><input type="text" name="last_name"></div>
+          <div class="form-group"><label>Phone Number</label><input type="text" name="phone"></div>
+          <div class="form-group"><label>Email (login) *</label><input type="email" name="email" required></div>
+          <div class="form-group"><label>Password</label><input type="text" name="password" placeholder="Leave blank for ChangeMe123!"></div>
+          <div class="form-group"><label>Address</label><input type="text" name="address"></div>
+          <div class="form-group"><label>City</label><input type="text" name="city"></div>
+          <div class="form-group"><label>Postal Code</label><input type="text" name="postal_code"></div>
+          <div class="form-group"><label>Emergency Contact Name</label><input type="text" name="emergency_contact_name"></div>
+          <div class="form-group"><label>Emergency Contact Phone</label><input type="text" name="emergency_contact_phone"></div>
+        </div>
+      </div>
+
+      <div class="admin-card">
+        <h3>Work Information</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Role</label>
+            <select name="role">
+              <% DRIVER_ROLES.forEach(r => { %><option value="<%= r %>"><%= r %></option><% }) %>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Employment Type</label>
+            <select name="employment_type">
+              <% EMPLOYMENT_TYPES.forEach(t => { %><option value="<%= t %>"><%= t %></option><% }) %>
+            </select>
+          </div>
+          <div class="form-group"><label>Start Date</label><input type="date" name="start_date"></div>
+          <div class="form-group">
+            <label>Work Area</label>
+            <select name="work_area">
+              <option value="">— select —</option>
+              <% WORK_AREAS.forEach(a => { %><option value="<%= a %>"><%= a %></option><% }) %>
+            </select>
+          </div>
+          <div class="form-group"><label>Preferred Work Days</label><input type="text" name="preferred_work_days" placeholder="e.g. Mon-Fri"></div>
+        </div>
+        <div class="form-grid" style="margin-top:10px;">
+          <div class="form-group"><label><input type="checkbox" name="can_drive_vehicle" value="1" checked> Can Drive Vehicle?</label></div>
+          <div class="form-group"><label><input type="checkbox" name="can_work_as_bifahrer" value="1" checked> Can Work as Bifahrer?</label></div>
+          <div class="form-group"><label><input type="checkbox" name="can_lead_team" value="1"> Can Lead Team?</label></div>
+          <div class="form-group"><label><input type="checkbox" name="can_work_night_shift" value="1"> Can Work Night Shift?</label></div>
+          <div class="form-group"><label><input type="checkbox" name="can_work_weekend" value="1"> Can Work Weekend?</label></div>
+        </div>
+      </div>
+
+      <button class="btn" type="submit" style="font-size:16px; padding:12px 24px;">Save Driver</button>
+    </form>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,27 @@
+<% const activeTeam = teamsAsMain.find(t => ['Planned','Active'].includes(t.status));
+   const upcomingVacation = vacations.find(v => ['Planned','Pending Approval','Approved'].includes(v.status));
+%>
+<div class="admin-card">
+  <h3>Summary</h3>
+  <div class="form-grid">
+    <div><strong>Driver Name:</strong> <%= driver.name %></div>
+    <div><strong>Status:</strong> <%= driver.status %></div>
+    <div><strong>Role:</strong> <%= driver.role %></div>
+    <div><strong>Assigned Car:</strong> <%= assignedVehicle ? assignedVehicle.vehicle_name : 'None' %></div>
+    <div><strong>Bifahrer:</strong> <%= activeTeam && activeTeam.bifahrer_id ? driverNameById[activeTeam.bifahrer_id] : 'None' %></div>
+    <div><strong>Work Area:</strong> <%= driver.work_area || '—' %></div>
+    <div><strong>Vacation:</strong> <%= upcomingVacation ? (upcomingVacation.date_from + ' – ' + upcomingVacation.date_to) : 'None planned' %></div>
+    <div><strong>Documents:</strong> <%= documents.length > 0 ? documents.length + ' on file' : 'None' %></div>
+  </div>
+</div>
+
+<div class="admin-card">
+  <h3>Quick Actions</h3>
+  <div style="display:flex; gap:10px; flex-wrap:wrap;">
+    <button type="button" class="btn btn-outline btn-sm" onclick="document.querySelector('[data-tab=personal]').click()">Edit Driver</button>
+    <button type="button" class="btn btn-outline btn-sm" onclick="document.querySelector('[data-tab=availability]').click()">Change Status</button>
+    <button type="button" class="btn btn-outline btn-sm" onclick="document.querySelector('[data-tab=vehicle]').click()">Assign Car</button>
+    <button type="button" class="btn btn-outline btn-sm" onclick="document.querySelector('[data-tab=vacation]').click()">Plan Vacation</button>
+    <button type="button" class="btn btn-outline btn-sm" onclick="document.querySelector('[data-tab=documents]').click()">Upload Document</button>
+  </div>
+</div>

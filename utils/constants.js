@@ -125,14 +125,18 @@ const INVENTORY_APPROVAL_STATUSES = [
 
 const DRIVER_STATUS_OPTIONS = [
   "Available",
+  "Available Later",
   "Assigned",
   "On Work",
   "Loading",
   "Unloading",
   "On Break",
+  "Completed",
   "Sick Leave",
   "Absent",
-  "Completed"
+  "Vacation",
+  "Not Available",
+  "Inactive"
 ];
 
 const DRIVER_APP_STATUS_OPTIONS = [
@@ -174,6 +178,72 @@ const COMPLETION_STATUS_OPTIONS = [
 
 const PRIORITY_OPTIONS = ["Normal", "High", "Urgent"];
 
+// ---------- Standalone Driver / Team Management ----------
+
+const DRIVER_ROLES = [
+  "Driver",
+  "Bifahrer",
+  "Team Lead",
+  "Warehouse Helper",
+  "Temporary Driver",
+  "Student Helper",
+  "Freelancer"
+];
+
+const EMPLOYMENT_TYPES = [
+  "Full-time",
+  "Part-time",
+  "Minijob",
+  "Student",
+  "Freelancer",
+  "Temporary",
+  "Subcontractor"
+];
+
+const VEHICLE_TYPES = ["Transporter", "Van", "Truck", "Car", "Trailer", "Other"];
+
+const VEHICLE_STATUSES = [
+  "Available",
+  "Assigned",
+  "On Work",
+  "In Service",
+  "Damaged",
+  "Unavailable",
+  "Reserved",
+  "Inactive"
+];
+
+const TEAM_STATUSES = ["Planned", "Active", "Completed", "Cancelled", "Changed"];
+
+const VACATION_TYPES = ["Annual Leave", "Unpaid Leave", "Family Leave", "Personal Leave", "Other"];
+
+const VACATION_STATUSES = ["Planned", "Pending Approval", "Approved", "Rejected", "Cancelled", "Completed"];
+
+const ABSENCE_TYPES = ["Sick Leave", "Absent", "Emergency Leave", "No Show", "Late Arrival", "Early Leave"];
+
+const ABSENCE_STATUSES = [
+  "Active",
+  "Resolved",
+  "Pending Document",
+  "Unexcused",
+  "Approved",
+  "Rejected",
+  "Closed"
+];
+
+const DRIVER_NOTE_TYPES = [
+  "General Note",
+  "Performance Note",
+  "Availability Note",
+  "Vehicle Note",
+  "Behavior Note",
+  "Document Note",
+  "Warning Note",
+  "Positive Feedback"
+];
+
+const WORK_AREAS = ["Munich North", "Munich South", "Munich East", "Munich West", "Munich Center", "Other"];
+
 module.exports = {
   REQUEST_TYPES,
   URGENCY_OPTIONS,
@@ -191,5 +261,16 @@ module.exports = {
   DRIVER_APP_STATUS_OPTIONS,
   MAP_STATUS_OPTIONS,
   COMPLETION_STATUS_OPTIONS,
-  PRIORITY_OPTIONS
+  PRIORITY_OPTIONS,
+  DRIVER_ROLES,
+  EMPLOYMENT_TYPES,
+  VEHICLE_TYPES,
+  VEHICLE_STATUSES,
+  TEAM_STATUSES,
+  VACATION_TYPES,
+  VACATION_STATUSES,
+  ABSENCE_TYPES,
+  ABSENCE_STATUSES,
+  DRIVER_NOTE_TYPES,
+  WORK_AREAS
 };

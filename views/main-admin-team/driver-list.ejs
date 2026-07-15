@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Driver List — SiteGuard</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="admin-shell">
+  <%- include('../partials/team-sidebar', { active: 'drivers' }) %>
+
+  <div class="admin-main">
+    <div class="admin-topline">
+      <h1>Driver List</h1>
+      <a class="btn btn-sm" style="text-decoration:none;" href="/main-admin/team/drivers/new">+ Add Driver</a>
+    </div>
+
+    <form class="filter-bar" method="GET" action="/main-admin/team/drivers">
+      <input type="text" name="q" placeholder="Search name, phone, email…" value="<%= filters.q %>">
+      <select name="status">
+        <option value="">All statuses</option>
+        <% DRIVER_STATUS_OPTIONS.forEach(s => { %><option value="<%= s %>" <%= filters.status === s ? 'selected' : '' %>><%= s %></option><% }) %>
+      </select>
+      <select name="role">
+        <option value="">All roles</option>
+        <% DRIVER_ROLES.forEach(r => { %><option value="<%= r %>" <%= filters.role === r ? 'selected' : '' %>><%= r %></option><% }) %>
+      </select>
+      <select name="area">
+        <option value="">All areas</option>
+        <% WORK_AREAS.forEach(a => { %><option value="<%= a %>" <%= filters.area === a ? 'selected' : '' %>><%= a %></option><% }) %>
+      </select>
+      <select name="car">
+        <option value="">Car: any</option>
+        <option value="with" <%= filters.car === 'with' ? 'selected' : '' %>>With car</option>
+        <option value="without" <%= filters.car === 'without' ? 'selected' : '' %>>Without car</option>
+      </select>
+      <button class="btn btn-outline btn-sm" type="submit">Filter</button>
+    </form>
+
+    <div class="data-table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Driver ID</th><th>Name</th><th>Phone</th><th>Role</th><th>Status</th>
+            <th>Car</th><th>Work Area</th><th>Employment</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (drivers.length === 0) { %>
+            <tr><td colspan="8" style="text-align:center; color:#8a8f90;">No drivers match these filters.</td></tr>
+          <% } %>
+          <% drivers.forEach(d => { %>
+            <tr onclick="window.location='/main-admin/team/drivers/<%= d.id %>'" style="cursor:pointer;">
+              <td><%= displayDriverId(d.id) %></td>
+              <td><%= d.name %></td>
+              <td><%= d.phone || '—' %></td>
+              <td><%= d.role %></td>
+              <td><span class="badge badge-<%= statusBadgeClass(d.status) %>"><%= d.status %></span></td>
+              <td><%= d.vehicle_name || 'none' %></td>
+              <td><%= d.work_area || '—' %></td>
+              <td><%= d.employment_type %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+</body>
+</html>

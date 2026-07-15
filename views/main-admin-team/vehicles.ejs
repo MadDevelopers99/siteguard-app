@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vehicles — SiteGuard</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="admin-shell">
+  <%- include('../partials/team-sidebar', { active: 'vehicles' }) %>
+
+  <div class="admin-main">
+    <div class="admin-topline">
+      <h1>Vehicles</h1>
+      <a class="btn btn-sm" style="text-decoration:none;" href="/main-admin/team/vehicles/new">+ Add Vehicle</a>
+    </div>
+
+    <div class="data-table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr><th>Vehicle ID</th><th>Name</th><th>Plate Number</th><th>Type</th><th>Assigned Driver</th><th>Status</th><th>Actions</th></tr>
+        </thead>
+        <tbody>
+          <% if (vehicles.length === 0) { %>
+            <tr><td colspan="7" style="text-align:center; color:#8a8f90;">No vehicles yet.</td></tr>
+          <% } %>
+          <% vehicles.forEach(v => { %>
+            <tr>
+              <td><%= displayVehicleId(v.id) %></td>
+              <td><%= v.vehicle_name %></td>
+              <td><%= v.plate_number || '—' %></td>
+              <td><%= v.vehicle_type || '—' %></td>
+              <td><%= v.driver_name || '—' %></td>
+              <td><span class="badge badge-<%= statusBadgeClass(v.status) %>"><%= v.status %></span></td>
+              <td><a class="btn btn-outline btn-sm" style="text-decoration:none;" href="/main-admin/team/vehicles/<%= v.id %>/edit">Edit</a></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+</body>
+</html>

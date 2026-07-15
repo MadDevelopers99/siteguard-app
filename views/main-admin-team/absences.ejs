@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sick Leave &amp; Absence — SiteGuard</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="admin-shell">
+  <%- include('../partials/team-sidebar', { active: 'absences' }) %>
+
+  <div class="admin-main">
+    <div class="admin-topline">
+      <h1>Sick Leave &amp; Absence</h1>
+    </div>
+
+    <div class="admin-card">
+      <h3>Sick / Absence Table</h3>
+      <div class="data-table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr><th>Driver</th><th>Type</th><th>From</th><th>To</th><th>Status</th><th>Notes</th><th>Actions</th></tr>
+          </thead>
+          <tbody>
+            <% if (absences.length === 0) { %>
+              <tr><td colspan="7" style="text-align:center; color:#8a8f90;">No sick leave or absence records.</td></tr>
+            <% } %>
+            <% absences.forEach(a => { %>
+              <tr>
+                <td><%= a.driver_name %></td>
+                <td><%= a.absence_type %></td>
+                <td><%= a.date_from %></td>
+                <td><%= a.date_to || '—' %></td>
+                <td><span class="badge badge-<%= statusBadgeClass(a.status) %>"><%= a.status %></span></td>
+                <td><%= a.reason || a.notes || '—' %></td>
+                <td>
+                  <% if (a.status !== 'Resolved' && a.status !== 'Closed') { %>
+                    <form method="POST" action="/main-admin/team/absences/<%= a.id %>/resolve" style="margin:0;">
+                      <button class="btn btn-outline btn-sm" type="submit">Mark Resolved</button>
+                    </form>
+                  <% } %>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="admin-card">
+      <h3>+ Mark Sick / Absent</h3>
+      <form method="POST" action="/main-admin/team/absences" class="form-grid">
+        <div class="form-group">
+          <label>Driver</label>
+          <select name="driver_id" required>
+            <option value="">— select —</option>
+            <% drivers.forEach(d => { %><option value="<%= d.id %>"><%= d.name %></option><% }) %>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Type</label>
+          <select name="absence_type">
+            <% ABSENCE_TYPES.forEach(t => { %><option value="<%= t %>"><%= t %></option><% }) %>
+          </select>
+        </div>
+        <div class="form-group"><label>From</label><input type="date" name="date_from" required></div>
+        <div class="form-group"><label>To</label><input type="date" name="date_to"></div>
+        <div class="form-group"><label><input type="checkbox" name="full_day" value="1" checked> Full Day</label></div>
+        <div class="form-group"><label><input type="checkbox" name="document_required" value="1"> Document Required?</label></div>
+        <div class="form-group"><label>Reason</label><input type="text" name="reason"></div>
+        <div class="form-group full"><label>Internal Notes</label><textarea name="notes" rows="2"></textarea></div>
+        <div class="form-group"><button class="btn btn-sm" type="submit">Save</button></div>
+      </form>
+    </div>
+  </div>
+</div>
+</body>
+</html>

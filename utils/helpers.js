@@ -28,7 +28,7 @@ function formatEUR(amount) {
 // adding a new CSS class per status. Order matters — checked top to bottom.
 const STATUS_BADGE_RULES = [
   [/cancel|problem|blocked|missing|reject|damaged|not available/i, "cancelled"],
-  [/approv|ready|complet|ok\b|deliver/i, "delivered"],
+  [/approv|ready|complet|ok\b|deliver|avail|active/i, "delivered"],
   [/review|pending|needs|waiting|hold|check/i, "pending"],
   [/progress|loading|unload|route|arriv|setup|removal|work/i, "dispatched"],
   [/new|sent|assign|receiv|accept/i, "confirmed"]

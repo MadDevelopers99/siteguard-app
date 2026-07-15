@@ -42,6 +42,9 @@ router.post("/logout", (req, res) => {
 
 router.use(requireMainAdmin);
 
+// ---------- Standalone Driver / Team Management ----------
+router.use("/team", require("./main-admin-team"));
+
 function ensureOrderSubRows(orderId) {
   db.prepare("INSERT OR IGNORE INTO order_operational_planning (order_id) VALUES (?)").run(orderId);
   db.prepare("INSERT OR IGNORE INTO order_driver_assignment (order_id) VALUES (?)").run(orderId);

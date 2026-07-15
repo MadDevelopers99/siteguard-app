@@ -1,0 +1,21 @@
+<div class="admin-card">
+  <h3>Availability Status</h3>
+  <div class="form-grid" style="margin-bottom:16px;">
+    <div><strong>Current Status:</strong> <%= driver.status %></div>
+    <div><strong>Available From:</strong> <%= driver.availability_from || '—' %></div>
+    <div><strong>Available Until:</strong> <%= driver.availability_until || '—' %></div>
+  </div>
+
+  <form method="POST" action="/main-admin/team/drivers/<%= driver.id %>/status" class="form-grid">
+    <div class="form-group">
+      <label>New Status</label>
+      <select name="status">
+        <% DRIVER_STATUS_OPTIONS.forEach(s => { %><option value="<%= s %>" <%= driver.status === s ? 'selected' : '' %>><%= s %></option><% }) %>
+      </select>
+    </div>
+    <div class="form-group"><label>Available From (time)</label><input type="time" name="availability_from" value="<%= driver.availability_from || '' %>"></div>
+    <div class="form-group"><label>Available Until (time)</label><input type="time" name="availability_until" value="<%= driver.availability_until || '' %>"></div>
+    <div class="form-group full"><label>Reason</label><input type="text" name="reason" placeholder="e.g. Appointment"></div>
+    <div class="form-group"><button class="btn btn-sm" type="submit">Update Status</button></div>
+  </form>
+</div>
