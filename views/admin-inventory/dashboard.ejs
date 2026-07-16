@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Main Inventory Dashboard — SiteGuard</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="admin-shell">
+  <%- include('../partials/inventory-sidebar', { active: 'inv-dashboard' }) %>
+
+  <div class="admin-main">
+    <div class="admin-topline">
+      <h1>Main Inventory Dashboard</h1>
+      <a class="btn btn-sm" style="text-decoration:none;" href="/admin/inventory/items/new">+ Add Item</a>
+    </div>
+    <p style="color:var(--steel); margin:-14px 0 20px; font-size:14px;">
+      The real operational stock used for daily work.
+    </p>
+
+    <div class="stat-row">
+      <div class="stat-card"><span class="num"><%= stats.totalItems %></span><span class="label">Total Items</span></div>
+      <div class="stat-card"><span class="num"><%= stats.totalStockQty %></span><span class="label">Total Stock Quantity</span></div>
+      <div class="stat-card"><span class="num"><%= stats.availableForUse %></span><span class="label">Available for Use</span></div>
+      <div class="stat-card"><span class="num"><%= stats.reservedQty %></span><span class="label">Reserved Quantity</span></div>
+    </div>
+    <div class="stat-row">
+      <div class="stat-card"><span class="num"><%= stats.lowStockItems %></span><span class="label">Low Stock Items</span></div>
+      <div class="stat-card"><span class="num"><%= stats.outOfStockItems %></span><span class="label">Out of Stock Items</span></div>
+      <div class="stat-card"><span class="num"><%= stats.damagedItems %></span><span class="label">Damaged Items</span></div>
+      <div class="stat-card"><span class="num"><%= stats.missingItems %></span><span class="label">Missing Items</span></div>
+    </div>
+    <div class="stat-row">
+      <div class="stat-card"><span class="num"><%= lastCount ? lastCount.count_date : '—' %></span><span class="label">Last Stock Count</span></div>
+    </div>
+
+    <div class="admin-card">
+      <h3>Quick Actions</h3>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <a class="btn btn-outline btn-sm" style="text-decoration:none;" href="/admin/inventory/items/new">+ Add Item</a>
+        <a class="btn btn-outline btn-sm" style="text-decoration:none;" href="/admin/inventory/items">Item List</a>
+        <a class="btn btn-outline btn-sm" style="text-decoration:none;" href="/admin/inventory/damaged-missing">+ Mark Damaged / Missing</a>
+        <a class="btn btn-outline btn-sm" style="text-decoration:none;" href="/admin/inventory/stock-counts">+ Start Stock Count</a>
+        <a class="btn btn-outline btn-sm" style="text-decoration:none;" href="/admin/inventory/low-stock">Low Stock Alerts</a>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

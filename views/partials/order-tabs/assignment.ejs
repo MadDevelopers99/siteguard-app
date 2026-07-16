@@ -41,6 +41,18 @@
         <% }) %>
       </select>
     </div>
+    <div class="form-group">
+      <label>Task Type</label>
+      <select name="task_type">
+        <% TASK_TYPE_OPTIONS.forEach(t => { %><option value="<%= t %>" <%= assignment.task_type === t ? 'selected' : '' %>><%= t %></option><% }) %>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Inventory Mode</label>
+      <select name="inventory_mode">
+        <% INVENTORY_MODE_OPTIONS.forEach(m => { %><option value="<%= m %>" <%= assignment.inventory_mode === m ? 'selected' : '' %>><%= m %></option><% }) %>
+      </select>
+    </div>
     <div class="form-group"><label>Vehicle</label><input type="text" name="vehicle" value="<%= assignment.vehicle || '' %>"></div>
     <div class="form-group"><label>Loading Time</label><input type="time" name="loading_time" value="<%= assignment.loading_time || '' %>"></div>
     <div class="form-group"><label>Setup Time</label><input type="time" name="setup_time" value="<%= assignment.setup_time || '' %>"></div>

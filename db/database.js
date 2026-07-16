@@ -353,6 +353,208 @@ CREATE TABLE IF NOT EXISTS driver_history (
   created_at TEXT DEFAULT (datetime('now'))
 );
 
+CREATE TABLE IF NOT EXISTS task_issues (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  order_id INTEGER NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
+  driver_id INTEGER REFERENCES drivers(id),
+  issue_type TEXT DEFAULT 'Other',
+  priority TEXT DEFAULT 'Normal',
+  description TEXT,
+  location TEXT,
+  status TEXT DEFAULT 'Open', -- Open, Resolved
+  driver_note TEXT,
+  created_at TEXT DEFAULT (datetime('now')),
+  resolved_at TEXT
+);
+
+CREATE INDEX IF NOT EXISTS idx_task_issues_order ON task_issues(order_id);
+
+-- ---------- Main Inventory ----------
+
+CREATE TABLE IF NOT EXISTS stock_movements (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  item_id INTEGER NOT NULL REFERENCES inventory_catalog(id) ON DELETE CASCADE,
+  movement_type TEXT NOT NULL, -- 'in', 'out', 'adjustment'
+  quantity REAL NOT NULL,
+  date TEXT DEFAULT (datetime('now')),
+  source_type TEXT,
+  source_reference TEXT,
+  reason TEXT,
+  storage_location TEXT,
+  created_by TEXT,
+  approved_by TEXT,
+  notes TEXT,
+  created_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS damaged_missing_records (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  item_id INTEGER NOT NULL REFERENCES inventory_catalog(id) ON DELETE CASCADE,
+  type TEXT DEFAULT 'Damaged', -- Damaged, Missing, Lost, Broken, Stolen, Disposed
+  quantity REAL NOT NULL,
+  source TEXT,
+  date TEXT DEFAULT (datetime('now')),
+  reported_by TEXT,
+  reason TEXT,
+  repairable INTEGER DEFAULT 0,
+  replacement_needed INTEGER DEFAULT 0,
+  status TEXT DEFAULT 'Open',
+  notes TEXT,
+  created_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS stock_counts (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  count_date TEXT DEFAULT (datetime('now')),
+  storage_location TEXT,
+  counted_by TEXT,
+  approved_by TEXT,
+  status TEXT DEFAULT 'In Progress', -- In Progress, Pending Approval, Approved, Closed
+  notes TEXT,
+  created_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS stock_count_items (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  stock_count_id INTEGER NOT NULL REFERENCES stock_counts(id) ON DELETE CASCADE,
+  item_id INTEGER NOT NULL REFERENCES inventory_catalog(id),
+  system_qty REAL,
+  counted_qty REAL,
+  difference REAL,
+  action TEXT
+);
+
+-- ---------- Purchase & Sell-to-SG ----------
+
+CREATE TABLE IF NOT EXISTS suppliers (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  contact_person TEXT,
+  phone TEXT,
+  email TEXT,
+  address TEXT,
+  vat_id TEXT,
+  payment_terms TEXT,
+  category TEXT,
+  notes TEXT,
+  status TEXT DEFAULT 'Active',
+  created_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS purchase_orders (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  po_number TEXT UNIQUE NOT NULL,
+  supplier_id INTEGER NOT NULL REFERENCES suppliers(id),
+  order_date TEXT DEFAULT (datetime('now')),
+  expected_delivery_date TEXT,
+  payment_terms TEXT,
+  supplier_invoice_number TEXT,
+  delivery_address TEXT,
+  created_by TEXT,
+  status TEXT DEFAULT 'Draft',
+  net_amount REAL DEFAULT 0,
+  vat_amount REAL DEFAULT 0,
+  gross_amount REAL DEFAULT 0,
+  notes TEXT,
+  created_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS purchase_order_items (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  po_id INTEGER NOT NULL REFERENCES purchase_orders(id) ON DELETE CASCADE,
+  item_name TEXT NOT NULL,
+  supplier_article_no TEXT,
+  qty REAL NOT NULL,
+  unit_cost REAL NOT NULL,
+  net_total REAL NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS goods_receipts (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  gr_number TEXT UNIQUE NOT NULL,
+  po_id INTEGER NOT NULL REFERENCES purchase_orders(id),
+  supplier_id INTEGER NOT NULL REFERENCES suppliers(id),
+  received_date TEXT DEFAULT (datetime('now')),
+  received_by TEXT,
+  delivery_note_number TEXT,
+  condition TEXT,
+  storage_location TEXT,
+  status TEXT DEFAULT 'Complete', -- Partial, Complete
+  notes TEXT,
+  created_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS goods_receipt_items (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  goods_receipt_id INTEGER NOT NULL REFERENCES goods_receipts(id) ON DELETE CASCADE,
+  po_item_id INTEGER REFERENCES purchase_order_items(id),
+  item_name TEXT NOT NULL,
+  ordered_qty REAL,
+  received_qty REAL NOT NULL,
+  difference REAL DEFAULT 0,
+  condition TEXT DEFAULT 'Good'
+);
+
+CREATE TABLE IF NOT EXISTS wholesale_batches (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  batch_number TEXT UNIQUE NOT NULL,
+  po_id INTEGER REFERENCES purchase_orders(id),
+  supplier_id INTEGER REFERENCES suppliers(id),
+  item_name TEXT NOT NULL,
+  purchase_date TEXT DEFAULT (datetime('now')),
+  purchased_qty REAL NOT NULL,
+  available_qty REAL NOT NULL,
+  purchase_unit_cost REAL DEFAULT 0,
+  landed_cost REAL DEFAULT 0,
+  internal_sg_sell_price REAL DEFAULT 0,
+  storage_location TEXT,
+  status TEXT DEFAULT 'Available',
+  notes TEXT,
+  created_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS internal_sales (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  sale_number TEXT UNIQUE NOT NULL,
+  sale_date TEXT DEFAULT (datetime('now')),
+  selling_unit TEXT DEFAULT 'Purchase & Sell-to-SG',
+  buying_unit_sg TEXT DEFAULT 'SG Main Stock',
+  reference_number TEXT,
+  net_amount REAL DEFAULT 0,
+  vat_amount REAL DEFAULT 0,
+  gross_amount REAL DEFAULT 0,
+  status TEXT DEFAULT 'Draft',
+  created_by TEXT,
+  approved_by TEXT,
+  notes TEXT,
+  created_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS internal_sale_items (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  internal_sale_id INTEGER NOT NULL REFERENCES internal_sales(id) ON DELETE CASCADE,
+  batch_id INTEGER REFERENCES wholesale_batches(id),
+  item_name TEXT NOT NULL,
+  qty_sold REAL NOT NULL,
+  internal_unit_price REAL NOT NULL,
+  net_total REAL NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS price_rules (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  rule_name TEXT NOT NULL,
+  item_category TEXT,
+  calculation_method TEXT DEFAULT 'Fixed markup %',
+  markup_pct REAL,
+  fixed_fee REAL,
+  fixed_price REAL,
+  minimum_price REAL,
+  valid_from TEXT,
+  valid_to TEXT,
+  status TEXT DEFAULT 'Active',
+  created_at TEXT DEFAULT (datetime('now'))
+);
+
 CREATE INDEX IF NOT EXISTS idx_requests_client ON requests(client_id);
 CREATE INDEX IF NOT EXISTS idx_request_inventory_request ON request_inventory(request_id);
 CREATE INDEX IF NOT EXISTS idx_request_pricing_request ON request_pricing(request_id);
@@ -362,6 +564,12 @@ CREATE INDEX IF NOT EXISTS idx_driver_vacations_driver ON driver_vacations(drive
 CREATE INDEX IF NOT EXISTS idx_driver_absences_driver ON driver_absences(driver_id);
 CREATE INDEX IF NOT EXISTS idx_driver_notes_driver ON driver_notes(driver_id);
 CREATE INDEX IF NOT EXISTS idx_driver_history_driver ON driver_history(driver_id);
+CREATE INDEX IF NOT EXISTS idx_stock_movements_item ON stock_movements(item_id);
+CREATE INDEX IF NOT EXISTS idx_damaged_missing_item ON damaged_missing_records(item_id);
+CREATE INDEX IF NOT EXISTS idx_stock_count_items_count ON stock_count_items(stock_count_id);
+CREATE INDEX IF NOT EXISTS idx_po_items_po ON purchase_order_items(po_id);
+CREATE INDEX IF NOT EXISTS idx_gr_items_gr ON goods_receipt_items(goods_receipt_id);
+CREATE INDEX IF NOT EXISTS idx_internal_sale_items_sale ON internal_sale_items(internal_sale_id);
 `);
 
 // ---------- Lightweight column migrations ----------
@@ -432,6 +640,25 @@ function ensureColumn(table, column, definition) {
 ].forEach(([column, definition]) => ensureColumn("drivers", column, definition));
 
 [
+  ["article_number", "TEXT"],
+  ["barcode", "TEXT"],
+  ["subcategory", "TEXT"],
+  ["description", "TEXT"],
+  ["reserved_qty", "REAL DEFAULT 0"],
+  ["damaged_qty", "REAL DEFAULT 0"],
+  ["missing_qty", "REAL DEFAULT 0"],
+  ["minimum_stock", "REAL DEFAULT 0"],
+  ["maximum_stock", "REAL"],
+  ["storage_location", "TEXT"],
+  ["average_purchase_price", "REAL"],
+  ["replacement_cost", "REAL"],
+  ["usage_price", "REAL"],
+  ["main_supplier_id", "INTEGER REFERENCES suppliers(id)"],
+  ["status", "TEXT DEFAULT 'Available'"],
+  ["is_active", "INTEGER DEFAULT 1"]
+].forEach(([column, definition]) => ensureColumn("inventory_catalog", column, definition));
+
+[
   ["main_admin_approved_qty", "REAL"],
   ["main_admin_status", "TEXT DEFAULT 'Pending Review'"],
   ["issued_qty", "REAL"],
@@ -439,8 +666,22 @@ function ensureColumn(table, column, definition) {
   ["returned_qty", "REAL"],
   ["damaged_qty", "REAL"],
   ["missing_qty", "REAL"],
-  ["final_status", "TEXT"]
+  ["final_status", "TEXT"],
+  ["loaded_qty", "REAL"],
+  ["picked_qty", "REAL"]
 ].forEach(([column, definition]) => ensureColumn("request_inventory", column, definition));
+
+[
+  ["task_type", "TEXT DEFAULT 'Setup / Deployment'"],
+  ["inventory_mode", "TEXT DEFAULT 'Loading Required'"],
+  ["reject_reason", "TEXT"],
+  ["stop_order", "INTEGER"],
+  ["route_approved", "INTEGER DEFAULT 0"],
+  ["work_started_at", "TEXT"],
+  ["work_completed_at", "TEXT"]
+].forEach(([column, definition]) => ensureColumn("order_driver_assignment", column, definition));
+
+[["gps_location", "TEXT"]].forEach(([column, definition]) => ensureColumn("documents", column, definition));
 
 // ---------- Main Admin account seed ----------
 // Idempotent, same pattern as the inventory catalog seed below: creates a second

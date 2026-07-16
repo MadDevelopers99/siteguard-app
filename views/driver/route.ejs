@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Route Plan — SiteGuard Driver</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="driver-shell">
+  <div class="driver-topbar">
+    <span class="brand">Route Plan</span>
+    <form method="POST" action="/driver/logout" style="margin:0;">
+      <button type="submit">Log out (<%= driverName %>)</button>
+    </form>
+  </div>
+
+  <div class="driver-main">
+    <% if (tasks.length === 0) { %>
+      <div class="driver-card"><p style="color:#8a8f90;">No accepted tasks right now.</p></div>
+    <% } else { %>
+      <div class="driver-card">
+        <p style="color:#8a8f90; font-size:13px;">
+          <%= routeApproved ? 'This route has been approved.' : 'Suggested order — approve it or adjust the position numbers, then save.' %>
+        </p>
+      </div>
+      <form method="POST" action="/driver/route/save">
+        <% tasks.forEach((t, idx) => { %>
+          <div class="driver-card">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <div>
+                <div class="job-title"><%= idx + 1 %>. <%= t.order_number %> — <%= t.client_company || t.client_name %></div>
+                <div class="job-meta"><%= t.task_type %> · <%= fullAddress(t) || 'No location' %></div>
+                <div class="job-meta">Priority: <%= t.priority || 'Normal' %></div>
+                <div class="job-meta"><%= recommendedAction(t) %></div>
+              </div>
+              <div>
+                <input type="hidden" name="order_id" value="<%= t.order_id %>">
+                <input type="number" name="position" value="<%= idx + 1 %>" min="1" style="width:60px; padding:8px; text-align:center;">
+              </div>
+            </div>
+            <a class="driver-btn-lg outline" href="/driver/tasks/<%= t.order_id %>" style="margin-top:10px;">Open Task</a>
+          </div>
+        <% }) %>
+        <button class="driver-btn-lg" type="submit"><%= routeApproved ? 'Save Order' : 'Approve Suggested Route' %></button>
+      </form>
+    <% } %>
+
+    <div class="driver-card">
+      <a class="driver-btn-lg outline" href="/driver/sg">Navigate to SG</a>
+    </div>
+  </div>
+
+  <%- include('../partials/driver-bottomnav', { active: 'route', currentTaskId: tasks.length ? tasks[0].order_id : null }) %>
+</div>
+</body>
+</html>

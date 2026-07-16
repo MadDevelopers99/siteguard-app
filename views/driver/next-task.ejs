@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Next Task — SiteGuard Driver</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="driver-shell">
+  <div class="driver-topbar">
+    <span class="brand">Task Submitted</span>
+  </div>
+
+  <div class="driver-main">
+    <div class="driver-card">
+      <h3>Task submitted for review.</h3>
+    </div>
+
+    <% if (nextTask) { %>
+      <div class="driver-card">
+        <h3>Next Recommended Task</h3>
+        <p><strong><%= nextTask.order_number %></strong> — <%= nextTask.client_company || nextTask.client_name %></p>
+        <p><%= nextTask.task_type %> · <%= fullAddress(nextTask) || 'No location' %></p>
+        <p>Inventory: <%= nextTask.inventory_mode %></p>
+        <% if (nextTask.inventory_mode === 'Loading Required') { %>
+          <p>Recommended action: Return to SG first to load material.</p>
+          <a class="driver-btn-lg" href="/driver/sg">Navigate to SG for Loading</a>
+        <% } else { %>
+          <p>You can go directly to this task.</p>
+          <a class="driver-btn-lg" href="/driver/tasks/<%= nextTask.order_id %>">Go to This Task</a>
+        <% } %>
+        <a class="driver-btn-lg outline" href="/driver/tasks" style="margin-top:8px;">Show Other Tasks</a>
+      </div>
+    <% } else { %>
+      <div class="driver-card">
+        <h3>All accepted tasks are completed.</h3>
+        <p>Navigate back to SG / Company?</p>
+        <a class="driver-btn-lg" href="/driver/sg">Navigate to SG</a>
+        <a class="driver-btn-lg outline" href="/driver/tasks" style="margin-top:8px;">View Completed Tasks</a>
+      </div>
+    <% } %>
+  </div>
+
+  <%- include('../partials/driver-bottomnav', { active: 'tasks' }) %>
+</div>
+</body>
+</html>

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Tasks — SiteGuard Driver</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="driver-shell">
+  <div class="driver-topbar">
+    <span class="brand">My Tasks</span>
+    <form method="POST" action="/driver/logout" style="margin:0;">
+      <button type="submit">Log out (<%= driverName %>)</button>
+    </form>
+  </div>
+
+  <div class="driver-main">
+    <% if (tasks.length === 0) { %>
+      <div class="driver-card"><p style="color:#8a8f90;">No tasks assigned yet.</p></div>
+    <% } %>
+    <% tasks.forEach(t => { %>
+      <div class="driver-card">
+        <a href="/driver/tasks/<%= t.order_id %>" style="text-decoration:none; color:inherit;">
+          <div class="job-title"><%= t.order_number %> — <%= t.client_company || t.client_name %></div>
+          <div class="job-meta"><%= t.task_type %> · <%= t.inventory_mode %></div>
+          <div class="job-meta"><%= fullAddress(t) || 'No location set' %></div>
+          <div class="job-meta"><%= t.date_from || '—' %> <%= t.time_from || '' %> · Priority: <%= t.priority || 'Normal' %></div>
+          <div class="job-meta" style="margin-top:6px;"><span class="badge badge-<%= t.driver_app_status === 'Blocked' || t.driver_app_status === 'Rejected' ? 'cancelled' : 'confirmed' %>"><%= t.driver_app_status %></span></div>
+        </a>
+        <% if (t.driver_app_status === 'Sent to Driver') { %>
+          <div style="display:flex; gap:8px; margin-top:10px;">
+            <form method="POST" action="/driver/tasks/<%= t.order_id %>/accept" style="margin:0; flex:1;">
+              <button class="driver-btn-lg" type="submit" style="padding:10px;">Accept Task</button>
+            </form>
+            <form method="POST" action="/driver/tasks/<%= t.order_id %>/reject" style="margin:0; flex:1;" onsubmit="return promptReject(this);">
+              <input type="hidden" name="reject_reason" value="">
+              <button class="driver-btn-lg outline" type="submit" style="padding:10px;">Reject Task</button>
+            </form>
+          </div>
+        <% } %>
+      </div>
+    <% }) %>
+  </div>
+
+  <%- include('../partials/driver-bottomnav', { active: 'tasks' }) %>
+</div>
+
+<script>
+  function promptReject(form) {
+    const reason = prompt('Reason for rejecting? (Sick, Not available, Vehicle problem, Too far, Already assigned, Material problem, Other)');
+    if (reason === null) return false;
+    form.querySelector('input[name="reject_reason"]').value = reason;
+    return true;
+  }
+</script>
+</body>
+</html>

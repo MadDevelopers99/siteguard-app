@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title><%= order.po_number %> — SiteGuard Purchase</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="admin-shell">
+  <%- include('../partials/inventory-sidebar', { active: 'pur-orders' }) %>
+
+  <div class="admin-main">
+    <div class="admin-topline">
+      <h1><a href="/admin/purchase/orders" style="text-decoration:none;">Purchase Orders</a> &raquo; <%= order.po_number %></h1>
+      <a class="btn btn-sm" style="text-decoration:none;" href="/admin/purchase/receipts/new?po_id=<%= order.id %>">+ Goods Received</a>
+    </div>
+
+    <div class="admin-card">
+      <h3>Order Info</h3>
+      <div class="form-grid">
+        <div><strong>Supplier:</strong> <%= order.supplier_name %></div>
+        <div><strong>Order Date:</strong> <%= order.order_date %></div>
+        <div><strong>Expected Delivery:</strong> <%= order.expected_delivery_date || '—' %></div>
+        <div><strong>Status:</strong> <span class="badge badge-<%= statusBadgeClass(order.status) %>"><%= order.status %></span></div>
+        <div><strong>Net / VAT / Total:</strong> €<%= order.net_amount.toFixed(2) %> / €<%= order.vat_amount.toFixed(2) %> / €<%= order.gross_amount.toFixed(2) %></div>
+      </div>
+
+      <form method="POST" action="/admin/purchase/orders/<%= order.id %>" style="margin-top:16px; display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+        <label style="margin:0; font-size:13px; font-weight:600;">Status:</label>
+        <select name="status">
+          <% PO_STATUSES.forEach(s => { %><option value="<%= s %>" <%= order.status === s ? 'selected' : '' %>><%= s %></option><% }) %>
+        </select>
+        <label style="margin:0; font-size:13px; font-weight:600;">Supplier Invoice #:</label>
+        <input type="text" name="supplier_invoice_number" value="<%= order.supplier_invoice_number || '' %>">
+        <button class="btn btn-sm" type="submit">Save</button>
+      </form>
+    </div>
+
+    <div class="admin-card">
+      <h3>Purchase Order Items</h3>
+      <div class="data-table-wrap">
+        <table class="data-table">
+          <thead><tr><th>Item</th><th>Supplier Article #</th><th>Qty</th><th>Unit Cost</th><th>Net Total</th></tr></thead>
+          <tbody>
+            <% items.forEach(i => { %>
+              <tr>
+                <td><%= i.item_name %></td>
+                <td><%= i.supplier_article_no || '—' %></td>
+                <td><%= i.qty %></td>
+                <td>€<%= i.unit_cost.toFixed(2) %></td>
+                <td>€<%= i.net_total.toFixed(2) %></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <% if (receipts.length > 0) { %>
+      <div class="admin-card">
+        <h3>Goods Receipts</h3>
+        <div class="data-table-wrap">
+          <table class="data-table">
+            <thead><tr><th>GR #</th><th>Received Date</th><th>Status</th></tr></thead>
+            <tbody>
+              <% receipts.forEach(r => { %>
+                <tr><td><%= r.gr_number %></td><td><%= r.received_date %></td><td><span class="badge badge-<%= statusBadgeClass(r.status) %>"><%= r.status %></span></td></tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    <% } %>
+
+    <%- include('../partials/document-list', { entityType: 'purchase_order', entityId: order.id, documents, DOCUMENT_CATEGORIES, DOCUMENT_STATUSES }) %>
+  </div>
+</div>
+</body>
+</html>

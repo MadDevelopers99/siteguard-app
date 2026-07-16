@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title><%= displayCountId(stockCount.id) %> — SiteGuard Inventory</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="admin-shell">
+  <%- include('../partials/inventory-sidebar', { active: 'inv-counts' }) %>
+
+  <div class="admin-main">
+    <div class="admin-topline">
+      <h1><a href="/admin/inventory/stock-counts" style="text-decoration:none;">Stock Count</a> &raquo; <%= displayCountId(stockCount.id) %></h1>
+      <span class="badge badge-<%= statusBadgeClass(stockCount.status) %>"><%= stockCount.status %></span>
+    </div>
+
+    <div class="admin-card">
+      <h3>Count Table</h3>
+      <div class="data-table-wrap">
+        <table class="data-table">
+          <thead><tr><th>Item</th><th>System Qty</th><th>Counted Qty</th><th>Difference</th><th>Action</th></tr></thead>
+          <tbody>
+            <% if (countItems.length === 0) { %>
+              <tr><td colspan="5" style="text-align:center; color:#8a8f90;">No items counted yet.</td></tr>
+            <% } %>
+            <% countItems.forEach(ci => { %>
+              <tr>
+                <td><%= ci.item_name %></td>
+                <td><%= ci.system_qty %></td>
+                <td><%= ci.counted_qty %></td>
+                <td><%= ci.difference %></td>
+                <td><%= ci.action %></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <% if (stockCount.status !== 'Approved') { %>
+      <div class="admin-card">
+        <h3>Add Counted Quantity</h3>
+        <form method="POST" action="/admin/inventory/stock-counts/<%= stockCount.id %>/items" class="form-grid">
+          <div class="form-group">
+            <label>Item</label>
+            <select name="item_id" required>
+              <option value="">— select —</option>
+              <% items.forEach(i => { %>
+                <option value="<%= i.id %>"><%= i.item_name %> (system: <%= i.available_stock %>)</option>
+              <% }) %>
+            </select>
+          </div>
+          <div class="form-group"><label>Counted Qty</label><input type="number" step="0.1" name="counted_qty" required></div>
+          <div class="form-group"><button class="btn btn-sm" type="submit">Add Counted Quantity</button></div>
+        </form>
+      </div>
+
+      <div class="admin-card">
+        <form method="POST" action="/admin/inventory/stock-counts/<%= stockCount.id %>/approve" onsubmit="return confirm('This will create stock adjustments for every difference. Continue?');">
+          <button class="btn btn-sm" type="submit">Approve Count &amp; Create Adjustments</button>
+        </form>
+      </div>
+    <% } %>
+  </div>
+</div>
+</body>
+</html>

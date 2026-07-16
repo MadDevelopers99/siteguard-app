@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SG / Company — SiteGuard Driver</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="driver-shell">
+  <div class="driver-topbar">
+    <span class="brand">SG / Company</span>
+    <form method="POST" action="/driver/logout" style="margin:0;">
+      <button type="submit">Log out</button>
+    </form>
+  </div>
+
+  <div class="driver-main">
+    <div class="driver-card">
+      <h3><%= SG_COMPANY.name %></h3>
+      <p><%= SG_COMPANY.address %></p>
+      <p><a href="tel:<%= SG_COMPANY.phone %>"><%= SG_COMPANY.phone %></a></p>
+      <a class="driver-btn-lg" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=<%= encodeURIComponent(SG_COMPANY.address) %>">Navigate to SG</a>
+      <a class="driver-btn-lg outline" href="tel:<%= SG_COMPANY.phone %>" style="margin-top:8px;">Call Company</a>
+    </div>
+  </div>
+
+  <%- include('../partials/driver-bottomnav', { active: 'sg' }) %>
+</div>
+</body>
+</html>

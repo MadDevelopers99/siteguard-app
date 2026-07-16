@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Create Internal Sale to SG — SiteGuard Purchase</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="admin-shell">
+  <%- include('../partials/inventory-sidebar', { active: 'pur-sales' }) %>
+
+  <div class="admin-main">
+    <div class="admin-topline">
+      <h1>Create Internal Sale to SG</h1>
+      <a href="/admin/purchase/sales" style="text-decoration:none; font-size:14px;">&larr; Back to internal sales</a>
+    </div>
+
+    <% if (batches.length === 0) { %>
+      <div class="admin-card"><p style="color:#8a8f90;">No wholesale batches have available stock right now.</p></div>
+    <% } else { %>
+      <form method="POST" action="/admin/purchase/sales">
+        <div class="admin-card">
+          <h3>Items from Batch</h3>
+          <div id="lineItemsContainer"></div>
+          <button type="button" class="btn btn-outline btn-sm" id="addLineBtn">+ Add Item from Batch</button>
+        </div>
+        <div class="admin-card">
+          <label>Notes</label>
+          <textarea name="notes" rows="2" style="width:100%;"></textarea>
+        </div>
+        <button class="btn" type="submit" style="font-size:16px; padding:12px 24px;">Save Draft</button>
+      </form>
+    <% } %>
+  </div>
+</div>
+
+<script>
+  const BATCHES = <%- JSON.stringify(batches.map(b => ({ id: b.id, name: b.item_name, available: b.available_qty, price: b.internal_sg_sell_price }))) %>;
+
+  function addLineRow() {
+    const container = document.getElementById('lineItemsContainer');
+    const row = document.createElement('div');
+    row.className = 'order-line-item-row';
+    const options = BATCHES.map(b => `<option value="${b.id}" data-price="${b.price}">${b.name} (${b.available} available, €${b.price.toFixed(2)})</option>`).join('');
+    row.innerHTML = `
+      <select name="batch_id">
+        <option value="">— select batch —</option>
+        ${options}
+      </select>
+      <input type="number" name="qty_sold" value="1" min="1" step="0.1" placeholder="Qty">
+      <input type="number" name="internal_unit_price" step="0.01" placeholder="Unit price €">
+      <button type="button" class="remove-line">Remove</button>
+    `;
+    const select = row.querySelector('select');
+    const priceInput = row.querySelector('input[name="internal_unit_price"]');
+    select.addEventListener('change', () => {
+      const opt = select.options[select.selectedIndex];
+      priceInput.value = opt.dataset.price || '';
+    });
+    row.querySelector('.remove-line').addEventListener('click', () => row.remove());
+    container.appendChild(row);
+  }
+  const addBtn = document.getElementById('addLineBtn');
+  if (addBtn) {
+    addBtn.addEventListener('click', addLineRow);
+    addLineRow();
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+<div class="admin-card">
+  <h3><%= title %></h3>
+  <% if (rows.length === 0) { %>
+    <p style="color:#8a8f90;">No records.</p>
+  <% } else { %>
+    <ul style="margin:0; padding-left:20px;">
+      <% rows.forEach(r => { %>
+        <li>
+          <span style="font-family: var(--font-mono); color:#8a8f90;"><%= r.date %></span> —
+          <%= r.movement_type === 'out' ? '-' : '+' %><%= Math.abs(r.quantity) %> (<%= r.source_type || r.reason %>)
+          <% if (r.source_reference) { %>ref <%= r.source_reference %><% } %>
+          <% if (r.notes) { %> — <%= r.notes %><% } %>
+        </li>
+      <% }) %>
+    </ul>
+  <% } %>
+</div>

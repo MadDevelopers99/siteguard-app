@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Add Item — SiteGuard Inventory</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="admin-shell">
+  <%- include('../partials/inventory-sidebar', { active: 'inv-items' }) %>
+
+  <div class="admin-main">
+    <div class="admin-topline">
+      <h1>Add New Item</h1>
+      <a href="/admin/inventory/items" style="text-decoration:none; font-size:14px;">&larr; Back to item list</a>
+    </div>
+
+    <% if (typeof error !== 'undefined' && error) { %><div class="error-msg"><%= error %></div><% } %>
+
+    <form method="POST" action="/admin/inventory/items">
+      <div class="admin-card">
+        <h3>Basic Item Information</h3>
+        <div class="form-grid">
+          <div class="form-group"><label>Item Name *</label><input type="text" name="item_name" required></div>
+          <div class="form-group"><label>Category</label><input type="text" name="category"></div>
+          <div class="form-group"><label>Subcategory</label><input type="text" name="subcategory"></div>
+          <div class="form-group"><label>Article Number</label><input type="text" name="article_number"></div>
+          <div class="form-group"><label>Barcode / QR Code</label><input type="text" name="barcode"></div>
+          <div class="form-group"><label>Unit</label><input type="text" name="unit" value="pcs"></div>
+        </div>
+        <div class="form-group full" style="margin-top:10px;"><label>Description</label><textarea name="description" rows="2"></textarea></div>
+      </div>
+
+      <div class="admin-card">
+        <h3>Stock Information</h3>
+        <div class="form-grid">
+          <div class="form-group"><label>Current Stock</label><input type="number" step="0.1" name="available_stock" value="0"></div>
+          <div class="form-group"><label>Minimum Stock</label><input type="number" step="0.1" name="minimum_stock" value="0"></div>
+          <div class="form-group"><label>Maximum Stock</label><input type="number" step="0.1" name="maximum_stock"></div>
+          <div class="form-group"><label>Storage Location</label><input type="text" name="storage_location" placeholder="Rack / Shelf / Container"></div>
+        </div>
+      </div>
+
+      <div class="admin-card">
+        <h3>Pricing / Value</h3>
+        <div class="form-grid">
+          <div class="form-group"><label>Average Purchase Price (€)</label><input type="number" step="0.01" name="average_purchase_price"></div>
+          <div class="form-group"><label>Replacement Cost (€)</label><input type="number" step="0.01" name="replacement_cost"></div>
+          <div class="form-group"><label>Rental / Usage Price (€)</label><input type="number" step="0.01" name="usage_price"></div>
+        </div>
+      </div>
+
+      <div class="admin-card">
+        <h3>Supplier Information</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Main Supplier</label>
+            <select name="main_supplier_id">
+              <option value="">— none —</option>
+              <% suppliers.forEach(s => { %><option value="<%= s.id %>"><%= s.name %></option><% }) %>
+            </select>
+          </div>
+        </div>
+        <div class="form-group full" style="margin-top:10px;"><label>Notes</label><textarea name="notes" rows="2"></textarea></div>
+      </div>
+
+      <button class="btn" type="submit" style="font-size:16px; padding:12px 24px;">Save Item</button>
+    </form>
+  </div>
+</div>
+</body>
+</html>

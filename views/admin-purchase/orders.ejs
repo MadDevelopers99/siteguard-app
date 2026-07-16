@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Purchase Orders — SiteGuard Purchase</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="admin-shell">
+  <%- include('../partials/inventory-sidebar', { active: 'pur-orders' }) %>
+
+  <div class="admin-main">
+    <div class="admin-topline">
+      <h1>Purchase Orders</h1>
+      <a class="btn btn-sm" style="text-decoration:none;" href="/admin/purchase/orders/new">+ Create Purchase Order</a>
+    </div>
+
+    <div class="data-table-wrap">
+      <table class="data-table">
+        <thead><tr><th>PO ID</th><th>Supplier</th><th>Date</th><th>Net</th><th>VAT</th><th>Total</th><th>Status</th></tr></thead>
+        <tbody>
+          <% if (orders.length === 0) { %>
+            <tr><td colspan="7" style="text-align:center; color:#8a8f90;">No purchase orders yet.</td></tr>
+          <% } %>
+          <% orders.forEach(o => { %>
+            <tr onclick="window.location='/admin/purchase/orders/<%= o.id %>'" style="cursor:pointer;">
+              <td><%= o.po_number %></td>
+              <td><%= o.supplier_name %></td>
+              <td><%= o.order_date %></td>
+              <td>€<%= o.net_amount.toFixed(2) %></td>
+              <td>€<%= o.vat_amount.toFixed(2) %></td>
+              <td>€<%= o.gross_amount.toFixed(2) %></td>
+              <td><span class="badge badge-<%= statusBadgeClass(o.status) %>"><%= o.status %></span></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+</body>
+</html>

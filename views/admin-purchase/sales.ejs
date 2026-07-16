@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Internal Sale to SG — SiteGuard Purchase</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="admin-shell">
+  <%- include('../partials/inventory-sidebar', { active: 'pur-sales' }) %>
+
+  <div class="admin-main">
+    <div class="admin-topline">
+      <h1>Internal Sale to SG</h1>
+      <a class="btn btn-sm" style="text-decoration:none;" href="/admin/purchase/sales/new">+ Create Internal Sale to SG</a>
+    </div>
+
+    <div class="data-table-wrap">
+      <table class="data-table">
+        <thead><tr><th>Sale ID</th><th>Date</th><th>Net</th><th>VAT</th><th>Gross</th><th>Status</th></tr></thead>
+        <tbody>
+          <% if (sales.length === 0) { %>
+            <tr><td colspan="6" style="text-align:center; color:#8a8f90;">No internal sales yet.</td></tr>
+          <% } %>
+          <% sales.forEach(s => { %>
+            <tr onclick="window.location='/admin/purchase/sales/<%= s.id %>'" style="cursor:pointer;">
+              <td><%= s.sale_number %></td>
+              <td><%= s.sale_date %></td>
+              <td>€<%= s.net_amount.toFixed(2) %></td>
+              <td>€<%= s.vat_amount.toFixed(2) %></td>
+              <td>€<%= s.gross_amount.toFixed(2) %></td>
+              <td><span class="badge badge-<%= statusBadgeClass(s.status) %>"><%= s.status %></span></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+</body>
+</html>

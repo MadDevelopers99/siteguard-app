@@ -1,0 +1,42 @@
+<div class="admin-card">
+  <h3>Damaged / Missing Records</h3>
+  <div class="data-table-wrap">
+    <table class="data-table">
+      <thead><tr><th>Date</th><th>Type</th><th>Qty</th><th>Source</th><th>Status</th></tr></thead>
+      <tbody>
+        <% if (damagedMissing.length === 0) { %>
+          <tr><td colspan="5" style="text-align:center; color:#8a8f90;">None reported.</td></tr>
+        <% } %>
+        <% damagedMissing.forEach(d => { %>
+          <tr>
+            <td><%= d.date %></td>
+            <td><%= d.type %></td>
+            <td><%= d.quantity %></td>
+            <td><%= d.source || '—' %></td>
+            <td><span class="badge badge-<%= statusBadgeClass(d.status) %>"><%= d.status %></span></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="admin-card">
+  <h3>+ Report Damaged / Missing</h3>
+  <form method="POST" action="/admin/inventory/damaged-missing" class="form-grid">
+    <input type="hidden" name="item_id" value="<%= item.id %>">
+    <div class="form-group">
+      <label>Type</label>
+      <select name="type">
+        <% DAMAGED_MISSING_TYPES.forEach(t => { %><option value="<%= t %>"><%= t %></option><% }) %>
+      </select>
+    </div>
+    <div class="form-group"><label>Quantity</label><input type="number" step="0.1" name="quantity" required></div>
+    <div class="form-group"><label>Source</label><input type="text" name="source" placeholder="e.g. Driver Return"></div>
+    <div class="form-group"><label>Reason</label><input type="text" name="reason"></div>
+    <div class="form-group"><label><input type="checkbox" name="repairable" value="1"> Repairable?</label></div>
+    <div class="form-group"><label><input type="checkbox" name="replacement_needed" value="1"> Replacement Needed?</label></div>
+    <div class="form-group full"><label>Notes</label><textarea name="notes" rows="2"></textarea></div>
+    <div class="form-group"><button class="btn btn-sm" type="submit">Report</button></div>
+  </form>
+</div>

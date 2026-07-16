@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Damaged / Missing Items — SiteGuard Inventory</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="admin-shell">
+  <%- include('../partials/inventory-sidebar', { active: 'inv-damaged' }) %>
+
+  <div class="admin-main">
+    <div class="admin-topline">
+      <h1>Damaged / Missing Items</h1>
+    </div>
+
+    <div class="admin-card">
+      <h3>Records</h3>
+      <div class="data-table-wrap">
+        <table class="data-table">
+          <thead><tr><th>Item</th><th>Type</th><th>Qty</th><th>Date</th><th>Source</th><th>Status</th></tr></thead>
+          <tbody>
+            <% if (records.length === 0) { %>
+              <tr><td colspan="6" style="text-align:center; color:#8a8f90;">No records.</td></tr>
+            <% } %>
+            <% records.forEach(r => { %>
+              <tr>
+                <td><%= r.item_name %></td>
+                <td><%= r.type %></td>
+                <td><%= r.quantity %></td>
+                <td><%= r.date %></td>
+                <td><%= r.source || '—' %></td>
+                <td>
+                  <form method="POST" action="/admin/inventory/damaged-missing/<%= r.id %>/status" style="display:inline;">
+                    <select name="status" onchange="this.form.submit()">
+                      <% DAMAGED_MISSING_STATUSES.forEach(s => { %><option value="<%= s %>" <%= r.status === s ? 'selected' : '' %>><%= s %></option><% }) %>
+                    </select>
+                  </form>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="admin-card">
+      <h3>+ Report Damaged / Missing Item</h3>
+      <form method="POST" action="/admin/inventory/damaged-missing" class="form-grid">
+        <div class="form-group">
+          <label>Item</label>
+          <select name="item_id" required>
+            <option value="">— select —</option>
+            <% items.forEach(i => { %><option value="<%= i.id %>"><%= i.item_name %></option><% }) %>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Type</label>
+          <select name="type">
+            <% DAMAGED_MISSING_TYPES.forEach(t => { %><option value="<%= t %>"><%= t %></option><% }) %>
+          </select>
+        </div>
+        <div class="form-group"><label>Quantity</label><input type="number" step="0.1" name="quantity" required></div>
+        <div class="form-group"><label>Source</label><input type="text" name="source"></div>
+        <div class="form-group"><label>Reason</label><input type="text" name="reason"></div>
+        <div class="form-group"><label><input type="checkbox" name="repairable" value="1"> Repairable?</label></div>
+        <div class="form-group"><label><input type="checkbox" name="replacement_needed" value="1"> Replacement Needed?</label></div>
+        <div class="form-group full"><label>Notes</label><textarea name="notes" rows="2"></textarea></div>
+        <div class="form-group"><button class="btn btn-sm" type="submit">Report</button></div>
+      </form>
+    </div>
+  </div>
+</div>
+</body>
+</html>

@@ -3,23 +3,13 @@ const router = express.Router();
 const bcrypt = require("bcryptjs");
 const db = require("../db/database");
 const { requireDriver } = require("../middleware/auth");
-const { DRIVER_APP_STATUS_OPTIONS } = require("../utils/constants");
-
-// Status a driver can push, and what it means for Main Admin's pipeline column.
-// Statuses not listed here (e.g. "Blocked") only change driver_app_status.
-const DRIVER_STATUS_TO_MAIN_ADMIN_STATUS = {
-  Accepted: "Accepted by Driver",
-  Loading: "Driver Loading",
-  "On Route": "On Route",
-  Arrived: "Arrived on Site",
-  "In Progress": "In Progress",
-  "Setup Completed": "In Progress",
-  "Removal Completed": "In Progress"
-};
+const { SG_COMPANY, DRIVER_STATUS_OPTIONS } = require("../utils/constants");
+const { suggestOrder } = require("../utils/route-suggest");
+const { listDriverTasks, sortTimeFor, ACTIVE_STATUSES } = require("./driver-shared");
 
 // ---------- Auth ----------
 router.get("/login", (req, res) => {
-  if (req.session.driverId) return res.redirect("/driver/jobs");
+  if (req.session.driverId) return res.redirect("/driver/home");
   res.render("driver/login", { error: null });
 });
 
@@ -31,7 +21,7 @@ router.post("/login", (req, res) => {
   }
   req.session.driverId = driver.id;
   req.session.driverName = driver.name;
-  res.redirect("/driver/jobs");
+  res.redirect("/driver/home");
 });
 
 router.post("/logout", (req, res) => {
@@ -42,161 +32,100 @@ router.post("/logout", (req, res) => {
 
 router.use(requireDriver);
 
-function driverOwnsOrder(orderId, driverId) {
-  const assignment = db.prepare("SELECT * FROM order_driver_assignment WHERE order_id = ?").get(orderId);
-  return assignment && (assignment.primary_driver_id === driverId || assignment.second_driver_id === driverId)
-    ? assignment
-    : null;
-}
+// Old single-page panel URLs — keep working for anyone with a stale link/bookmark.
+router.get("/jobs", (req, res) => res.redirect(301, "/driver/tasks"));
+router.get("/jobs/:id", (req, res) => res.redirect(301, `/driver/tasks/${req.params.id}`));
+router.get("/", (req, res) => res.redirect("/driver/home"));
 
-// ---------- Job list ----------
-router.get("/jobs", (req, res) => {
-  const jobs = db
+// ---------- Home Dashboard ----------
+router.get("/home", (req, res) => {
+  const driverId = req.session.driverId;
+  const tasks = listDriverTasks(driverId);
+  const today = new Date().toISOString().slice(0, 10);
+
+  const todayTasks = tasks.filter((t) => t.date_from && t.date_from <= today && (!t.date_to || t.date_to >= today));
+  const acceptedTasks = tasks.filter((t) => ACTIVE_STATUSES.includes(t.driver_app_status));
+  const pendingTasks = tasks.filter((t) => t.driver_app_status === "Sent to Driver");
+  const completedToday = tasks.filter((t) => t.completion_time && t.completion_time.slice(0, 10) === today);
+  const needingPickup = acceptedTasks.filter((t) =>
+    ["Pickup Required", "Return Material Required", "Exchange Material"].includes(t.inventory_mode)
+  );
+  const needingLoading = acceptedTasks.filter((t) => t.inventory_mode === "Loading Required");
+  const openIssues = db
+    .prepare("SELECT COUNT(*) AS n FROM task_issues WHERE driver_id = ? AND status = 'Open'")
+    .get(driverId).n;
+
+  const driver = db.prepare("SELECT * FROM drivers WHERE id = ?").get(driverId);
+  const team = db
     .prepare(
-      `SELECT o.id, o.order_number, oda.driver_app_status, c.company AS client_company, c.name AS client_name,
-              r.date_from, r.date_to
-       FROM order_driver_assignment oda
-       JOIN orders o ON o.id = oda.order_id
-       JOIN clients c ON c.id = o.client_id
-       LEFT JOIN requests r ON r.id = o.request_id
-       WHERE (oda.primary_driver_id = ? OR oda.second_driver_id = ?)
-         AND oda.driver_app_status != 'Not Sent'
-       ORDER BY oda.updated_at DESC`
+      `SELECT dt.*, v.vehicle_name, v.plate_number, bd.name AS bifahrer_name
+       FROM driver_teams dt
+       LEFT JOIN vehicles v ON v.id = dt.vehicle_id
+       LEFT JOIN drivers bd ON bd.id = dt.bifahrer_id
+       WHERE (dt.main_driver_id = ? OR dt.bifahrer_id = ?) AND dt.date = ?
+       ORDER BY dt.id DESC LIMIT 1`
     )
-    .all(req.session.driverId, req.session.driverId);
+    .get(driverId, driverId, today);
 
-  res.render("driver/jobs", { jobs, driverName: req.session.driverName });
+  const currentTask =
+    acceptedTasks.find((t) => ["Loading", "On Route", "Arrived", "In Progress"].includes(t.driver_app_status)) || null;
+  const remaining = acceptedTasks.filter((t) => !currentTask || t.id !== currentTask.id);
+  const suggestedIds = suggestOrder(remaining.map((t) => ({ id: t.id, priority: t.priority, sortTime: sortTimeFor(t) })));
+  const nextTask = suggestedIds.length ? remaining.find((t) => t.id === suggestedIds[0]) : null;
+
+  res.render("driver/home", {
+    driverName: req.session.driverName,
+    driver,
+    team,
+    cards: {
+      today: todayTasks.length,
+      accepted: acceptedTasks.length,
+      pending: pendingTasks.length,
+      completedToday: completedToday.length,
+      needingPickup: needingPickup.length,
+      needingLoading: needingLoading.length,
+      openIssues
+    },
+    currentTask,
+    nextTask
+  });
 });
 
-// ---------- Job detail (allowlisted fields only — no pricing/margin/billing) ----------
-router.get("/jobs/:id", (req, res) => {
-  const assignment = driverOwnsOrder(req.params.id, req.session.driverId);
-  if (!assignment) return res.status(404).send("Job not found");
-
-  const job = db
+// ---------- Profile ----------
+router.get("/profile", (req, res) => {
+  const driverId = req.session.driverId;
+  const driver = db.prepare("SELECT * FROM drivers WHERE id = ?").get(driverId);
+  const today = new Date().toISOString().slice(0, 10);
+  const team = db
     .prepare(
-      `SELECT o.id, o.order_number, c.name AS client_name, c.company AS client_company, c.phone AS client_phone,
-              r.request_type, r.purpose, r.date_from, r.date_to, r.time_from, r.time_to,
-              r.kvr_required, r.kvr_status, r.absicherung_required, r.absicherung_type,
-              r.parked_vehicle_list_required
-       FROM orders o
-       JOIN clients c ON c.id = o.client_id
-       LEFT JOIN requests r ON r.id = o.request_id
-       WHERE o.id = ?`
+      `SELECT dt.*, v.vehicle_name, v.plate_number, bd.name AS bifahrer_name
+       FROM driver_teams dt
+       LEFT JOIN vehicles v ON v.id = dt.vehicle_id
+       LEFT JOIN drivers bd ON bd.id = dt.bifahrer_id
+       WHERE (dt.main_driver_id = ? OR dt.bifahrer_id = ?) AND dt.date = ?
+       ORDER BY dt.id DESC LIMIT 1`
     )
-    .get(req.params.id);
+    .get(driverId, driverId, today);
 
-  const order = db.prepare("SELECT location_id, request_id FROM orders WHERE id = ?").get(req.params.id);
-  const location = order.location_id
-    ? db.prepare("SELECT street, house_number, zip, city, location_type, side_of_street, access_notes FROM client_locations WHERE id = ?").get(order.location_id)
-    : null;
-  const map = db.prepare("SELECT * FROM order_map WHERE order_id = ?").get(req.params.id);
-  const inventoryRows = order.request_id
-    ? db.prepare("SELECT id, item_name, category, planned_qty, main_admin_approved_qty, unit FROM request_inventory WHERE request_id = ?").all(order.request_id)
-    : [];
-
-  let documents = [];
-  if (assignment.documents_visible_to_driver) {
-    const orderDocs = db
-      .prepare("SELECT * FROM documents WHERE entity_type = 'order' AND entity_id = ? AND category IN ('Map') ORDER BY created_at DESC")
-      .all(req.params.id);
-    const requestDocs = order.request_id
-      ? db
-          .prepare(
-            "SELECT * FROM documents WHERE entity_type = 'request' AND entity_id = ? AND category IN ('KVR Permission', 'Absicherung') ORDER BY created_at DESC"
-          )
-          .all(order.request_id)
-      : [];
-    documents = [...orderDocs, ...requestDocs];
-  }
-
-  const myDocuments = db
-    .prepare("SELECT * FROM documents WHERE entity_type = 'order' AND entity_id = ? AND category IN ('Photos', 'Parked Vehicle List') ORDER BY created_at DESC")
-    .all(req.params.id);
-
-  res.render("driver/job-detail", {
-    job,
-    location,
-    map,
-    inventoryRows,
-    documents,
-    myDocuments,
-    assignment,
-    DRIVER_APP_STATUS_OPTIONS,
-    driverName: req.session.driverName
-  });
+  res.render("driver/profile", { driver, team, driverName: req.session.driverName, DRIVER_STATUS_OPTIONS });
 });
 
-// ---------- Status update ----------
-router.post("/jobs/:id/status", (req, res) => {
-  const assignment = driverOwnsOrder(req.params.id, req.session.driverId);
-  if (!assignment) return res.status(404).send("Job not found");
-
-  const { driver_app_status, current_location, issue_note } = req.body;
-
-  const update = db.transaction(() => {
-    db.prepare(
-      `UPDATE order_driver_assignment SET driver_app_status = ?, current_location = ?, issue_note = ?, updated_at = datetime('now')
-       WHERE order_id = ?`
-    ).run(driver_app_status, current_location || null, issue_note || null, req.params.id);
-
-    const mainAdminStatus = DRIVER_STATUS_TO_MAIN_ADMIN_STATUS[driver_app_status];
-    if (mainAdminStatus) {
-      db.prepare("UPDATE orders SET main_admin_status = ?, updated_at = datetime('now') WHERE id = ?").run(
-        mainAdminStatus,
-        req.params.id
-      );
-    }
-
-    db.prepare("UPDATE drivers SET status = 'On Work', current_location = ? WHERE id = ?").run(
-      current_location || null,
-      req.session.driverId
-    );
-  });
-  update();
-
-  res.redirect(`/driver/jobs/${req.params.id}`);
+router.post("/profile/status", (req, res) => {
+  db.prepare("UPDATE drivers SET status = ? WHERE id = ?").run(req.body.status, req.session.driverId);
+  res.redirect("/driver/profile");
 });
 
-// ---------- Completion submission ----------
-router.post("/jobs/:id/complete", (req, res) => {
-  const assignment = driverOwnsOrder(req.params.id, req.session.driverId);
-  if (!assignment) return res.status(404).send("Job not found");
-
-  const { item_id, used_qty, returned_qty, damaged_qty, missing_qty, driver_notes } = req.body;
-  const ids = Array.isArray(item_id) ? item_id : [item_id].filter(Boolean);
-  const arr = (v) => (Array.isArray(v) ? v : [v]);
-  const usedArr = arr(used_qty), returnedArr = arr(returned_qty), damagedArr = arr(damaged_qty), missingArr = arr(missing_qty);
-
-  const submit = db.transaction(() => {
-    const updateItem = db.prepare(
-      "UPDATE request_inventory SET issued_qty = ?, used_qty = ?, returned_qty = ?, damaged_qty = ?, missing_qty = ? WHERE id = ?"
-    );
-    ids.forEach((id, idx) => {
-      const used = parseFloat(usedArr[idx]) || 0;
-      const returned = parseFloat(returnedArr[idx]) || 0;
-      const damaged = parseFloat(damagedArr[idx]) || 0;
-      const missing = parseFloat(missingArr[idx]) || 0;
-      updateItem.run(used + returned + damaged + missing, used, returned, damaged, missing, id);
-    });
-
-    db.prepare(
-      `UPDATE order_driver_assignment SET driver_notes = ?, completion_time = datetime('now'),
-       completion_status = 'Submitted by Driver', driver_app_status = 'Submitted for Review', updated_at = datetime('now')
-       WHERE order_id = ?`
-    ).run(driver_notes || null, req.params.id);
-
-    db.prepare(
-      "UPDATE orders SET main_admin_status = 'Driver Completed', updated_at = datetime('now') WHERE id = ?"
-    ).run(req.params.id);
-
-    if (assignment.primary_driver_id === req.session.driverId) {
-      db.prepare("UPDATE drivers SET status = 'Completed' WHERE id = ?").run(req.session.driverId);
-    }
-  });
-  submit();
-
-  res.redirect(`/driver/jobs/${req.params.id}`);
+router.post("/profile/end-day", (req, res) => {
+  db.prepare("UPDATE drivers SET status = 'Completed' WHERE id = ?").run(req.session.driverId);
+  res.redirect("/driver/profile");
 });
+
+// ---------- SG / Company navigation ----------
+router.get("/sg", (req, res) => {
+  res.render("driver/sg", { SG_COMPANY, driverName: req.session.driverName });
+});
+
+router.use("/tasks", require("./driver-tasks"));
+router.use("/route", require("./driver-route"));
 
 module.exports = router;

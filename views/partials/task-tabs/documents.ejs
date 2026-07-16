@@ -1,0 +1,12 @@
+<div class="driver-card">
+  <h3>Documents</h3>
+  <% if (visibleDocuments.length === 0) { %>
+    <p style="color:#8a8f90;">No documents shared for this task.</p>
+  <% } else { %>
+    <ul style="margin:0; padding-left:20px;">
+      <% visibleDocuments.forEach(d => { %>
+        <li><a href="/admin/documents/<%= d.id %>/download"><%= d.category %>: <%= d.original_name %></a></li>
+      <% }) %>
+    </ul>
+  <% } %>
+</div>

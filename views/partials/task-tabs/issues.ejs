@@ -1,0 +1,40 @@
+<div class="driver-card">
+  <h3>Report an Issue</h3>
+  <form method="POST" action="/driver/tasks/<%= task.order_id %>/issues">
+    <div class="driver-field">
+      <label>Issue Type</label>
+      <select name="issue_type">
+        <% ISSUE_TYPE_OPTIONS.forEach(t => { %><option value="<%= t %>"><%= t %></option><% }) %>
+      </select>
+    </div>
+    <div class="driver-field">
+      <label>Priority</label>
+      <select name="priority">
+        <% PRIORITY_OPTIONS.forEach(p => { %><option value="<%= p %>"><%= p %></option><% }) %>
+      </select>
+    </div>
+    <div class="driver-field"><label>Description</label><textarea name="description" rows="2"></textarea></div>
+    <div class="driver-field"><label>Location</label><input type="text" name="location"></div>
+    <div class="driver-field"><label>Driver Note</label><textarea name="driver_note" rows="2"></textarea></div>
+    <button class="driver-btn-lg" type="submit">Report Issue</button>
+  </form>
+</div>
+
+<div class="driver-card">
+  <h3>Issues on this Task</h3>
+  <% if (issues.length === 0) { %>
+    <p style="color:#8a8f90;">No issues reported.</p>
+  <% } %>
+  <% issues.forEach(i => { %>
+    <div style="border-bottom:1px solid var(--concrete-2); padding:10px 0;">
+      <p><strong><%= i.issue_type %></strong> — <span class="badge badge-<%= i.status === 'Open' ? 'pending' : 'confirmed' %>"><%= i.status %></span></p>
+      <p style="font-size:13px; color:#8a8f90;">Priority: <%= i.priority %> · <%= i.created_at %></p>
+      <% if (i.description) { %><p><%= i.description %></p><% } %>
+      <% if (i.status === 'Open') { %>
+        <form method="POST" action="/driver/tasks/<%= task.order_id %>/issues/<%= i.id %>/resolve" style="margin:0;">
+          <button class="driver-btn-lg outline" type="submit" style="padding:8px 14px; width:auto;">Mark Resolved</button>
+        </form>
+      <% } %>
+    </div>
+  <% }) %>
+</div>

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Purchase Dashboard — SiteGuard</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="admin-shell">
+  <%- include('../partials/inventory-sidebar', { active: 'pur-dashboard' }) %>
+
+  <div class="admin-main">
+    <div class="admin-topline">
+      <h1>Purchase &amp; Sell-to-SG Dashboard</h1>
+    </div>
+    <p style="color:var(--steel); margin:-14px 0 20px; font-size:14px;">
+      Buying and internal-selling process — separate from Main Inventory until an internal sale is completed.
+    </p>
+
+    <div class="stat-row">
+      <div class="stat-card"><span class="num"><%= stats.activePOs %></span><span class="label">Active Purchase Orders</span></div>
+      <div class="stat-card"><span class="num"><%= stats.goodsWaiting %></span><span class="label">Goods Waiting Receipt</span></div>
+      <div class="stat-card"><span class="num">€<%= stats.wholesaleStockValue.toFixed(2) %></span><span class="label">Wholesale Stock Value</span></div>
+      <div class="stat-card"><span class="num"><%= stats.itemsReadyToSell %></span><span class="label">Items Ready to Sell to SG</span></div>
+    </div>
+    <div class="stat-row">
+      <div class="stat-card"><span class="num">€<%= stats.salesThisMonth.toFixed(2) %></span><span class="label">Internal Sales This Month</span></div>
+      <div class="stat-card"><span class="num"><%= stats.openSupplierInvoices %></span><span class="label">Open Supplier Invoices</span></div>
+      <div class="stat-card"><span class="num"><%= stats.pendingSgReceipts %></span><span class="label">Pending SG Receipts</span></div>
+      <div class="stat-card"><span class="num"><%= stats.lowWholesaleStock %></span><span class="label">Low Wholesale Stock</span></div>
+    </div>
+
+    <div class="admin-card">
+      <h3>Quick Actions</h3>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <a class="btn btn-outline btn-sm" style="text-decoration:none;" href="/admin/purchase/suppliers/new">+ New Supplier</a>
+        <a class="btn btn-outline btn-sm" style="text-decoration:none;" href="/admin/purchase/orders/new">+ New Purchase Order</a>
+        <a class="btn btn-outline btn-sm" style="text-decoration:none;" href="/admin/purchase/receipts/new">+ Goods Received</a>
+        <a class="btn btn-outline btn-sm" style="text-decoration:none;" href="/admin/purchase/sales/new">+ Create Internal Sale to SG</a>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

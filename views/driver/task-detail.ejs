@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title><%= task.order_number %> — SiteGuard Driver</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="driver-shell">
+  <div class="driver-topbar">
+    <a href="/driver/tasks" style="text-decoration:none;">&larr; My Tasks</a>
+    <span class="brand"><%= task.order_number %></span>
+  </div>
+
+  <div class="driver-main">
+    <% if (error) { %>
+      <div class="error-msg"><%= error %></div>
+    <% } %>
+
+    <%
+      const tabs = [['overview', 'Overview'], ['location', 'Location']];
+      if (flags.requiresLoading) tabs.push(['loading', 'Loading']);
+      if (flags.requiresPickup) tabs.push(['pickup', 'Pickup']);
+      tabs.push(['work', 'Work']);
+      if (flags.showPhotos) tabs.push(['photos', 'Photos']);
+      if (flags.showDigitization) tabs.push(['digitization', 'Field Digitization']);
+      if (flags.requiresInventoryReport) tabs.push(['inventory-report', 'Inventory Report']);
+      tabs.push(['issues', 'Issues']);
+      tabs.push(['documents', 'Documents']);
+      tabs.push(['submit', 'Submit']);
+    %>
+    <div class="tabs">
+      <% tabs.forEach(([key, label]) => { %>
+        <button type="button" class="tab-btn <%= tab === key ? 'active' : '' %>" data-tab="<%= key %>"><%= label %></button>
+      <% }) %>
+    </div>
+
+    <div class="tab-panel-wrap">
+      <div class="tab-panel" data-panel="overview" <%= tab === 'overview' ? '' : 'style="display:none;"' %>>
+        <%- include('../partials/task-tabs/overview', { task, flags }) %>
+      </div>
+      <div class="tab-panel" data-panel="location" <%= tab === 'location' ? '' : 'style="display:none;"' %>>
+        <%- include('../partials/task-tabs/location', { task, fullAddress }) %>
+      </div>
+      <% if (flags.requiresLoading) { %>
+        <div class="tab-panel" data-panel="loading" <%= tab === 'loading' ? '' : 'style="display:none;"' %>>
+          <%- include('../partials/task-tabs/loading', { task, inventoryRows }) %>
+        </div>
+      <% } %>
+      <% if (flags.requiresPickup) { %>
+        <div class="tab-panel" data-panel="pickup" <%= tab === 'pickup' ? '' : 'style="display:none;"' %>>
+          <%- include('../partials/task-tabs/pickup', { task, inventoryRows }) %>
+        </div>
+      <% } %>
+      <div class="tab-panel" data-panel="work" <%= tab === 'work' ? '' : 'style="display:none;"' %>>
+        <%- include('../partials/task-tabs/work', { task }) %>
+      </div>
+      <% if (flags.showPhotos) { %>
+        <div class="tab-panel" data-panel="photos" <%= tab === 'photos' ? '' : 'style="display:none;"' %>>
+          <%- include('../partials/task-tabs/photos', { task, photos, PHOTO_CATEGORY_OPTIONS }) %>
+        </div>
+      <% } %>
+      <% if (flags.showDigitization) { %>
+        <div class="tab-panel" data-panel="digitization" <%= tab === 'digitization' ? '' : 'style="display:none;"' %>>
+          <%- include('../partials/task-tabs/digitization', { task, inventoryRows, features, DIGITIZATION_OBJECT_TYPES }) %>
+        </div>
+      <% } %>
+      <% if (flags.requiresInventoryReport) { %>
+        <div class="tab-panel" data-panel="inventory-report" <%= tab === 'inventory-report' ? '' : 'style="display:none;"' %>>
+          <%- include('../partials/task-tabs/inventory-report', { task, inventoryRows, flags }) %>
+        </div>
+      <% } %>
+      <div class="tab-panel" data-panel="issues" <%= tab === 'issues' ? '' : 'style="display:none;"' %>>
+        <%- include('../partials/task-tabs/issues', { task, issues, ISSUE_TYPE_OPTIONS, PRIORITY_OPTIONS }) %>
+      </div>
+      <div class="tab-panel" data-panel="documents" <%= tab === 'documents' ? '' : 'style="display:none;"' %>>
+        <%- include('../partials/task-tabs/documents', { visibleDocuments }) %>
+      </div>
+      <div class="tab-panel" data-panel="submit" <%= tab === 'submit' ? '' : 'style="display:none;"' %>>
+        <%- include('../partials/task-tabs/submit', { task, flags, checklist }) %>
+      </div>
+    </div>
+  </div>
+
+  <%- include('../partials/driver-bottomnav', { active: 'tasks', currentTaskId: task.order_id }) %>
+</div>
+
+<script>
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const key = btn.dataset.tab;
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b === btn));
+      document.querySelectorAll('.tab-panel').forEach(p => {
+        p.style.display = p.dataset.panel === key ? '' : 'none';
+      });
+      const url = new URL(window.location);
+      url.searchParams.set('tab', key);
+      window.history.replaceState({}, '', url);
+    });
+  });
+</script>
+</body>
+</html>

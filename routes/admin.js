@@ -223,6 +223,10 @@ router.use("/requests", require("./admin-requests"));
 // ---------- Items (public storefront catalog) ----------
 router.use("/items", require("./admin-items"));
 
+// ---------- Inventories: Main Inventory + Purchase & Sell-to-SG ----------
+router.use("/inventory", require("./admin-inventory"));
+router.use("/purchase", require("./admin-purchase"));
+
 // Note: /admin/documents is mounted directly in server.js (not here) so it's
 // reachable by Main Admin and Driver sessions too, not just Office Admin.
 

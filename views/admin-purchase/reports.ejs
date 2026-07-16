@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reports — SiteGuard Purchase</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="admin-shell">
+  <%- include('../partials/inventory-sidebar', { active: 'pur-reports' }) %>
+
+  <div class="admin-main">
+    <div class="admin-topline">
+      <h1>Reports</h1>
+    </div>
+
+    <div class="admin-card">
+      <h3>Purchases by Supplier</h3>
+      <div class="data-table-wrap">
+        <table class="data-table">
+          <thead><tr><th>Supplier</th><th>Orders</th><th>Total</th></tr></thead>
+          <tbody>
+            <% purchasesBySupplier.forEach(p => { %>
+              <tr><td><%= p.supplier_name %></td><td><%= p.order_count %></td><td>€<%= p.total.toFixed(2) %></td></tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="admin-card">
+      <h3>Completed Internal Sales</h3>
+      <div class="data-table-wrap">
+        <table class="data-table">
+          <thead><tr><th>Sale #</th><th>Date</th><th>Gross</th></tr></thead>
+          <tbody>
+            <% if (salesReport.length === 0) { %>
+              <tr><td colspan="3" style="text-align:center; color:#8a8f90;">No completed sales yet.</td></tr>
+            <% } %>
+            <% salesReport.forEach(s => { %>
+              <tr><td><%= s.sale_number %></td><td><%= s.sale_date %></td><td>€<%= s.gross_amount.toFixed(2) %></td></tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="admin-card">
+      <h3>Batch Stock by Item</h3>
+      <div class="data-table-wrap">
+        <table class="data-table">
+          <thead><tr><th>Item</th><th>Available Qty</th><th>Value</th></tr></thead>
+          <tbody>
+            <% if (batchStock.length === 0) { %>
+              <tr><td colspan="3" style="text-align:center; color:#8a8f90;">No batch stock yet.</td></tr>
+            <% } %>
+            <% batchStock.forEach(b => { %>
+              <tr><td><%= b.item_name %></td><td><%= b.qty %></td><td>€<%= (b.value || 0).toFixed(2) %></td></tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="admin-card">
+      <h3>Open Supplier Invoices</h3>
+      <div class="data-table-wrap">
+        <table class="data-table">
+          <thead><tr><th>PO #</th><th>Supplier</th><th>Invoice #</th><th>Total</th></tr></thead>
+          <tbody>
+            <% if (openInvoices.length === 0) { %>
+              <tr><td colspan="4" style="text-align:center; color:#8a8f90;">No open supplier invoices.</td></tr>
+            <% } %>
+            <% openInvoices.forEach(o => { %>
+              <tr><td><%= o.po_number %></td><td><%= o.supplier_name %></td><td><%= o.supplier_invoice_number || '—' %></td><td>€<%= o.gross_amount.toFixed(2) %></td></tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

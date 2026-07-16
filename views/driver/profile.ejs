@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Profile — SiteGuard Driver</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="driver-shell">
+  <div class="driver-topbar">
+    <span class="brand">Profile</span>
+    <form method="POST" action="/driver/logout" style="margin:0;">
+      <button type="submit">Log out</button>
+    </form>
+  </div>
+
+  <div class="driver-main">
+    <div class="driver-card">
+      <h3><%= driver.name %></h3>
+      <p><%= driver.phone || '—' %> · <%= driver.email %></p>
+      <% if (team) { %>
+        <p>Vehicle: <%= team.vehicle_name || '—' %> <%= team.plate_number ? '(' + team.plate_number + ')' : '' %></p>
+        <p>Bifahrer: <%= team.bifahrer_name || '—' %></p>
+      <% } %>
+    </div>
+
+    <div class="driver-card">
+      <h3>Status</h3>
+      <form method="POST" action="/driver/profile/status">
+        <div class="driver-field">
+          <select name="status">
+            <% DRIVER_STATUS_OPTIONS.forEach(s => { %><option value="<%= s %>" <%= driver.status === s ? 'selected' : '' %>><%= s %></option><% }) %>
+          </select>
+        </div>
+        <button class="driver-btn-lg outline" type="submit">Change My Status</button>
+      </form>
+    </div>
+
+    <div class="driver-card">
+      <h3>Sync</h3>
+      <a class="driver-btn-lg outline" href="/driver/home">Sync Now</a>
+    </div>
+
+    <div class="driver-card">
+      <h3>End Day</h3>
+      <form method="POST" action="/driver/profile/end-day">
+        <button class="driver-btn-lg" type="submit" onclick="return confirm('End your day?');">End Day</button>
+      </form>
+    </div>
+  </div>
+
+  <%- include('../partials/driver-bottomnav', { active: 'profile' }) %>
+</div>
+</body>
+</html>

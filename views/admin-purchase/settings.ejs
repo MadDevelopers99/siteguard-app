@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Purchase Settings — SiteGuard</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="admin-shell">
+  <%- include('../partials/inventory-sidebar', { active: 'pur-settings' }) %>
+
+  <div class="admin-main">
+    <div class="admin-topline">
+      <h1>Settings</h1>
+    </div>
+    <p style="color:var(--steel); margin:-14px 0 20px; font-size:14px;">
+      These dropdown option lists are currently fixed in the app's code rather than editable here.
+    </p>
+
+    <% const lists = [
+      ['Supplier Statuses', SUPPLIER_STATUSES],
+      ['Supplier Categories', SUPPLIER_CATEGORIES],
+      ['Purchase Order Statuses', PO_STATUSES],
+      ['Wholesale Batch Statuses', WHOLESALE_BATCH_STATUSES],
+      ['Internal Sale Statuses', INTERNAL_SALE_STATUSES],
+      ['Price Rule Methods', PRICE_RULE_METHODS]
+    ]; %>
+    <% lists.forEach(([title, values]) => { %>
+      <div class="admin-card">
+        <h3><%= title %></h3>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <% values.forEach(v => { %><span class="badge badge-confirmed"><%= v %></span><% }) %>
+        </div>
+      </div>
+    <% }) %>
+  </div>
+</div>
+</body>
+</html>

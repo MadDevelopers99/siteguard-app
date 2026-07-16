@@ -1,0 +1,37 @@
+<div class="driver-card">
+  <h3>Work</h3>
+  <p>Started: <%= task.work_started_at || '—' %></p>
+  <p>Completed: <%= task.work_completed_at || '—' %></p>
+
+  <div class="driver-work-actions">
+    <% [
+      ['arrived', 'Mark Arrived'],
+      ['setup_started', 'Mark Setup Started'],
+      ['setup_completed', 'Mark Setup Completed'],
+      ['removal_started', 'Mark Removal Started'],
+      ['removal_completed', 'Mark Removal Completed'],
+      ['work_completed', 'Mark Work Completed']
+    ].forEach(([action, label]) => { %>
+      <form method="POST" action="/driver/tasks/<%= task.order_id %>/work" style="margin:0;">
+        <input type="hidden" name="work_action" value="<%= action %>">
+        <button class="driver-btn-lg outline" type="submit"><%= label %></button>
+      </form>
+    <% }) %>
+  </div>
+</div>
+
+<div class="driver-card">
+  <h3>Notes</h3>
+  <form method="POST" action="/driver/tasks/<%= task.order_id %>/work">
+    <input type="hidden" name="work_action" value="">
+    <div class="driver-field">
+      <label>Driver Notes</label>
+      <textarea name="driver_notes" rows="2"><%= task.driver_notes || '' %></textarea>
+    </div>
+    <div class="driver-field">
+      <label>Issue During Work</label>
+      <textarea name="issue_note" rows="2"><%= task.issue_note || '' %></textarea>
+    </div>
+    <button class="driver-btn-lg outline" type="submit">Save Notes</button>
+  </form>
+</div>

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Low Stock Alerts — SiteGuard Inventory</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="admin-shell">
+  <%- include('../partials/inventory-sidebar', { active: 'inv-lowstock' }) %>
+
+  <div class="admin-main">
+    <div class="admin-topline">
+      <h1>Low Stock Alerts</h1>
+    </div>
+
+    <div class="data-table-wrap">
+      <table class="data-table">
+        <thead><tr><th>Item</th><th>Current Stock</th><th>Minimum Stock</th><th>Difference</th><th>Status</th><th>Update Minimum</th></tr></thead>
+        <tbody>
+          <% if (items.length === 0) { %>
+            <tr><td colspan="6" style="text-align:center; color:#8a8f90;">No low stock items right now.</td></tr>
+          <% } %>
+          <% items.forEach(i => { %>
+            <tr>
+              <td><a class="order-link" href="/admin/inventory/items/<%= i.id %>"><%= i.item_name %></a></td>
+              <td><%= i.available_stock %></td>
+              <td><%= i.minimum_stock %></td>
+              <td><%= (i.available_stock - i.minimum_stock).toFixed(0) %></td>
+              <td><span class="badge badge-<%= statusBadgeClass(i.status) %>"><%= i.status %></span></td>
+              <td>
+                <form method="POST" action="/admin/inventory/low-stock/<%= i.id %>/minimum" style="display:flex; gap:6px;">
+                  <input type="number" step="0.1" name="minimum_stock" value="<%= i.minimum_stock %>" style="width:80px;">
+                  <button class="btn btn-outline btn-sm" type="submit">Update</button>
+                </form>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+</body>
+</html>

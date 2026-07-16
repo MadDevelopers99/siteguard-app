@@ -1,0 +1,23 @@
+<nav class="driver-bottomnav">
+  <a href="/driver/home" class="<%= typeof active !== 'undefined' && active === 'home' ? 'active' : '' %>">
+    <span class="icon">&#8962;</span><span>Home</span>
+  </a>
+  <a href="/driver/tasks" class="<%= typeof active !== 'undefined' && active === 'tasks' ? 'active' : '' %>">
+    <span class="icon">&#9776;</span><span>Tasks</span>
+  </a>
+  <a href="/driver/route" class="<%= typeof active !== 'undefined' && active === 'route' ? 'active' : '' %>">
+    <span class="icon">&#8594;</span><span>Route</span>
+  </a>
+  <a href="<%= typeof currentTaskId !== 'undefined' && currentTaskId ? '/driver/tasks/' + currentTaskId + '?tab=digitization' : '/driver/tasks' %>" class="<%= typeof active !== 'undefined' && active === 'map' ? 'active' : '' %>">
+    <span class="icon">&#9736;</span><span>Map</span>
+  </a>
+  <a href="<%= typeof currentTaskId !== 'undefined' && currentTaskId ? '/driver/tasks/' + currentTaskId + '?tab=inventory-report' : '/driver/tasks' %>" class="<%= typeof active !== 'undefined' && active === 'inventory' ? 'active' : '' %>">
+    <span class="icon">&#128230;</span><span>Inventory</span>
+  </a>
+  <a href="/driver/sg" class="<%= typeof active !== 'undefined' && active === 'sg' ? 'active' : '' %>">
+    <span class="icon">&#127968;</span><span>SG</span>
+  </a>
+  <a href="/driver/profile" class="<%= typeof active !== 'undefined' && active === 'profile' ? 'active' : '' %>">
+    <span class="icon">&#128100;</span><span>Profile</span>
+  </a>
+</nav>

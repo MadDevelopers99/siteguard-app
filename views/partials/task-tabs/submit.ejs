@@ -1,0 +1,16 @@
+<div class="driver-card">
+  <h3>Submit Task Completion</h3>
+  <ul style="margin:0 0 16px; padding-left:20px;">
+    <li><%= checklist.photosOk ? '✅' : '❌' %> Completion photos<% if (!flags.requiresPhotos) { %> (not required)<% } %></li>
+    <li><%= checklist.digitizationOk ? '✅' : '❌' %> Field digitization<% if (!flags.requiresDigitization) { %> (not required)<% } %></li>
+    <li><%= checklist.inventoryOk ? '✅' : '❌' %> Inventory report<% if (!flags.requiresInventoryReport) { %> (not required)<% } %></li>
+    <li><%= checklist.issuesOk ? '✅' : '❌' %> Issues resolved or reported</li>
+  </ul>
+  <form method="POST" action="/driver/tasks/<%= task.order_id %>/submit">
+    <div class="driver-field">
+      <label>Driver Notes</label>
+      <textarea name="driver_notes" rows="3"><%= task.driver_notes || '' %></textarea>
+    </div>
+    <button class="driver-btn-lg" type="submit" onclick="return confirm('Submit this task for Main Admin review?');">Submit Task Completion</button>
+  </form>
+</div>

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title><%= supplier ? 'Edit Supplier' : 'Add Supplier' %> — SiteGuard Purchase</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="admin-shell">
+  <%- include('../partials/inventory-sidebar', { active: 'pur-suppliers' }) %>
+
+  <div class="admin-main">
+    <div class="admin-topline">
+      <h1><%= supplier ? 'Edit Supplier' : 'Add Supplier' %></h1>
+      <a href="/admin/purchase/suppliers" style="text-decoration:none; font-size:14px;">&larr; Back to suppliers</a>
+    </div>
+
+    <form method="POST" action="<%= supplier ? '/admin/purchase/suppliers/' + supplier.id : '/admin/purchase/suppliers' %>">
+      <div class="admin-card">
+        <div class="form-grid">
+          <div class="form-group"><label>Supplier Name *</label><input type="text" name="name" value="<%= supplier ? supplier.name : '' %>" required></div>
+          <div class="form-group"><label>Contact Person</label><input type="text" name="contact_person" value="<%= supplier ? (supplier.contact_person || '') : '' %>"></div>
+          <div class="form-group"><label>Phone</label><input type="text" name="phone" value="<%= supplier ? (supplier.phone || '') : '' %>"></div>
+          <div class="form-group"><label>Email</label><input type="email" name="email" value="<%= supplier ? (supplier.email || '') : '' %>"></div>
+          <div class="form-group"><label>Address</label><input type="text" name="address" value="<%= supplier ? (supplier.address || '') : '' %>"></div>
+          <div class="form-group"><label>VAT ID</label><input type="text" name="vat_id" value="<%= supplier ? (supplier.vat_id || '') : '' %>"></div>
+          <div class="form-group"><label>Payment Terms</label><input type="text" name="payment_terms" value="<%= supplier ? (supplier.payment_terms || '') : '' %>" placeholder="e.g. 14 days"></div>
+          <div class="form-group">
+            <label>Category</label>
+            <select name="category">
+              <option value="">— select —</option>
+              <% SUPPLIER_CATEGORIES.forEach(c => { %><option value="<%= c %>" <%= supplier && supplier.category === c ? 'selected' : '' %>><%= c %></option><% }) %>
+            </select>
+          </div>
+          <% if (supplier) { %>
+            <div class="form-group">
+              <label>Status</label>
+              <select name="status">
+                <% SUPPLIER_STATUSES.forEach(s => { %><option value="<%= s %>" <%= supplier.status === s ? 'selected' : '' %>><%= s %></option><% }) %>
+              </select>
+            </div>
+          <% } %>
+        </div>
+        <div class="form-group full" style="margin-top:10px;"><label>Notes</label><textarea name="notes" rows="2"><%= supplier ? (supplier.notes || '') : '' %></textarea></div>
+      </div>
+      <button class="btn" type="submit" style="font-size:16px; padding:12px 24px;"><%= supplier ? 'Save Changes' : 'Add Supplier' %></button>
+    </form>
+  </div>
+</div>
+</body>
+</html>

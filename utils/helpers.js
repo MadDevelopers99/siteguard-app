@@ -16,6 +16,17 @@ function generateRequestNumber() {
   return `REQ-${y}${m}${d}-${rand}`;
 }
 
+// Generic version of generateOrderNumber/generateRequestNumber's pattern, used
+// for the Inventory/Purchase modules' PO/GR/BATCH/SG-SALE numbers.
+function generateNumber(prefix) {
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = String(now.getMonth() + 1).padStart(2, "0");
+  const d = String(now.getDate()).padStart(2, "0");
+  const rand = Math.floor(1000 + Math.random() * 9000);
+  return `${prefix}-${y}${m}${d}-${rand}`;
+}
+
 function formatEUR(amount) {
   return new Intl.NumberFormat("de-DE", {
     style: "currency",
@@ -42,4 +53,4 @@ function statusBadgeClass(status) {
   return "pending";
 }
 
-module.exports = { generateOrderNumber, generateRequestNumber, formatEUR, statusBadgeClass };
+module.exports = { generateOrderNumber, generateRequestNumber, generateNumber, formatEUR, statusBadgeClass };

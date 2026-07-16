@@ -1,0 +1,12 @@
+<div class="driver-card">
+  <h3>Location</h3>
+  <% if (fullAddress) { %>
+    <p><%= fullAddress %></p>
+    <% if (task.location_type) { %><p>Type: <%= task.location_type %></p><% } %>
+    <% if (task.side_of_street) { %><p>Side: <%= task.side_of_street %></p><% } %>
+    <% if (task.access_notes) { %><p>Access notes: <%= task.access_notes %></p><% } %>
+    <a class="driver-btn-lg" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=<%= encodeURIComponent(fullAddress) %>">Navigate</a>
+  <% } else { %>
+    <p style="color:#8a8f90;">No location set for this task.</p>
+  <% } %>
+</div>

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title><%= item.item_name %> — SiteGuard Inventory</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="admin-shell">
+  <%- include('../partials/inventory-sidebar', { active: 'inv-items' }) %>
+
+  <div class="admin-main">
+    <div class="admin-topline">
+      <h1><a href="/admin/inventory/items" style="text-decoration:none;">Item List</a> &raquo; <%= item.item_name %></h1>
+      <form method="POST" action="/admin/inventory/items/<%= item.id %>/deactivate" onsubmit="return confirm('<%= item.is_active ? 'Deactivate' : 'Reactivate' %> this item?');">
+        <button type="submit" class="btn btn-outline btn-sm"><%= item.is_active ? 'Deactivate Item' : 'Reactivate Item' %></button>
+      </form>
+    </div>
+
+    <div class="admin-card">
+      <div class="form-grid">
+        <div><strong>Item ID:</strong> <%= displayItemId(item.id) %></div>
+        <div><strong>Category:</strong> <%= item.category || '—' %></div>
+        <div><strong>Current Stock:</strong> <%= item.available_stock %> <%= item.unit %></div>
+        <div><strong>Reserved:</strong> <%= item.reserved_qty || 0 %></div>
+        <div><strong>Available:</strong> <%= (item.available_stock - (item.reserved_qty || 0) - (item.damaged_qty || 0)).toFixed(0) %></div>
+        <div><strong>Status:</strong> <span class="badge badge-<%= statusBadgeClass(item.status) %>"><%= item.status %></span></div>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <% const tabs = [
+        ['overview', 'Overview'],
+        ['movements', 'Stock Movements'],
+        ['damaged', 'Damaged / Missing'],
+        ['documents', 'Documents'],
+        ['purchase-history', 'Purchase History'],
+        ['usage-history', 'Usage History'],
+        ['notes', 'Notes'],
+        ['history', 'History']
+      ]; %>
+      <% tabs.forEach(([key, label]) => { %>
+        <button type="button" class="tab-btn <%= tab === key ? 'active' : '' %>" data-tab="<%= key %>"><%= label %></button>
+      <% }) %>
+    </div>
+
+    <div class="tab-panel-wrap">
+      <div class="tab-panel" data-panel="overview" <%= tab === 'overview' ? '' : 'style="display:none;"' %>>
+        <%- include('../partials/inventory-tabs/overview', { item, supplier, suppliers, STOCK_IN_SOURCE_TYPES, STOCK_OUT_REASON_TYPES, STOCK_ADJUSTMENT_REASONS, displayItemId }) %>
+      </div>
+      <div class="tab-panel" data-panel="movements" <%= tab === 'movements' ? '' : 'style="display:none;"' %>>
+        <%- include('../partials/inventory-tabs/movements', { item, movements, STOCK_IN_SOURCE_TYPES, STOCK_OUT_REASON_TYPES, STOCK_ADJUSTMENT_REASONS }) %>
+      </div>
+      <div class="tab-panel" data-panel="damaged" <%= tab === 'damaged' ? '' : 'style="display:none;"' %>>
+        <%- include('../partials/inventory-tabs/damaged', { item, damagedMissing, DAMAGED_MISSING_TYPES, statusBadgeClass }) %>
+      </div>
+      <div class="tab-panel" data-panel="documents" <%= tab === 'documents' ? '' : 'style="display:none;"' %>>
+        <%- include('../partials/document-list', { entityType: 'inventory_item', entityId: item.id, documents, DOCUMENT_CATEGORIES, DOCUMENT_STATUSES }) %>
+      </div>
+      <div class="tab-panel" data-panel="purchase-history" <%= tab === 'purchase-history' ? '' : 'style="display:none;"' %>>
+        <%- include('../partials/inventory-tabs/history-list', { rows: purchaseHistory, title: 'Purchase History' }) %>
+      </div>
+      <div class="tab-panel" data-panel="usage-history" <%= tab === 'usage-history' ? '' : 'style="display:none;"' %>>
+        <%- include('../partials/inventory-tabs/history-list', { rows: usageHistory, title: 'Usage History' }) %>
+      </div>
+      <div class="tab-panel" data-panel="notes" <%= tab === 'notes' ? '' : 'style="display:none;"' %>>
+        <%- include('../partials/inventory-tabs/notes', { item }) %>
+      </div>
+      <div class="tab-panel" data-panel="history" <%= tab === 'history' ? '' : 'style="display:none;"' %>>
+        <%- include('../partials/inventory-tabs/history-list', { rows: movements, title: 'Full History' }) %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const key = btn.dataset.tab;
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b === btn));
+      document.querySelectorAll('.tab-panel').forEach(p => {
+        p.style.display = p.dataset.panel === key ? '' : 'none';
+      });
+      const url = new URL(window.location);
+      url.searchParams.set('tab', key);
+      window.history.replaceState({}, '', url);
+    });
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Home — SiteGuard Driver</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="driver-shell">
+  <div class="driver-topbar">
+    <span class="brand">SiteGuard</span>
+    <form method="POST" action="/driver/logout" style="margin:0;">
+      <button type="submit">Log out (<%= driverName %>)</button>
+    </form>
+  </div>
+
+  <div class="driver-main">
+    <div class="driver-card">
+      <h3>Driver Status</h3>
+      <p><strong><%= driver.name %></strong> — <span class="badge badge-<%= driver.status === 'Available' ? 'confirmed' : 'pending' %>"><%= driver.status %></span></p>
+      <% if (team) { %>
+        <p>Vehicle: <%= team.vehicle_name || '—' %> <%= team.plate_number ? '(' + team.plate_number + ')' : '' %></p>
+        <p>Bifahrer: <%= team.bifahrer_name || '—' %></p>
+      <% } %>
+    </div>
+
+    <div class="driver-grid-cards">
+      <a href="/driver/tasks" class="driver-mini-card"><span class="num"><%= cards.today %></span><span class="label">Today's Tasks</span></a>
+      <a href="/driver/tasks" class="driver-mini-card"><span class="num"><%= cards.accepted %></span><span class="label">Accepted Tasks</span></a>
+      <a href="/driver/tasks" class="driver-mini-card"><span class="num"><%= cards.pending %></span><span class="label">Pending Tasks</span></a>
+      <a href="/driver/tasks" class="driver-mini-card"><span class="num"><%= cards.completedToday %></span><span class="label">Completed Today</span></a>
+      <a href="/driver/tasks" class="driver-mini-card"><span class="num"><%= cards.needingPickup %></span><span class="label">Needing Pickup</span></a>
+      <a href="/driver/tasks" class="driver-mini-card"><span class="num"><%= cards.needingLoading %></span><span class="label">Needing Loading</span></a>
+      <a href="/driver/tasks" class="driver-mini-card"><span class="num"><%= cards.openIssues %></span><span class="label">Open Issues</span></a>
+    </div>
+
+    <% if (currentTask) { %>
+      <div class="driver-card">
+        <h3>Current Task</h3>
+        <p><strong><%= currentTask.order_number %></strong> — <%= currentTask.client_company || currentTask.client_name %></p>
+        <p><%= currentTask.task_type %> · <%= currentTask.driver_app_status %></p>
+        <a class="driver-btn-lg" href="/driver/tasks/<%= currentTask.order_id %>">Open Current Task</a>
+      </div>
+    <% } %>
+
+    <% if (nextTask) { %>
+      <div class="driver-card">
+        <h3>Next Recommended Task</h3>
+        <p><strong><%= nextTask.order_number %></strong> — <%= nextTask.client_company || nextTask.client_name %></p>
+        <p><%= nextTask.task_type %> · Priority: <%= nextTask.priority || 'Normal' %></p>
+        <a class="driver-btn-lg outline" href="/driver/tasks/<%= nextTask.order_id %>">Open Task</a>
+      </div>
+    <% } %>
+
+    <div class="driver-card">
+      <h3>Quick Actions</h3>
+      <a class="driver-btn-lg" href="/driver/tasks">View My Tasks</a>
+      <a class="driver-btn-lg outline" href="/driver/route" style="margin-top:8px;">View Route Plan</a>
+      <a class="driver-btn-lg outline" href="/driver/sg" style="margin-top:8px;">Navigate to SG</a>
+    </div>
+  </div>
+
+  <%- include('../partials/driver-bottomnav', { active: 'home', currentTaskId: currentTask ? currentTask.order_id : null }) %>
+</div>
+</body>
+</html>

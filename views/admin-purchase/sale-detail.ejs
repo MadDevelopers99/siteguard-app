@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title><%= sale.sale_number %> — SiteGuard Purchase</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="admin-shell">
+  <%- include('../partials/inventory-sidebar', { active: 'pur-sales' }) %>
+
+  <div class="admin-main">
+    <div class="admin-topline">
+      <h1><a href="/admin/purchase/sales" style="text-decoration:none;">Internal Sale to SG</a> &raquo; <%= sale.sale_number %></h1>
+      <span class="badge badge-<%= statusBadgeClass(sale.status) %>"><%= sale.status %></span>
+    </div>
+
+    <div class="admin-card">
+      <h3>Items</h3>
+      <div class="data-table-wrap">
+        <table class="data-table">
+          <thead><tr><th>Item</th><th>Qty Sold</th><th>Unit Price</th><th>Net Total</th></tr></thead>
+          <tbody>
+            <% items.forEach(i => { %>
+              <tr>
+                <td><%= i.item_name %></td>
+                <td><%= i.qty_sold %></td>
+                <td>€<%= i.internal_unit_price.toFixed(2) %></td>
+                <td>€<%= i.net_total.toFixed(2) %></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+      <div style="text-align:right; margin-top:14px; font-family: var(--font-mono);">
+        <div>Subtotal Net: €<%= sale.net_amount.toFixed(2) %></div>
+        <div>VAT: €<%= sale.vat_amount.toFixed(2) %></div>
+        <div style="font-size:20px; font-weight:600;">Total Gross: €<%= sale.gross_amount.toFixed(2) %></div>
+      </div>
+    </div>
+
+    <div class="admin-card">
+      <h3>Workflow</h3>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <% if (sale.status === 'Draft') { %>
+          <form method="POST" action="/admin/purchase/sales/<%= sale.id %>/approve" style="margin:0;"><button class="btn btn-sm" type="submit">Approve Sale</button></form>
+        <% } %>
+        <% if (sale.status === 'Approved') { %>
+          <form method="POST" action="/admin/purchase/sales/<%= sale.id %>/send" style="margin:0;"><button class="btn btn-sm" type="submit">Send to SG</button></form>
+        <% } %>
+        <% if (['Approved', 'Sent to SG', 'Received by SG'].includes(sale.status)) { %>
+          <form method="POST" action="/admin/purchase/sales/<%= sale.id %>/complete" style="margin:0;" onsubmit="return confirm('This moves stock into Main Inventory. Continue?');">
+            <button class="btn btn-sm" type="submit">Complete Sale</button>
+          </form>
+        <% } %>
+        <% if (!['Completed','Cancelled'].includes(sale.status)) { %>
+          <form method="POST" action="/admin/purchase/sales/<%= sale.id %>/cancel" style="margin:0;"><button class="btn btn-outline btn-sm" type="submit">Cancel Sale</button></form>
+        <% } %>
+      </div>
+      <% if (sale.status === 'Completed') { %>
+        <p style="color:#8a8f90; margin-top:14px;">Stock has been added to Main Inventory, referenced as <%= sale.sale_number %>.</p>
+      <% } %>
+    </div>
+
+    <%- include('../partials/document-list', { entityType: 'internal_sale', entityId: sale.id, documents, DOCUMENT_CATEGORIES, DOCUMENT_STATUSES }) %>
+  </div>
+</div>
+</body>
+</html>

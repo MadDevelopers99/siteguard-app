@@ -25,21 +25,25 @@ function backToFor(req, entityType, entityId) {
   if (entityType === "client") return `/admin/clients/${entityId}?tab=documents`;
   if (entityType === "request") return `/admin/requests/${entityId}?tab=documents`;
   if (entityType === "driver") return `/main-admin/team/drivers/${entityId}?tab=documents`;
+  if (entityType === "inventory_item") return `/admin/inventory/items/${entityId}?tab=documents`;
+  if (entityType === "purchase_order") return `/admin/purchase/orders/${entityId}`;
+  if (entityType === "goods_receipt") return `/admin/purchase/receipts`;
+  if (entityType === "internal_sale") return `/admin/purchase/sales/${entityId}`;
   // entityType === "order"
-  if (req.session.driverId) return `/driver/jobs/${entityId}`;
+  if (req.session.driverId) return `/driver/tasks/${entityId}?tab=photos`;
   return `/main-admin/auftraege/${entityId}?tab=map`;
 }
 
 router.post("/upload", upload.single("file"), (req, res) => {
-  const { entity_type, entity_id, category } = req.body;
+  const { entity_type, entity_id, category, gps_location } = req.body;
   if (!req.file || !entity_type || !entity_id) {
     return res.status(400).send("Missing file or target.");
   }
 
   db.prepare(
-    `INSERT INTO documents (entity_type, entity_id, category, original_name, stored_filename, uploaded_by, status)
-     VALUES (?, ?, ?, ?, ?, ?, 'Uploaded')`
-  ).run(entity_type, entity_id, category || "Other", req.file.originalname, req.file.filename, uploaderName(req));
+    `INSERT INTO documents (entity_type, entity_id, category, original_name, stored_filename, uploaded_by, status, gps_location)
+     VALUES (?, ?, ?, ?, ?, ?, 'Uploaded', ?)`
+  ).run(entity_type, entity_id, category || "Other", req.file.originalname, req.file.filename, uploaderName(req), gps_location || null);
 
   res.redirect(backToFor(req, entity_type, entity_id));
 });

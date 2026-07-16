@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stock Count — SiteGuard Inventory</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="admin-shell">
+  <%- include('../partials/inventory-sidebar', { active: 'inv-counts' }) %>
+
+  <div class="admin-main">
+    <div class="admin-topline">
+      <h1>Stock Count</h1>
+    </div>
+
+    <div class="admin-card">
+      <h3>+ Start Stock Count</h3>
+      <form method="POST" action="/admin/inventory/stock-counts" class="form-grid">
+        <div class="form-group"><label>Storage Location</label><input type="text" name="storage_location" placeholder="Optional"></div>
+        <div class="form-group full"><label>Notes</label><input type="text" name="notes"></div>
+        <div class="form-group"><button class="btn btn-sm" type="submit">Start Stock Count</button></div>
+      </form>
+    </div>
+
+    <div class="data-table-wrap">
+      <table class="data-table">
+        <thead><tr><th>Count ID</th><th>Date</th><th>Location</th><th>Counted By</th><th>Status</th></tr></thead>
+        <tbody>
+          <% if (counts.length === 0) { %>
+            <tr><td colspan="5" style="text-align:center; color:#8a8f90;">No stock counts yet.</td></tr>
+          <% } %>
+          <% counts.forEach(c => { %>
+            <tr onclick="window.location='/admin/inventory/stock-counts/<%= c.id %>'" style="cursor:pointer;">
+              <td><%= displayCountId(c.id) %></td>
+              <td><%= c.count_date %></td>
+              <td><%= c.storage_location || '—' %></td>
+              <td><%= c.counted_by || '—' %></td>
+              <td><span class="badge badge-<%= statusBadgeClass(c.status) %>"><%= c.status %></span></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+</body>
+</html>

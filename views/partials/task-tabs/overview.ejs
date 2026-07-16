@@ -1,0 +1,22 @@
+<div class="driver-card">
+  <h3><%= task.client_company || task.client_name %></h3>
+  <p>Task Type: <strong><%= task.task_type %></strong></p>
+  <p>Inventory Mode: <strong><%= task.inventory_mode %></strong></p>
+  <p>Priority: <%= task.priority || 'Normal' %></p>
+  <p>Status: <span class="badge badge-<%= task.driver_app_status === 'Blocked' || task.driver_app_status === 'Rejected' ? 'cancelled' : 'confirmed' %>"><%= task.driver_app_status %></span></p>
+  <% if (task.request_type) { %><p>Request Type: <%= task.request_type %><% if (task.purpose) { %> — <%= task.purpose %><% } %></p><% } %>
+  <p>Setup: <%= task.date_from || '—' %> <%= task.time_from || '' %></p>
+  <p>Removal: <%= task.date_to || '—' %> <%= task.time_to || '' %></p>
+  <% if (task.client_phone) { %><p>Client contact: <a href="tel:<%= task.client_phone %>"><%= task.client_phone %></a></p><% } %>
+  <% if (task.kvr_required) { %><p>KVR: <%= task.kvr_status %></p><% } %>
+  <% if (task.absicherung_required) { %><p>Absicherung: <%= task.absicherung_type %></p><% } %>
+  <% if (task.parked_vehicle_list_required) { %><p><strong>Parked vehicle list required.</strong></p><% } %>
+</div>
+
+<% if (task.driver_instructions || task.driver_checklist) { %>
+  <div class="driver-card">
+    <h3>Instructions</h3>
+    <% if (task.driver_instructions) { %><p><%= task.driver_instructions %></p><% } %>
+    <% if (task.driver_checklist) { %><p><strong>Checklist:</strong> <%= task.driver_checklist %></p><% } %>
+  </div>
+<% } %>

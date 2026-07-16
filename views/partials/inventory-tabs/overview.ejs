@@ -1,0 +1,35 @@
+<div class="admin-card">
+  <h3>Item Details</h3>
+  <form method="POST" action="/admin/inventory/items/<%= item.id %>" class="form-grid">
+    <div class="form-group"><label>Item Name *</label><input type="text" name="item_name" value="<%= item.item_name %>" required></div>
+    <div class="form-group"><label>Category</label><input type="text" name="category" value="<%= item.category || '' %>"></div>
+    <div class="form-group"><label>Subcategory</label><input type="text" name="subcategory" value="<%= item.subcategory || '' %>"></div>
+    <div class="form-group"><label>Article Number</label><input type="text" name="article_number" value="<%= item.article_number || '' %>"></div>
+    <div class="form-group"><label>Barcode</label><input type="text" name="barcode" value="<%= item.barcode || '' %>"></div>
+    <div class="form-group"><label>Unit</label><input type="text" name="unit" value="<%= item.unit %>"></div>
+    <div class="form-group"><label>Minimum Stock</label><input type="number" step="0.1" name="minimum_stock" value="<%= item.minimum_stock || 0 %>"></div>
+    <div class="form-group"><label>Maximum Stock</label><input type="number" step="0.1" name="maximum_stock" value="<%= item.maximum_stock || '' %>"></div>
+    <div class="form-group"><label>Storage Location</label><input type="text" name="storage_location" value="<%= item.storage_location || '' %>"></div>
+    <div class="form-group"><label>Average Purchase Price (€)</label><input type="number" step="0.01" name="average_purchase_price" value="<%= item.average_purchase_price || '' %>"></div>
+    <div class="form-group"><label>Replacement Cost (€)</label><input type="number" step="0.01" name="replacement_cost" value="<%= item.replacement_cost || '' %>"></div>
+    <div class="form-group"><label>Usage Price (€)</label><input type="number" step="0.01" name="usage_price" value="<%= item.usage_price || '' %>"></div>
+    <div class="form-group">
+      <label>Main Supplier</label>
+      <select name="main_supplier_id">
+        <option value="">— none —</option>
+        <% suppliers.forEach(s => { %><option value="<%= s.id %>" <%= item.main_supplier_id === s.id ? 'selected' : '' %>><%= s.name %></option><% }) %>
+      </select>
+    </div>
+    <div class="form-group full"><label>Description</label><textarea name="description" rows="2"><%= item.description || '' %></textarea></div>
+    <div class="form-group"><button class="btn btn-sm" type="submit">Save Changes</button></div>
+  </form>
+</div>
+
+<div class="admin-card">
+  <h3>Quick Actions</h3>
+  <div style="display:flex; gap:10px; flex-wrap:wrap;">
+    <button type="button" class="btn btn-outline btn-sm" onclick="document.querySelector('[data-tab=movements]').click()">Stock In / Out / Adjust</button>
+    <button type="button" class="btn btn-outline btn-sm" onclick="document.querySelector('[data-tab=damaged]').click()">Mark Damaged / Missing</button>
+    <button type="button" class="btn btn-outline btn-sm" onclick="document.querySelector('[data-tab=documents]').click()">Upload Document</button>
+  </div>
+</div>

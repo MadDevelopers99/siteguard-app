@@ -1,0 +1,42 @@
+<div class="driver-card">
+  <h3>Completion Photos</h3>
+  <form method="POST" action="/admin/documents/upload" enctype="multipart/form-data" id="photoForm">
+    <input type="hidden" name="entity_type" value="order">
+    <input type="hidden" name="entity_id" value="<%= task.order_id %>">
+    <input type="hidden" name="gps_location" id="gpsLocationField" value="">
+    <div class="driver-field">
+      <label>Photo Category</label>
+      <select name="category">
+        <% PHOTO_CATEGORY_OPTIONS.forEach(c => { %><option value="<%= c %>"><%= c %></option><% }) %>
+      </select>
+    </div>
+    <div class="driver-field">
+      <label>Photo</label>
+      <input type="file" name="file" accept="image/*" capture="environment" required>
+    </div>
+    <button class="driver-btn-lg" type="submit">Upload Photo</button>
+  </form>
+
+  <% if (photos.length > 0) { %>
+    <ul style="margin:14px 0 0; padding-left:20px;">
+      <% photos.forEach(p => { %>
+        <li><a href="/admin/documents/<%= p.id %>/download"><%= p.category %>: <%= p.original_name %></a></li>
+      <% }) %>
+    </ul>
+  <% } else { %>
+    <p style="color:#8a8f90; margin-top:10px;">No photos uploaded yet.</p>
+  <% } %>
+</div>
+
+<script>
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const field = document.getElementById('gpsLocationField');
+        if (field) field.value = pos.coords.latitude.toFixed(6) + ',' + pos.coords.longitude.toFixed(6);
+      },
+      () => {},
+      { timeout: 5000 }
+    );
+  }
+</script>

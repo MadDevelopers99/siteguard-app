@@ -13,7 +13,9 @@ const {
   COMPLETION_STATUS_OPTIONS,
   PRIORITY_OPTIONS,
   DOCUMENT_CATEGORIES,
-  DOCUMENT_STATUSES
+  DOCUMENT_STATUSES,
+  TASK_TYPE_OPTIONS,
+  INVENTORY_MODE_OPTIONS
 } = require("../utils/constants");
 const { statusBadgeClass } = require("../utils/helpers");
 
@@ -215,6 +217,8 @@ router.get("/auftraege/:id", (req, res) => {
     PRIORITY_OPTIONS,
     DOCUMENT_CATEGORIES,
     DOCUMENT_STATUSES,
+    TASK_TYPE_OPTIONS,
+    INVENTORY_MODE_OPTIONS,
     statusBadgeClass,
     mainAdminName: req.session.mainAdminName
   });
@@ -326,7 +330,8 @@ router.post("/auftraege/:id/ready-for-assignment", (req, res) => {
 router.post("/auftraege/:id/assign-driver", (req, res) => {
   const {
     primary_driver_id, second_driver_id, vehicle, loading_time, setup_time, removal_time,
-    driver_instructions, driver_checklist, tablet_map_required, documents_visible_to_driver
+    driver_instructions, driver_checklist, tablet_map_required, documents_visible_to_driver,
+    task_type, inventory_mode
   } = req.body;
 
   ensureOrderSubRows(req.params.id);
@@ -335,6 +340,7 @@ router.post("/auftraege/:id/assign-driver", (req, res) => {
       `UPDATE order_driver_assignment SET
         primary_driver_id = ?, second_driver_id = ?, vehicle = ?, loading_time = ?, setup_time = ?, removal_time = ?,
         driver_instructions = ?, driver_checklist = ?, tablet_map_required = ?, documents_visible_to_driver = ?,
+        task_type = ?, inventory_mode = ?,
         updated_at = datetime('now')
        WHERE order_id = ?`
     ).run(
@@ -342,6 +348,7 @@ router.post("/auftraege/:id/assign-driver", (req, res) => {
       loading_time || null, setup_time || null, removal_time || null,
       driver_instructions || null, driver_checklist || null,
       tablet_map_required ? 1 : 0, documents_visible_to_driver ? 1 : 0,
+      task_type || "Setup / Deployment", inventory_mode || "Loading Required",
       req.params.id
     );
 

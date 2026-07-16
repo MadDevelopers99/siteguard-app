@@ -1,0 +1,230 @@
+<div class="driver-card">
+  <h3>Field Digitization</h3>
+  <p style="color:#8a8f90; font-size:13px;">Tap the sketch pad to mark where poles, signs, barricades, and safety lines were placed. This is a schematic sketch, not a GPS map.</p>
+
+  <div class="digitize-toolbar">
+    <button type="button" class="btn btn-outline btn-sm" data-mode="point">Add Point</button>
+    <button type="button" class="btn btn-outline btn-sm" data-mode="line">Draw Line</button>
+    <button type="button" class="btn btn-outline btn-sm" data-mode="area">Draw Area</button>
+    <button type="button" class="btn btn-outline btn-sm" id="finishShapeBtn" style="display:none;">Finish Shape</button>
+    <button type="button" class="btn btn-outline btn-sm" id="undoBtn">Undo</button>
+  </div>
+
+  <div class="digitize-toolbar" style="margin-top:6px;">
+    <span style="font-size:12px; color:#8a8f90; align-self:center;">Templates:</span>
+    <button type="button" class="btn btn-outline btn-sm template-btn" data-object-type="Pole">Pole</button>
+    <button type="button" class="btn btn-outline btn-sm template-btn" data-object-type="Halteverbot Sign">Pole + Sign</button>
+    <button type="button" class="btn btn-outline btn-sm template-btn" data-object-type="Base Plate / Standsockel">Base Plate</button>
+  </div>
+
+  <canvas id="digitizeCanvas" class="digitize-canvas" width="320" height="320"></canvas>
+
+  <div id="featureForm" class="driver-card" style="display:none; margin-top:10px;">
+    <h3>Feature Details</h3>
+    <div class="driver-field">
+      <label>Object Type</label>
+      <select id="featureObjectType">
+        <% DIGITIZATION_OBJECT_TYPES.forEach(o => { %><option value="<%= o %>"><%= o %></option><% }) %>
+      </select>
+    </div>
+    <div class="driver-field">
+      <label>Inventory Item</label>
+      <select id="featureItem">
+        <option value="">— select —</option>
+        <% inventoryRows.forEach(r => { %><option value="<%= r.id %>" data-name="<%= r.item_name %>"><%= r.item_name %></option><% }) %>
+      </select>
+    </div>
+    <div class="driver-field"><label>Quantity Used</label><input type="number" step="1" min="1" value="1" id="featureQty"></div>
+    <div class="driver-field">
+      <label>Condition</label>
+      <select id="featureCondition">
+        <option value="Good">Good</option>
+        <option value="Damaged">Damaged</option>
+      </select>
+    </div>
+    <div class="driver-field"><label>Notes</label><input type="text" id="featureNotes"></div>
+    <div style="display:flex; gap:8px;">
+      <button type="button" class="driver-btn-lg" id="saveFeatureBtn">Save Feature</button>
+      <button type="button" class="driver-btn-lg outline" id="cancelFeatureBtn">Cancel</button>
+    </div>
+  </div>
+
+  <div id="featureList" style="margin-top:12px;"></div>
+
+  <form method="POST" action="/driver/tasks/<%= task.order_id %>/digitization" id="saveDraftForm" style="margin-top:14px;">
+    <input type="hidden" name="features" id="featuresInputDraft">
+    <button class="driver-btn-lg outline" type="submit">Save Digitized Map</button>
+  </form>
+  <form method="POST" action="/driver/tasks/<%= task.order_id %>/digitization/submit" id="submitForm" style="margin-top:8px;">
+    <input type="hidden" name="features" id="featuresInputSubmit">
+    <button class="driver-btn-lg" type="submit">Submit Digitized Map</button>
+  </form>
+</div>
+
+<script>
+(function () {
+  const canvas = document.getElementById('digitizeCanvas');
+  const ctx = canvas.getContext('2d');
+  const rect = () => canvas.getBoundingClientRect();
+
+  function resizeCanvas() {
+    canvas.width = canvas.clientWidth;
+    canvas.height = 320;
+    draw();
+  }
+
+  let features = <%- JSON.stringify(features || []) %>;
+  let mode = null;
+  let pendingPoints = [];
+  let pendingType = null;
+  let templateObjectType = null;
+
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.strokeStyle = '#ccc';
+    for (let x = 0; x < canvas.width; x += 20) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke(); }
+    for (let y = 0; y < canvas.height; y += 20) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke(); }
+
+    features.forEach((f) => drawFeature(f, '#1e5631'));
+
+    if (pendingPoints.length > 0) {
+      ctx.strokeStyle = '#d98c00';
+      ctx.fillStyle = '#d98c00';
+      if (pendingType === 'point') {
+        drawDot(pendingPoints[0][0], pendingPoints[0][1]);
+      } else {
+        ctx.beginPath();
+        pendingPoints.forEach((p, i) => (i === 0 ? ctx.moveTo(p[0], p[1]) : ctx.lineTo(p[0], p[1])));
+        ctx.stroke();
+        pendingPoints.forEach((p) => drawDot(p[0], p[1]));
+      }
+    }
+  }
+
+  function drawDot(x, y) {
+    ctx.beginPath();
+    ctx.arc(x, y, 5, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  function drawFeature(f, color) {
+    ctx.strokeStyle = color;
+    ctx.fillStyle = color;
+    if (f.type === 'point') {
+      drawDot(f.coords[0][0], f.coords[0][1]);
+    } else {
+      ctx.beginPath();
+      f.coords.forEach((p, i) => (i === 0 ? ctx.moveTo(p[0], p[1]) : ctx.lineTo(p[0], p[1])));
+      if (f.type === 'area') ctx.closePath();
+      ctx.stroke();
+    }
+  }
+
+  function renderFeatureList() {
+    const list = document.getElementById('featureList');
+    if (features.length === 0) { list.innerHTML = '<p style="color:#8a8f90;">No features added yet.</p>'; return; }
+    list.innerHTML = '<ul style="margin:0; padding-left:20px;">' + features.map((f, i) =>
+      `<li>${f.objectType || '—'} — ${f.itemName || 'no item'} x${f.qty || 0} <button type="button" class="feature-remove" data-idx="${i}" style="margin-left:8px;">Remove</button></li>`
+    ).join('') + '</ul>';
+    list.querySelectorAll('.feature-remove').forEach(btn => {
+      btn.addEventListener('click', () => { features.splice(parseInt(btn.dataset.idx, 10), 1); syncInputs(); renderFeatureList(); draw(); });
+    });
+  }
+
+  function syncInputs() {
+    document.getElementById('featuresInputDraft').value = JSON.stringify(features);
+    document.getElementById('featuresInputSubmit').value = JSON.stringify(features);
+  }
+
+  document.querySelectorAll('[data-mode]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      mode = btn.dataset.mode;
+      pendingPoints = [];
+      pendingType = mode;
+      document.getElementById('finishShapeBtn').style.display = mode === 'line' || mode === 'area' ? '' : 'none';
+      draw();
+    });
+  });
+
+  document.querySelectorAll('.template-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      templateObjectType = btn.dataset.objectType;
+      mode = 'point';
+      pendingPoints = [];
+      pendingType = 'point';
+      document.getElementById('finishShapeBtn').style.display = 'none';
+    });
+  });
+
+  canvas.addEventListener('click', (e) => {
+    if (!mode) return;
+    const r = rect();
+    const x = e.clientX - r.left;
+    const y = e.clientY - r.top;
+    if (mode === 'point') {
+      pendingPoints = [[x, y]];
+      openFeatureForm();
+    } else {
+      pendingPoints.push([x, y]);
+      draw();
+    }
+  });
+
+  document.getElementById('finishShapeBtn').addEventListener('click', () => {
+    if (pendingPoints.length < 2) return;
+    openFeatureForm();
+  });
+
+  document.getElementById('undoBtn').addEventListener('click', () => {
+    features.pop();
+    syncInputs();
+    renderFeatureList();
+    draw();
+  });
+
+  function openFeatureForm() {
+    const form = document.getElementById('featureForm');
+    form.style.display = '';
+    if (templateObjectType) document.getElementById('featureObjectType').value = templateObjectType;
+    form.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  document.getElementById('cancelFeatureBtn').addEventListener('click', () => {
+    pendingPoints = [];
+    mode = null;
+    templateObjectType = null;
+    document.getElementById('featureForm').style.display = 'none';
+    document.getElementById('finishShapeBtn').style.display = 'none';
+    draw();
+  });
+
+  document.getElementById('saveFeatureBtn').addEventListener('click', () => {
+    const itemSelect = document.getElementById('featureItem');
+    const opt = itemSelect.options[itemSelect.selectedIndex];
+    features.push({
+      id: 'f' + Date.now(),
+      type: pendingType,
+      objectType: document.getElementById('featureObjectType').value,
+      coords: pendingPoints,
+      itemId: itemSelect.value || null,
+      itemName: opt ? opt.dataset.name : null,
+      qty: parseFloat(document.getElementById('featureQty').value) || 0,
+      condition: document.getElementById('featureCondition').value,
+      notes: document.getElementById('featureNotes').value
+    });
+    pendingPoints = [];
+    mode = null;
+    templateObjectType = null;
+    document.getElementById('featureForm').style.display = 'none';
+    document.getElementById('finishShapeBtn').style.display = 'none';
+    syncInputs();
+    renderFeatureList();
+    draw();
+  });
+
+  window.addEventListener('resize', resizeCanvas);
+  resizeCanvas();
+  syncInputs();
+  renderFeatureList();
+})();
+</script>

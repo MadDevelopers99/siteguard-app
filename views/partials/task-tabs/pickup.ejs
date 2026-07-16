@@ -1,0 +1,21 @@
+<div class="driver-card">
+  <h3>Pickup / Removal</h3>
+  <% if (inventoryRows.length === 0) { %>
+    <p style="color:#8a8f90;">No inventory listed for this task.</p>
+  <% } else { %>
+    <form method="POST" action="/driver/tasks/<%= task.order_id %>/pickup">
+      <% inventoryRows.forEach(r => { %>
+        <div class="driver-field">
+          <label><%= r.item_name %> — Expected: <%= r.main_admin_approved_qty ?? r.planned_qty %> <%= r.unit %></label>
+          <input type="hidden" name="item_id" value="<%= r.id %>">
+          <div style="display:flex; gap:6px;">
+            <input type="number" step="0.1" name="picked_qty" value="<%= r.picked_qty ?? '' %>" placeholder="Picked" style="width:34%;">
+            <input type="number" step="0.1" name="damaged_qty" value="<%= r.damaged_qty ?? '' %>" placeholder="Damaged" style="width:33%;">
+            <input type="number" step="0.1" name="missing_qty" value="<%= r.missing_qty ?? '' %>" placeholder="Missing" style="width:33%;">
+          </div>
+        </div>
+      <% }) %>
+      <button class="driver-btn-lg" type="submit">Submit Pickup Report</button>
+    </form>
+  <% } %>
+</div>

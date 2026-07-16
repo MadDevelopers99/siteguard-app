@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>New Purchase Order — SiteGuard Purchase</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="admin-shell">
+  <%- include('../partials/inventory-sidebar', { active: 'pur-orders' }) %>
+
+  <div class="admin-main">
+    <div class="admin-topline">
+      <h1>Create Purchase Order</h1>
+      <a href="/admin/purchase/orders" style="text-decoration:none; font-size:14px;">&larr; Back to purchase orders</a>
+    </div>
+
+    <form method="POST" action="/admin/purchase/orders">
+      <div class="admin-card">
+        <h3>Order Details</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Supplier *</label>
+            <select name="supplier_id" required>
+              <option value="">— select —</option>
+              <% suppliers.forEach(s => { %><option value="<%= s.id %>"><%= s.name %></option><% }) %>
+            </select>
+          </div>
+          <div class="form-group"><label>Expected Delivery Date</label><input type="date" name="expected_delivery_date"></div>
+          <div class="form-group"><label>Payment Terms</label><input type="text" name="payment_terms"></div>
+          <div class="form-group"><label>Delivery Address</label><input type="text" name="delivery_address"></div>
+        </div>
+        <div class="form-group full" style="margin-top:10px;"><label>Notes</label><textarea name="notes" rows="2"></textarea></div>
+      </div>
+
+      <div class="admin-card">
+        <h3>Items</h3>
+        <div id="lineItemsContainer"></div>
+        <button type="button" class="btn btn-outline btn-sm" id="addLineBtn">+ Add Item</button>
+      </div>
+
+      <button class="btn" type="submit" style="font-size:16px; padding:12px 24px;">Save Draft</button>
+    </form>
+  </div>
+</div>
+
+<script>
+  function addLineRow() {
+    const container = document.getElementById('lineItemsContainer');
+    const row = document.createElement('div');
+    row.className = 'order-line-item-row';
+    row.innerHTML = `
+      <input type="text" name="item_name" placeholder="Item name" required>
+      <input type="text" name="supplier_article_no" placeholder="Supplier article #">
+      <input type="number" name="qty" placeholder="Qty" min="1" value="1" step="0.1">
+      <input type="number" name="unit_cost" placeholder="Unit cost €" step="0.01">
+      <button type="button" class="remove-line">Remove</button>
+    `;
+    row.querySelector('.remove-line').addEventListener('click', () => row.remove());
+    container.appendChild(row);
+  }
+  document.getElementById('addLineBtn').addEventListener('click', addLineRow);
+  addLineRow();
+</script>
+</body>
+</html>

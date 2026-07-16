@@ -1,0 +1,23 @@
+<div class="admin-sidebar">
+  <div class="brand"><span class="mark">SG</span> Inventories</div>
+  <div style="padding:10px 24px 4px; font-size:11px; text-transform:uppercase; letter-spacing:0.5px; color:#8a8f90;">Main Inventory</div>
+  <a href="/admin/inventory/dashboard" class="<%= active === 'inv-dashboard' ? 'active' : '' %>">Dashboard</a>
+  <a href="/admin/inventory/items" class="<%= active === 'inv-items' ? 'active' : '' %>">Item List</a>
+  <a href="/admin/inventory/damaged-missing" class="<%= active === 'inv-damaged' ? 'active' : '' %>">Damaged / Missing</a>
+  <a href="/admin/inventory/low-stock" class="<%= active === 'inv-lowstock' ? 'active' : '' %>">Low Stock Alerts</a>
+  <a href="/admin/inventory/stock-counts" class="<%= active === 'inv-counts' ? 'active' : '' %>">Stock Count</a>
+  <a href="/admin/inventory/settings" class="<%= active === 'inv-settings' ? 'active' : '' %>">Inventory Settings</a>
+
+  <div style="padding:16px 24px 4px; font-size:11px; text-transform:uppercase; letter-spacing:0.5px; color:#8a8f90;">Purchase &amp; Sell-to-SG</div>
+  <a href="/admin/purchase/dashboard" class="<%= active === 'pur-dashboard' ? 'active' : '' %>">Dashboard</a>
+  <a href="/admin/purchase/suppliers" class="<%= active === 'pur-suppliers' ? 'active' : '' %>">Suppliers</a>
+  <a href="/admin/purchase/orders" class="<%= active === 'pur-orders' ? 'active' : '' %>">Purchase Orders</a>
+  <a href="/admin/purchase/receipts" class="<%= active === 'pur-receipts' ? 'active' : '' %>">Goods Received</a>
+  <a href="/admin/purchase/batches" class="<%= active === 'pur-batches' ? 'active' : '' %>">Wholesale Stock / Batches</a>
+  <a href="/admin/purchase/sales" class="<%= active === 'pur-sales' ? 'active' : '' %>">Internal Sale to SG</a>
+  <a href="/admin/purchase/price-rules" class="<%= active === 'pur-pricerules' ? 'active' : '' %>">Price Rules</a>
+  <a href="/admin/purchase/reports" class="<%= active === 'pur-reports' ? 'active' : '' %>">Reports</a>
+  <a href="/admin/purchase/settings" class="<%= active === 'pur-settings' ? 'active' : '' %>">Settings</a>
+
+  <a href="/admin/dashboard" style="margin-top:16px;">&larr; Office Admin</a>
+</div>
