@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Parked Vehicle — SiteGuard Driver</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="driver-shell">
+  <div class="driver-topbar">
+    <a href="/driver/tasks/<%= task.order_id %>?tab=parked-vehicles" style="text-decoration:none;">&larr; Parked Vehicles</a>
+    <span class="brand"><%= task.order_number %></span>
+  </div>
+
+  <div class="driver-main">
+    <% if (error) { %>
+      <div class="error-msg"><%= error %></div>
+    <% } %>
+
+    <div class="driver-card">
+      <h3>Rear Photo</h3>
+      <p style="color:#8a8f90; font-size:13px;">Take photo from the rear side of the vehicle. Make sure the plate number is clearly visible.</p>
+      <% if (photo) { %>
+        <p><a href="/admin/documents/<%= photo.id %>/download">View current photo</a></p>
+      <% } %>
+      <form method="POST" action="/admin/documents/upload" enctype="multipart/form-data">
+        <input type="hidden" name="entity_type" value="parked_vehicle">
+        <input type="hidden" name="entity_id" value="<%= vehicle.id %>">
+        <input type="hidden" name="category" value="Rear Photo">
+        <div class="driver-field">
+          <input type="file" name="file" accept="image/*" capture="environment" required>
+        </div>
+        <button class="driver-btn-lg" type="submit"><%= photo ? 'Retake Photo' : 'Take Rear Photo' %></button>
+      </form>
+    </div>
+
+    <div class="driver-card">
+      <h3>Vehicle Details</h3>
+      <form method="POST" action="/driver/tasks/<%= task.order_id %>/parked-vehicles/<%= vehicle.id %>">
+        <div class="driver-field">
+          <label>Plate Number</label>
+          <input type="text" name="plate_number" value="<%= vehicle.plate_number || '' %>" placeholder="e.g. M-AB-1234" required>
+        </div>
+        <div class="driver-field">
+          <label>Color</label>
+          <input type="text" name="vehicle_color" value="<%= vehicle.vehicle_color || '' %>" placeholder="e.g. Black, or Unknown">
+        </div>
+        <div class="driver-field">
+          <label>Brand</label>
+          <input type="text" name="vehicle_brand" value="<%= vehicle.vehicle_brand || '' %>" placeholder="e.g. BMW">
+        </div>
+        <div class="driver-field">
+          <label>Model</label>
+          <input type="text" name="vehicle_model" value="<%= vehicle.vehicle_model || '' %>" placeholder="e.g. 3 Series">
+        </div>
+
+        <div class="driver-field">
+          <label>Tyre / Nozzle Direction</label>
+          <%
+            const cx = 110, cy = 110, r = 88;
+            const hours = [12,1,2,3,4,5,6,7,8,9,10,11];
+          %>
+          <div class="clock-selector" id="clockSelector">
+            <div class="clock-face"></div>
+            <div class="clock-line" id="clockLine" style="<%= vehicle.tyre_direction_hour && vehicle.tyre_direction_hour !== 'Unknown' ? '' : 'display:none;' %>"></div>
+            <% hours.forEach(h => {
+              const angleDeg = (h % 12) * 30;
+              const rad = angleDeg * Math.PI / 180;
+              const x = cx + r * Math.sin(rad) - 18;
+              const y = cy - r * Math.cos(rad) - 18;
+              const label = h + ' Uhr';
+              const selected = vehicle.tyre_direction_hour === label;
+            %>
+              <button type="button" class="clock-hour <%= selected ? 'selected' : '' %>" data-hour="<%= label %>" data-angle="<%= angleDeg %>" style="left:<%= x %>px; top:<%= y %>px;"><%= h %></button>
+            <% }) %>
+          </div>
+          <button type="button" class="btn btn-outline btn-sm" id="unknownDirectionBtn" style="margin-top:8px;">Unknown Direction</button>
+          <input type="hidden" name="tyre_direction_hour" id="tyreDirectionInput" value="<%= vehicle.tyre_direction_hour || '' %>">
+          <p id="selectedDirectionLabel" style="margin-top:6px; font-size:13px; color:#8a8f90;">
+            Selected: <%= vehicle.tyre_direction_hour || 'none' %>
+          </p>
+        </div>
+
+        <div class="driver-field">
+          <label><input type="checkbox" name="manual_correction_required" value="1" <%= vehicle.manual_correction_required ? 'checked' : '' %>> Needs manual correction</label>
+        </div>
+        <div class="driver-field">
+          <label>Driver Note</label>
+          <textarea name="driver_note" rows="2"><%= vehicle.driver_note || '' %></textarea>
+        </div>
+        <button class="driver-btn-lg" type="submit">Save Vehicle</button>
+      </form>
+      <form method="POST" action="/driver/tasks/<%= task.order_id %>/parked-vehicles/<%= vehicle.id %>/delete" style="margin-top:8px;">
+        <button class="driver-btn-lg outline" type="submit" onclick="return confirm('Delete this vehicle record?');">Delete Vehicle</button>
+      </form>
+    </div>
+  </div>
+
+  <%- include('../partials/driver-bottomnav', { active: 'tasks', currentTaskId: task.order_id }) %>
+</div>
+
+<script>
+  const tyreInput = document.getElementById('tyreDirectionInput');
+  const line = document.getElementById('clockLine');
+  const label = document.getElementById('selectedDirectionLabel');
+
+  document.querySelectorAll('.clock-hour').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.clock-hour').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      tyreInput.value = btn.dataset.hour;
+      line.style.display = '';
+      line.style.transform = 'rotate(' + btn.dataset.angle + 'deg)';
+      label.textContent = 'Selected: ' + btn.dataset.hour;
+    });
+  });
+
+  document.getElementById('unknownDirectionBtn').addEventListener('click', () => {
+    document.querySelectorAll('.clock-hour').forEach(b => b.classList.remove('selected'));
+    tyreInput.value = 'Unknown';
+    line.style.display = 'none';
+    label.textContent = 'Selected: Unknown';
+  });
+</script>
+</body>
+</html>

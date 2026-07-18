@@ -26,6 +26,7 @@
       if (flags.showPhotos) tabs.push(['photos', 'Photos']);
       if (flags.showDigitization) tabs.push(['digitization', 'Field Digitization']);
       if (flags.requiresInventoryReport) tabs.push(['inventory-report', 'Inventory Report']);
+      if (showParkedVehicles) tabs.push(['parked-vehicles', 'Parked Vehicles']);
       tabs.push(['issues', 'Issues']);
       tabs.push(['documents', 'Documents']);
       tabs.push(['submit', 'Submit']);
@@ -69,6 +70,11 @@
       <% if (flags.requiresInventoryReport) { %>
         <div class="tab-panel" data-panel="inventory-report" <%= tab === 'inventory-report' ? '' : 'style="display:none;"' %>>
           <%- include('../partials/task-tabs/inventory-report', { task, inventoryRows, flags }) %>
+        </div>
+      <% } %>
+      <% if (showParkedVehicles) { %>
+        <div class="tab-panel" data-panel="parked-vehicles" <%= tab === 'parked-vehicles' ? '' : 'style="display:none;"' %>>
+          <%- include('../partials/task-tabs/parked-vehicles', { task, parkedVehicles, parkedVehiclePhotos }) %>
         </div>
       <% } %>
       <div class="tab-panel" data-panel="issues" <%= tab === 'issues' ? '' : 'style="display:none;"' %>>

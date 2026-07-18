@@ -29,6 +29,10 @@ function backToFor(req, entityType, entityId) {
   if (entityType === "purchase_order") return `/admin/purchase/orders/${entityId}`;
   if (entityType === "goods_receipt") return `/admin/purchase/receipts`;
   if (entityType === "internal_sale") return `/admin/purchase/sales/${entityId}`;
+  if (entityType === "parked_vehicle") {
+    const pv = db.prepare("SELECT order_id FROM parked_vehicles WHERE id = ?").get(entityId);
+    return `/driver/tasks/${pv ? pv.order_id : ""}/parked-vehicles/${entityId}/edit`;
+  }
   // entityType === "order"
   if (req.session.driverId) return `/driver/tasks/${entityId}?tab=photos`;
   return `/main-admin/auftraege/${entityId}?tab=map`;

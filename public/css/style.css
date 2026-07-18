@@ -356,6 +356,21 @@ footer.site-footer { background: var(--charcoal); color: #9aa6a9; padding: 24px 
   border: 1px solid var(--concrete-2); border-radius: var(--radius); touch-action: none; cursor: crosshair;
 }
 
+/* Tyre / nozzle direction clock selector (Parked Vehicles task) */
+.clock-selector { position: relative; width: 220px; height: 220px; margin: 8px auto; }
+.clock-face {
+  position: absolute; inset: 0; border: 2px solid var(--concrete-2); border-radius: 50%; background: #fff;
+}
+.clock-line {
+  position: absolute; left: 50%; top: 50%; width: 3px; height: 88px;
+  background: var(--amber); transform-origin: top center; margin-left: -1.5px;
+}
+.clock-hour {
+  position: absolute; width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--concrete-2);
+  background: #fff; font-weight: 700; font-size: 13px; cursor: pointer; color: var(--charcoal);
+}
+.clock-hour.selected { background: var(--amber); border-color: var(--amber); }
+
 @media (max-width: 700px) {
   .hero h1 { font-size: 36px; }
   .admin-shell { flex-direction: column; }

@@ -10,6 +10,7 @@ const {
 } = require("../utils/constants");
 const { taskFlags } = require("../utils/task-flow");
 const { suggestOrder } = require("../utils/route-suggest");
+const { TYRE_DIRECTION_OPTIONS, angleForHour } = require("../utils/parked-vehicle");
 const {
   driverOwnsOrder,
   listDriverTasks,
@@ -100,6 +101,18 @@ router.get("/:id", (req, res) => {
   const issues = db.prepare("SELECT * FROM task_issues WHERE order_id = ? ORDER BY created_at DESC").all(req.params.id);
   const openIssueCount = issues.filter((i) => i.status === "Open").length;
 
+  // Parked Vehicles is an optional Halteverbot-only section — do not show it for other job types.
+  const showParkedVehicles = task.request_type === "Halteverbot" || !!task.parked_vehicle_list_required;
+  const parkedVehicles = showParkedVehicles
+    ? db.prepare("SELECT * FROM parked_vehicles WHERE order_id = ? ORDER BY id ASC").all(req.params.id)
+    : [];
+  const parkedVehiclePhotos = {};
+  parkedVehicles.forEach((pv) => {
+    parkedVehiclePhotos[pv.id] = db
+      .prepare("SELECT * FROM documents WHERE entity_type = 'parked_vehicle' AND entity_id = ? ORDER BY created_at DESC LIMIT 1")
+      .get(pv.id);
+  });
+
   const photosOk = !flags.requiresPhotos || photos.length > 0;
   const digitizationOk = !flags.requiresDigitization || features.length > 0;
   const inventoryOk =
@@ -119,6 +132,9 @@ router.get("/:id", (req, res) => {
     photos,
     issues,
     checklist,
+    showParkedVehicles,
+    parkedVehicles,
+    parkedVehiclePhotos,
     tab: req.query.tab || "overview",
     error: req.query.error || null,
     fullAddress: fullAddress(task),
@@ -419,6 +435,128 @@ router.post("/:id/submit", (req, res) => {
   const nextTask = suggestedIds.length ? remaining.find((t) => t.id === suggestedIds[0]) : null;
 
   res.render("driver/next-task", { nextTask, driverName: req.session.driverName, fullAddress });
+});
+
+// ---------- Parked Vehicles (Halteverbot-only optional task) ----------
+router.post("/:id/parked-vehicles", (req, res) => {
+  const assignment = driverOwnsOrder(req.params.id, req.session.driverId);
+  if (!assignment) return res.status(404).send("Task not found");
+
+  const { lastInsertRowid } = db
+    .prepare("INSERT INTO parked_vehicles (order_id, driver_id) VALUES (?, ?)")
+    .run(req.params.id, req.session.driverId);
+
+  res.redirect(`/driver/tasks/${req.params.id}/parked-vehicles/${lastInsertRowid}/edit`);
+});
+
+router.get("/:id/parked-vehicles/:pvId/edit", (req, res) => {
+  const task = getDriverTask(req.params.id, req.session.driverId);
+  if (!task) return res.status(404).send("Task not found");
+
+  const vehicle = db
+    .prepare("SELECT * FROM parked_vehicles WHERE id = ? AND order_id = ?")
+    .get(req.params.pvId, req.params.id);
+  if (!vehicle) return res.status(404).send("Vehicle record not found");
+
+  const photo = db
+    .prepare("SELECT * FROM documents WHERE entity_type = 'parked_vehicle' AND entity_id = ? ORDER BY created_at DESC LIMIT 1")
+    .get(vehicle.id);
+
+  res.render("driver/parked-vehicle-edit", {
+    task,
+    vehicle,
+    photo,
+    error: req.query.error || null,
+    driverName: req.session.driverName,
+    TYRE_DIRECTION_OPTIONS
+  });
+});
+
+function parkedVehicleErrors(vehicle, hasPhoto) {
+  const errors = [];
+  if (!hasPhoto) errors.push(`${vehicle.plate_number || "Vehicle"}: rear photo is missing.`);
+  if (!vehicle.plate_number) errors.push("Plate number is missing.");
+  if (!vehicle.vehicle_color) errors.push(`${vehicle.plate_number || "Vehicle"}: color is missing (enter Unknown if unsure).`);
+  if (!vehicle.tyre_direction_hour) errors.push(`${vehicle.plate_number || "Vehicle"}: nozzle direction is not selected.`);
+  return errors;
+}
+
+// Registered before the generic /:pvId routes below so "submit" isn't swallowed as a pvId.
+router.post("/:id/parked-vehicles/submit", (req, res) => {
+  const assignment = driverOwnsOrder(req.params.id, req.session.driverId);
+  if (!assignment) return res.status(404).send("Task not found");
+
+  const vehicles = db.prepare("SELECT * FROM parked_vehicles WHERE order_id = ?").all(req.params.id);
+  if (vehicles.length === 0) {
+    return res.redirect(
+      `/driver/tasks/${req.params.id}?tab=parked-vehicles&error=${encodeURIComponent("Add at least one parked vehicle before submitting.")}`
+    );
+  }
+
+  const errors = [];
+  vehicles.forEach((v) => {
+    const hasPhoto = !!db
+      .prepare("SELECT id FROM documents WHERE entity_type = 'parked_vehicle' AND entity_id = ?")
+      .get(v.id);
+    errors.push(...parkedVehicleErrors(v, hasPhoto));
+  });
+
+  if (errors.length > 0) {
+    return res.redirect(
+      `/driver/tasks/${req.params.id}?tab=parked-vehicles&error=${encodeURIComponent("Vehicle record is incomplete: " + errors.join(" "))}`
+    );
+  }
+
+  db.prepare("UPDATE parked_vehicles SET status = 'Submitted', updated_at = datetime('now') WHERE order_id = ?").run(req.params.id);
+
+  res.redirect(`/driver/tasks/${req.params.id}?tab=parked-vehicles`);
+});
+
+router.post("/:id/parked-vehicles/:pvId", (req, res) => {
+  const assignment = driverOwnsOrder(req.params.id, req.session.driverId);
+  if (!assignment) return res.status(404).send("Task not found");
+
+  const { plate_number, vehicle_color, vehicle_brand, vehicle_model, tyre_direction_hour, driver_note, manual_correction_required } =
+    req.body;
+  const angle = angleForHour(tyre_direction_hour);
+
+  const vehicle = db.prepare("SELECT * FROM parked_vehicles WHERE id = ? AND order_id = ?").get(req.params.pvId, req.params.id);
+  if (!vehicle) return res.status(404).send("Vehicle record not found");
+
+  const hasPhoto = !!db
+    .prepare("SELECT id FROM documents WHERE entity_type = 'parked_vehicle' AND entity_id = ?")
+    .get(req.params.pvId);
+  const status = plate_number && hasPhoto ? "Saved" : "Draft";
+
+  db.prepare(
+    `UPDATE parked_vehicles SET plate_number = ?, vehicle_color = ?, vehicle_brand = ?, vehicle_model = ?,
+     tyre_direction_hour = ?, tyre_direction_angle = ?, driver_note = ?, manual_correction_required = ?,
+     status = ?, updated_at = datetime('now')
+     WHERE id = ?`
+  ).run(
+    plate_number || null,
+    vehicle_color || null,
+    vehicle_brand || null,
+    vehicle_model || null,
+    tyre_direction_hour || null,
+    angle,
+    driver_note || null,
+    manual_correction_required ? 1 : 0,
+    status,
+    req.params.pvId
+  );
+
+  res.redirect(`/driver/tasks/${req.params.id}?tab=parked-vehicles`);
+});
+
+router.post("/:id/parked-vehicles/:pvId/delete", (req, res) => {
+  const assignment = driverOwnsOrder(req.params.id, req.session.driverId);
+  if (!assignment) return res.status(404).send("Task not found");
+
+  db.prepare("DELETE FROM documents WHERE entity_type = 'parked_vehicle' AND entity_id = ?").run(req.params.pvId);
+  db.prepare("DELETE FROM parked_vehicles WHERE id = ? AND order_id = ?").run(req.params.pvId, req.params.id);
+
+  res.redirect(`/driver/tasks/${req.params.id}?tab=parked-vehicles`);
 });
 
 module.exports = router;

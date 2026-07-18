@@ -369,6 +369,25 @@ CREATE TABLE IF NOT EXISTS task_issues (
 
 CREATE INDEX IF NOT EXISTS idx_task_issues_order ON task_issues(order_id);
 
+CREATE TABLE IF NOT EXISTS parked_vehicles (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  order_id INTEGER NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
+  driver_id INTEGER REFERENCES drivers(id),
+  plate_number TEXT,
+  vehicle_color TEXT,
+  vehicle_brand TEXT,
+  vehicle_model TEXT,
+  tyre_direction_hour TEXT,
+  tyre_direction_angle REAL,
+  manual_correction_required INTEGER DEFAULT 0,
+  driver_note TEXT,
+  status TEXT DEFAULT 'Draft', -- Draft, Saved, Submitted
+  created_at TEXT DEFAULT (datetime('now')),
+  updated_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_parked_vehicles_order ON parked_vehicles(order_id);
+
 -- ---------- Main Inventory ----------
 
 CREATE TABLE IF NOT EXISTS stock_movements (
