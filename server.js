@@ -4,6 +4,7 @@ const session = require("express-session");
 const path = require("path");
 
 const publicRoutes = require("./routes/public");
+const priceCalculatorRoutes = require("./routes/price-calculator");
 const adminRoutes = require("./routes/admin");
 const mainAdminRoutes = require("./routes/main-admin");
 const driverRoutes = require("./routes/driver");
@@ -30,6 +31,7 @@ app.use(
 );
 
 app.use("/", publicRoutes);
+app.use("/price-calculator", priceCalculatorRoutes);
 // Mounted before /admin so it's reachable from Main Admin and Driver sessions too,
 // not just Office Admin (see routes/admin-documents.js for the role-aware redirects).
 app.use("/admin/documents", requireAnyRole, documentsRoutes);

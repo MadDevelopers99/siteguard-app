@@ -12,7 +12,11 @@
 
   <div class="admin-main">
     <div class="admin-topline">
-      <h1><a href="/admin/inventory/items" style="text-decoration:none;">Item List</a> &raquo; <%= item.item_name %></h1>
+      <h1>
+        <a href="/admin/inventory/items" style="text-decoration:none;">Item List</a> &raquo;
+        <% const icon = signIconFor(item.item_name); %>
+        <% if (icon) { %><img src="<%= icon %>" alt="" style="width:28px; height:28px; vertical-align:middle; margin:0 4px;"><% } %><%= item.item_name %>
+      </h1>
       <form method="POST" action="/admin/inventory/items/<%= item.id %>/deactivate" onsubmit="return confirm('<%= item.is_active ? 'Deactivate' : 'Reactivate' %> this item?');">
         <button type="submit" class="btn btn-outline btn-sm"><%= item.is_active ? 'Deactivate Item' : 'Reactivate Item' %></button>
       </form>

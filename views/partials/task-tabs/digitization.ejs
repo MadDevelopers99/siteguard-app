@@ -13,7 +13,7 @@
   <div class="digitize-toolbar" style="margin-top:6px;">
     <span style="font-size:12px; color:#8a8f90; align-self:center;">Templates:</span>
     <button type="button" class="btn btn-outline btn-sm template-btn" data-object-type="Pole">Pole</button>
-    <button type="button" class="btn btn-outline btn-sm template-btn" data-object-type="Halteverbot Sign">Pole + Sign</button>
+    <button type="button" class="btn btn-outline btn-sm template-btn" data-object-type="Halteverbot Sign"><img src="/images/signs/haltverbot.svg" alt="" style="width:14px; height:14px; vertical-align:middle; margin-right:3px;">Pole + Sign</button>
     <button type="button" class="btn btn-outline btn-sm template-btn" data-object-type="Base Plate / Standsockel">Base Plate</button>
   </div>
 
@@ -23,9 +23,12 @@
     <h3>Feature Details</h3>
     <div class="driver-field">
       <label>Object Type</label>
-      <select id="featureObjectType">
-        <% DIGITIZATION_OBJECT_TYPES.forEach(o => { %><option value="<%= o %>"><%= o %></option><% }) %>
-      </select>
+      <div style="display:flex; align-items:center; gap:8px;">
+        <select id="featureObjectType" style="flex:1;">
+          <% DIGITIZATION_OBJECT_TYPES.forEach(o => { %><option value="<%= o %>"><%= o %></option><% }) %>
+        </select>
+        <img id="objectTypeIcon" src="" alt="" style="width:28px; height:28px; display:none;">
+      </div>
     </div>
     <div class="driver-field">
       <label>Inventory Item</label>
@@ -79,6 +82,23 @@
   let pendingType = null;
   let templateObjectType = null;
 
+  // Real StVO sign icons — only object types that correspond to an actual road sign get one.
+  const OBJECT_TYPE_ICONS = {
+    'Halteverbot Sign': '/images/signs/haltverbot.svg',
+    'Traffic Sign': '/images/signs/arbeitsstelle.svg',
+    'Single Barrier': '/images/signs/absperrschranke.svg',
+    'Warning Light': '/images/signs/leitbake.svg',
+    'Bakenleuchte': '/images/signs/leitbake.svg'
+  };
+
+  function updateObjectTypeIcon() {
+    const type = document.getElementById('featureObjectType').value;
+    const icon = document.getElementById('objectTypeIcon');
+    const src = OBJECT_TYPE_ICONS[type];
+    if (src) { icon.src = src; icon.style.display = ''; } else { icon.style.display = 'none'; }
+  }
+  document.getElementById('featureObjectType').addEventListener('change', updateObjectTypeIcon);
+
   function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.strokeStyle = '#ccc';
@@ -123,9 +143,11 @@
   function renderFeatureList() {
     const list = document.getElementById('featureList');
     if (features.length === 0) { list.innerHTML = '<p style="color:#8a8f90;">No features added yet.</p>'; return; }
-    list.innerHTML = '<ul style="margin:0; padding-left:20px;">' + features.map((f, i) =>
-      `<li>${f.objectType || '—'} — ${f.itemName || 'no item'} x${f.qty || 0} <button type="button" class="feature-remove" data-idx="${i}" style="margin-left:8px;">Remove</button></li>`
-    ).join('') + '</ul>';
+    list.innerHTML = '<ul style="margin:0; padding-left:20px; list-style:none;">' + features.map((f, i) => {
+      const src = OBJECT_TYPE_ICONS[f.objectType];
+      const iconHtml = src ? `<img src="${src}" alt="" style="width:16px; height:16px; vertical-align:middle; margin-right:4px;">` : '';
+      return `<li>${iconHtml}${f.objectType || '—'} — ${f.itemName || 'no item'} x${f.qty || 0} <button type="button" class="feature-remove" data-idx="${i}" style="margin-left:8px;">Remove</button></li>`;
+    }).join('') + '</ul>';
     list.querySelectorAll('.feature-remove').forEach(btn => {
       btn.addEventListener('click', () => { features.splice(parseInt(btn.dataset.idx, 10), 1); syncInputs(); renderFeatureList(); draw(); });
     });
@@ -186,6 +208,7 @@
     const form = document.getElementById('featureForm');
     form.style.display = '';
     if (templateObjectType) document.getElementById('featureObjectType').value = templateObjectType;
+    updateObjectTypeIcon();
     form.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
 

@@ -44,7 +44,10 @@
           <% items.forEach(i => { %>
             <tr onclick="window.location='/admin/inventory/items/<%= i.id %>'" style="cursor:pointer;">
               <td><%= displayItemId(i.id) %></td>
-              <td><%= i.item_name %></td>
+              <td>
+                <% const icon = signIconFor(i.item_name); %>
+                <% if (icon) { %><img src="<%= icon %>" alt="" style="width:18px; height:18px; vertical-align:middle; margin-right:6px;"><% } %><%= i.item_name %>
+              </td>
               <td><%= i.category || '—' %></td>
               <td><%= i.available_stock %> <%= i.unit %></td>
               <td><%= i.reserved_qty || 0 %></td>

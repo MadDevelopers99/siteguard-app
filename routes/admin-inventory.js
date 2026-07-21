@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const db = require("../db/database");
-const { statusBadgeClass } = require("../utils/helpers");
+const { statusBadgeClass, signIconFor } = require("../utils/helpers");
 const {
   INVENTORY_ITEM_STATUSES,
   STOCK_IN_SOURCE_TYPES,
@@ -90,6 +90,7 @@ router.get("/items", (req, res) => {
     INVENTORY_ITEM_STATUSES,
     displayItemId,
     statusBadgeClass,
+    signIconFor,
     adminName: req.session.adminName
   });
 });
@@ -176,6 +177,7 @@ router.get("/items/:id", (req, res) => {
     DOCUMENT_STATUSES,
     displayItemId,
     statusBadgeClass,
+    signIconFor,
     adminName: req.session.adminName
   });
 });

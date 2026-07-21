@@ -371,10 +371,74 @@ footer.site-footer { background: var(--charcoal); color: #9aa6a9; padding: 24px 
 }
 .clock-hour.selected { background: var(--amber); border-color: var(--amber); }
 
+/* ---------- Price Calculator (public marketing page) ---------- */
+.pc-brand { gap: 10px; }
+.pc-brand-text { display: flex; flex-direction: column; line-height: 1.15; }
+.pc-brand-text strong { font-family: var(--font-display); font-size: 18px; letter-spacing: 0.5px; }
+.pc-brand-text small { font-size: 10px; letter-spacing: 2px; color: var(--amber); }
+.pc-nav { display: flex; gap: 22px; }
+.pc-nav a { color: #cfd6d8; font-size: 14px; text-decoration: none; }
+.pc-nav a:hover { color: var(--amber); }
+.pc-header-right { display: flex; align-items: center; gap: 14px; }
+.pc-header-contact { text-align: right; color: #cfd6d8; font-size: 13px; line-height: 1.3; }
+.pc-header-contact span { display: block; font-weight: 600; color: #fff; }
+
+.pc-hero {
+  background: var(--charcoal); color: #fff; padding: 48px 32px 64px;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start;
+}
+.pc-hero-left, .pc-hero-right { max-width: 560px; }
+.pc-hero-sign { width: 84px; height: 84px; margin-bottom: 16px; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.35)); }
+.pc-hero-right { max-width: 480px; justify-self: end; width: 100%; }
+.pc-badge {
+  display: inline-block; font-size: 13px; color: var(--amber); border: 1px solid var(--amber);
+  padding: 5px 12px; border-radius: 20px; margin-bottom: 18px;
+}
+.pc-hero-left h1 { font-family: var(--font-display); font-size: 44px; line-height: 1.05; margin: 0 0 16px; }
+.pc-sub { font-size: 17px; color: #cfd6d8; margin: 0 0 14px; }
+.pc-support { font-size: 14px; color: #9aa6a9; margin: 0 0 26px; }
+.pc-trust-row { display: flex; flex-wrap: wrap; gap: 18px; margin-bottom: 30px; }
+.pc-trust-item { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; font-size: 12px; color: #cfd6d8; max-width: 90px; }
+.pc-trust-icon { font-size: 20px; }
+.pc-hero-buttons { display: flex; gap: 10px; flex-wrap: wrap; }
+
+.pc-card { background: #fff; color: var(--ink); border-radius: var(--radius); padding: 24px; box-shadow: 0 12px 32px rgba(0,0,0,0.28); }
+.pc-card h2 { font-family: var(--font-display); font-size: 22px; margin: 0 0 6px; }
+.pc-form-subtitle { font-size: 13px; color: var(--steel); margin: 0 0 18px; }
+.pc-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 14px; }
+.pc-form-grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+.pc-form-grid .form-group.full { grid-column: 1 / -1; }
+
+.pc-result-card { margin-top: 20px; padding-top: 18px; border-top: 1px solid var(--concrete-2); }
+.pc-result-card h3 { font-family: var(--font-display); font-size: 18px; margin: 0 0 4px; }
+.pc-price { font-family: var(--font-mono); font-size: 34px; font-weight: 700; color: var(--ok); }
+.pc-breakdown { margin-top: 16px; background: var(--concrete); border-radius: var(--radius); padding: 14px 16px; }
+.pc-breakdown h4 { margin: 0 0 8px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--steel); }
+.pc-breakdown-line { display: flex; justify-content: space-between; font-size: 13px; padding: 3px 0; }
+.pc-breakdown-calc { font-family: var(--font-mono); font-size: 12px; color: var(--steel); margin: 8px 0; }
+.pc-breakdown-total { display: flex; justify-content: space-between; font-weight: 700; font-size: 15px; border-top: 1px solid var(--concrete-2); padding-top: 8px; margin-top: 6px; }
+.pc-disclaimer { font-size: 12px; color: var(--steel); margin-top: 14px; }
+
+.pc-contact-section { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--concrete-2); }
+.pc-contact-section h3 { font-family: var(--font-display); font-size: 18px; margin: 0 0 4px; }
+.pc-privacy { font-size: 11px; color: var(--steel); margin-top: 8px; }
+
+.pc-benefits { max-width: 1100px; margin: 0 auto; padding: 48px 32px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 26px; }
+.pc-benefit h4 { font-family: var(--font-display); font-size: 17px; margin: 0 0 8px; }
+.pc-benefit p { font-size: 13px; color: var(--steel); margin: 0; }
+
+.pc-legal { text-align: center; font-size: 12px; color: var(--steel); padding: 0 32px 40px; }
+
 @media (max-width: 700px) {
   .hero h1 { font-size: 36px; }
   .admin-shell { flex-direction: column; }
   .admin-sidebar { width: 100%; display:flex; overflow-x:auto; padding: 12px; }
   .admin-sidebar .brand { display:none; }
   .form-grid { grid-template-columns: 1fr; }
+  .pc-nav { display: none; }
+  .pc-header-contact { display: none; }
+  .pc-hero { grid-template-columns: 1fr; }
+  .pc-hero-right { justify-self: stretch; max-width: none; }
+  .pc-form-grid, .pc-form-grid-3 { grid-template-columns: 1fr; }
+  .pc-benefits { grid-template-columns: 1fr 1fr; }
 }

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title><%= company.name %> <%= company.tagline %> — No-Parking Zone Price Calculator</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a href="#" class="brand pc-brand">
+    <span class="mark">RM</span>
+    <span class="pc-brand-text"><strong>RAVIAN MATRIX</strong><small>TRAFFIC SERVICES</small></span>
+  </a>
+  <nav class="pc-nav">
+    <a href="#">Services</a>
+    <a href="#">No-Parking Zones</a>
+    <a href="#">Traffic Safety</a>
+    <a href="#">Construction Sites</a>
+    <a href="#calculator">Prices</a>
+    <a href="#contactSection">Contact</a>
+  </nav>
+  <div class="pc-header-right">
+    <div class="pc-header-contact">
+      <span><%= company.phone %></span>
+      <small><%= company.hours %></small>
+    </div>
+    <a class="btn btn-outline" href="tel:<%= company.phone.replace(/[^+\d]/g, '') %>">Call Now</a>
+    <a class="btn" href="#calculator">Calculate Price</a>
+  </div>
+</header>
+
+<div class="hazard-rule"></div>
+
+<section class="pc-hero">
+  <div class="pc-hero-left">
+    <img src="/images/signs/haltverbot.svg" alt="No-Parking Zone sign" class="pc-hero-sign">
+    <span class="pc-badge">Reliable traffic service for private and commercial projects</span>
+    <h1>Calculate your no-parking zone price in seconds.</h1>
+    <p class="pc-sub">Enter your location, dates, time, and zone length. We calculate your estimated price instantly and guide you through the next step.</p>
+    <p class="pc-support">Whether you are planning a move, delivery, construction work, container placement, crane operation, or event, we help you organize the right temporary traffic solution.</p>
+
+    <div class="pc-trust-row">
+      <div class="pc-trust-item"><span class="pc-trust-icon">&#9201;</span>Fast response</div>
+      <div class="pc-trust-item"><span class="pc-trust-icon">&#128100;</span>Personal contact</div>
+      <div class="pc-trust-item"><span class="pc-trust-icon">&#128203;</span>Structured planning</div>
+      <div class="pc-trust-item"><span class="pc-trust-icon">&#128736;</span>On-site setup</div>
+      <div class="pc-trust-item"><span class="pc-trust-icon">&#128196;</span>Clear documentation</div>
+    </div>
+
+    <div class="pc-hero-buttons">
+      <a class="btn" href="#calculator">Calculate Price</a>
+      <a class="btn btn-outline" href="#calculator">Check Availability</a>
+      <a class="btn btn-outline" href="tel:<%= company.phone.replace(/[^+\d]/g, '') %>">Call Now</a>
+    </div>
+  </div>
+
+  <div class="pc-hero-right" id="calculator">
+    <div class="pc-card">
+      <h2>Calculate your no-parking zone price instantly</h2>
+      <p class="pc-form-subtitle">Enter the details below. Your estimated price will be calculated immediately.</p>
+
+      <form id="calcForm" class="pc-form-grid">
+        <div class="form-group"><label>City *</label><input type="text" name="city" placeholder="Munich" required></div>
+        <div class="form-group"><label>Postal Code *</label><input type="text" name="postal_code" placeholder="81677" required></div>
+        <div class="form-group"><label>Street *</label><input type="text" name="street" placeholder="Example Street" required></div>
+        <div class="form-group"><label>House Number *</label><input type="text" name="house_number" placeholder="35" required></div>
+        <div class="form-group"><label>Start Date *</label><input type="date" name="start_date" required></div>
+        <div class="form-group"><label>End Date *</label><input type="date" name="end_date" required></div>
+        <div class="form-group"><label>Start Time *</label><input type="time" name="start_time" value="07:00" required></div>
+        <div class="form-group"><label>End Time *</label><input type="time" name="end_time" value="17:00" required></div>
+        <div class="form-group">
+          <label>Zone Length *</label>
+          <select name="zone_length" id="zoneLengthSelect" required>
+            <option value="">Select length</option>
+            <% ZONE_LENGTH_OPTIONS.forEach(z => { %><option value="<%= z %>"><%= z %></option><% }) %>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Reason / Purpose *</label>
+          <select name="reason" required>
+            <option value="">Select reason</option>
+            <% REASON_OPTIONS.forEach(r => { %><option value="<%= r %>"><%= r %></option><% }) %>
+          </select>
+        </div>
+        <div class="form-group full">
+          <label><input type="checkbox" name="both_sides" id="bothSidesCheck" value="1"> No-parking zone needed on both sides</label>
+        </div>
+        <div class="form-group full">
+          <button class="btn btn-block" type="submit">Calculate Price</button>
+        </div>
+      </form>
+
+      <div id="calcError" class="error-msg" style="display:none;"></div>
+
+      <div id="priceResultCard" class="pc-result-card" style="display:none;">
+        <h3>Estimated Price</h3>
+        <div class="pc-price" id="priceAmount">€0</div>
+        <small>including VAT</small>
+
+        <div class="pc-breakdown">
+          <h4>Price Breakdown</h4>
+          <div class="pc-breakdown-line"><span>Base service fee</span><span id="bdBaseFee">€90.00</span></div>
+          <div class="pc-breakdown-line"><span>Sign rate</span><span id="bdSignRate">€5.00 per sign per day</span></div>
+          <div class="pc-breakdown-line"><span>Number of signs</span><span id="bdSigns">—</span></div>
+          <div class="pc-breakdown-line"><span>Duration</span><span id="bdDays">—</span></div>
+          <div class="pc-breakdown-calc" id="bdCalc"></div>
+          <div class="pc-breakdown-total"><span>Estimated Total</span><span id="bdTotal">€0.00</span></div>
+        </div>
+
+        <p class="pc-disclaimer">This is an estimated price. Final pricing may change if additional permit fees, special traffic requirements, custom signage plans, or extra on-site services are required.</p>
+      </div>
+
+      <div id="manualReviewCard" class="pc-result-card" style="display:none;">
+        <h3>Custom Length Selected</h3>
+        <p>This zone length needs manual review by our team. Send us your details and we'll get back to you with a price.</p>
+      </div>
+
+      <div id="contactSection" class="pc-contact-section" style="display:none;">
+        <h3>Continue with this price</h3>
+        <p class="pc-form-subtitle">Enter your contact details and we will guide you through the next step.</p>
+        <form id="contactForm" class="pc-form-grid pc-form-grid-3">
+          <div class="form-group"><label>Name *</label><input type="text" name="name" required></div>
+          <div class="form-group"><label>Phone *</label><input type="text" name="phone" required></div>
+          <div class="form-group"><label>Email *</label><input type="email" name="email" required></div>
+          <div class="form-group full"><label>Notes</label><textarea name="notes" rows="2" placeholder="Additional information (optional)"></textarea></div>
+          <div class="form-group full">
+            <button class="btn btn-block" type="submit" id="continueBtn">Continue with This Price</button>
+          </div>
+        </form>
+        <p class="pc-privacy">Your data will only be used to process your request.</p>
+        <div id="submitResult" style="margin-top:10px; font-size:14px;"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="pc-benefits">
+  <div class="pc-benefit">
+    <h4>Fast Processing</h4>
+    <p>We review your request and respond quickly with the next steps.</p>
+  </div>
+  <div class="pc-benefit">
+    <h4>Planning From One Source</h4>
+    <p>From request to setup, the process stays clear and organized.</p>
+  </div>
+  <div class="pc-benefit">
+    <h4>Flexible Service</h4>
+    <p>We check short-notice dates, special requirements, and multiple locations.</p>
+  </div>
+  <div class="pc-benefit">
+    <h4>Documentation</h4>
+    <p>Photos, records, and relevant documents can be provided when required.</p>
+  </div>
+</section>
+
+<p class="pc-legal">Implementation depends on local requirements and the responsible authority. Official approvals cannot be guaranteed.</p>
+
+<script src="/js/price-calculator.js"></script>
+</body>
+</html>

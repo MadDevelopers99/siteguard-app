@@ -53,4 +53,22 @@ function statusBadgeClass(status) {
   return "pending";
 }
 
-module.exports = { generateOrderNumber, generateRequestNumber, generateNumber, formatEUR, statusBadgeClass };
+// Maps inventory/object names to the matching official StVO sign icon
+// (public/images/signs/) — only the items that actually correspond to a real
+// road sign get one; hardware (poles, plates, clamps) has none.
+const SIGN_ICON_RULES = [
+  [/halteverbot/i, "/images/signs/haltverbot.svg"],
+  [/absperrschranke/i, "/images/signs/absperrschranke.svg"],
+  [/baken/i, "/images/signs/leitbake.svg"],
+  [/arbeitsstelle/i, "/images/signs/arbeitsstelle.svg"]
+];
+
+function signIconFor(name) {
+  const s = String(name || "");
+  for (const [pattern, icon] of SIGN_ICON_RULES) {
+    if (pattern.test(s)) return icon;
+  }
+  return null;
+}
+
+module.exports = { generateOrderNumber, generateRequestNumber, generateNumber, formatEUR, statusBadgeClass, signIconFor };
