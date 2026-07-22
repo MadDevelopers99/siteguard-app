@@ -1,13 +1,18 @@
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
 <div class="driver-card">
   <h3>Field Digitization</h3>
-  <p style="color:#8a8f90; font-size:13px;">Tap the sketch pad to mark where poles, signs, barricades, and safety lines were placed. This is a schematic sketch, not a GPS map.</p>
+  <p style="color:#8a8f90; font-size:13px;">Tap "Add Point" / "Draw Line" / "Draw Area" / "Draw Rectangle" first, then tap the map. While a tool is active the map won't pan, so taps register as drawing.</p>
 
   <div class="digitize-toolbar">
     <button type="button" class="btn btn-outline btn-sm" data-mode="point">Add Point</button>
     <button type="button" class="btn btn-outline btn-sm" data-mode="line">Draw Line</button>
     <button type="button" class="btn btn-outline btn-sm" data-mode="area">Draw Area</button>
+    <button type="button" class="btn btn-outline btn-sm" data-mode="rectangle">Draw Rectangle</button>
     <button type="button" class="btn btn-outline btn-sm" id="finishShapeBtn" style="display:none;">Finish Shape</button>
     <button type="button" class="btn btn-outline btn-sm" id="undoBtn">Undo</button>
+    <button type="button" class="btn btn-outline btn-sm" id="stopDrawBtn" style="display:none;">Stop Drawing (Pan Map)</button>
   </div>
 
   <div class="digitize-toolbar" style="margin-top:6px;">
@@ -17,7 +22,8 @@
     <button type="button" class="btn btn-outline btn-sm template-btn" data-object-type="Base Plate / Standsockel">Base Plate</button>
   </div>
 
-  <canvas id="digitizeCanvas" class="digitize-canvas" width="320" height="320"></canvas>
+  <div id="mapStatus" style="font-size:12px; color:#8a8f90; margin:6px 0;">Locating…</div>
+  <div id="digitizeMap" class="digitize-map"></div>
 
   <div id="featureForm" class="driver-card" style="display:none; margin-top:10px;">
     <h3>Feature Details</h3>
@@ -66,23 +72,21 @@
 
 <script>
 (function () {
-  const canvas = document.getElementById('digitizeCanvas');
-  const ctx = canvas.getContext('2d');
-  const rect = () => canvas.getBoundingClientRect();
-
-  function resizeCanvas() {
-    canvas.width = canvas.clientWidth;
-    canvas.height = 320;
-    draw();
-  }
+  // Fallback center (Munich) used only if the browser has no/denied GPS.
+  const FALLBACK_CENTER = [48.1351, 11.5820];
 
   let features = <%- JSON.stringify(features || []) %>;
   let mode = null;
   let pendingPoints = [];
   let pendingType = null;
   let templateObjectType = null;
+  let pendingLayer = null;
+  const savedLayers = [];
 
-  // Real StVO sign icons — only object types that correspond to an actual road sign get one.
+  let leafletMap = null;
+  let locatingStarted = false;
+  let mapStarted = false;
+
   const OBJECT_TYPE_ICONS = {
     'Halteverbot Sign': '/images/signs/haltverbot.svg',
     'Traffic Sign': '/images/signs/arbeitsstelle.svg',
@@ -99,44 +103,36 @@
   }
   document.getElementById('featureObjectType').addEventListener('change', updateObjectTypeIcon);
 
-  function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.strokeStyle = '#ccc';
-    for (let x = 0; x < canvas.width; x += 20) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke(); }
-    for (let y = 0; y < canvas.height; y += 20) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke(); }
-
-    features.forEach((f) => drawFeature(f, '#1e5631'));
-
-    if (pendingPoints.length > 0) {
-      ctx.strokeStyle = '#d98c00';
-      ctx.fillStyle = '#d98c00';
-      if (pendingType === 'point') {
-        drawDot(pendingPoints[0][0], pendingPoints[0][1]);
-      } else {
-        ctx.beginPath();
-        pendingPoints.forEach((p, i) => (i === 0 ? ctx.moveTo(p[0], p[1]) : ctx.lineTo(p[0], p[1])));
-        ctx.stroke();
-        pendingPoints.forEach((p) => drawDot(p[0], p[1]));
-      }
-    }
-  }
-
-  function drawDot(x, y) {
-    ctx.beginPath();
-    ctx.arc(x, y, 5, 0, Math.PI * 2);
-    ctx.fill();
-  }
-
-  function drawFeature(f, color) {
-    ctx.strokeStyle = color;
-    ctx.fillStyle = color;
+  function drawFeature(map, f, color) {
     if (f.type === 'point') {
-      drawDot(f.coords[0][0], f.coords[0][1]);
-    } else {
-      ctx.beginPath();
-      f.coords.forEach((p, i) => (i === 0 ? ctx.moveTo(p[0], p[1]) : ctx.lineTo(p[0], p[1])));
-      if (f.type === 'area') ctx.closePath();
-      ctx.stroke();
+      return L.circleMarker(f.coords[0], { radius: 6, color, fillColor: color, fillOpacity: 1 })
+        .addTo(map)
+        .bindTooltip(`${f.objectType || '—'} (${f.itemName || 'no item'} x${f.qty || 0})`);
+    }
+    if (f.type === 'line') {
+      return L.polyline(f.coords, { color, weight: 4 })
+        .addTo(map)
+        .bindTooltip(`${f.objectType || '—'} (${f.itemName || 'no item'} x${f.qty || 0})`);
+    }
+    return L.polygon(f.coords, { color, weight: 3, fillOpacity: 0.15 })
+      .addTo(map)
+      .bindTooltip(`${f.objectType || '—'} (${f.itemName || 'no item'} x${f.qty || 0})`);
+  }
+
+  function redrawPending() {
+    if (!leafletMap) return;
+    if (pendingLayer) { leafletMap.removeLayer(pendingLayer); pendingLayer = null; }
+    if (pendingPoints.length === 0) return;
+    if (pendingType === 'line') {
+      pendingLayer = L.polyline(pendingPoints, { color: '#d98c00', weight: 4, dashArray: '6,6' }).addTo(leafletMap);
+    } else if (pendingType === 'area') {
+      pendingLayer = L.polygon(pendingPoints, { color: '#d98c00', weight: 3, dashArray: '6,6', fillOpacity: 0.1 }).addTo(leafletMap);
+    } else if (pendingType === 'rectangle') {
+      if (pendingPoints.length === 1) {
+        pendingLayer = L.circleMarker(pendingPoints[0], { radius: 5, color: '#d98c00', fillColor: '#d98c00', fillOpacity: 1 }).addTo(leafletMap);
+      } else {
+        pendingLayer = L.polygon(pendingPoints, { color: '#d98c00', weight: 3, dashArray: '6,6', fillOpacity: 0.1 }).addTo(leafletMap);
+      }
     }
   }
 
@@ -148,8 +144,15 @@
       const iconHtml = src ? `<img src="${src}" alt="" style="width:16px; height:16px; vertical-align:middle; margin-right:4px;">` : '';
       return `<li>${iconHtml}${f.objectType || '—'} — ${f.itemName || 'no item'} x${f.qty || 0} <button type="button" class="feature-remove" data-idx="${i}" style="margin-left:8px;">Remove</button></li>`;
     }).join('') + '</ul>';
-    list.querySelectorAll('.feature-remove').forEach(btn => {
-      btn.addEventListener('click', () => { features.splice(parseInt(btn.dataset.idx, 10), 1); syncInputs(); renderFeatureList(); draw(); });
+    list.querySelectorAll('.feature-remove').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.dataset.idx, 10);
+        if (leafletMap && savedLayers[idx]) { leafletMap.removeLayer(savedLayers[idx]); }
+        savedLayers.splice(idx, 1);
+        features.splice(idx, 1);
+        syncInputs();
+        renderFeatureList();
+      });
     });
   }
 
@@ -158,38 +161,45 @@
     document.getElementById('featuresInputSubmit').value = JSON.stringify(features);
   }
 
-  document.querySelectorAll('[data-mode]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      mode = btn.dataset.mode;
-      pendingPoints = [];
-      pendingType = mode;
-      document.getElementById('finishShapeBtn').style.display = mode === 'line' || mode === 'area' ? '' : 'none';
-      draw();
-    });
-  });
-
-  document.querySelectorAll('.template-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      templateObjectType = btn.dataset.objectType;
-      mode = 'point';
-      pendingPoints = [];
-      pendingType = 'point';
-      document.getElementById('finishShapeBtn').style.display = 'none';
-    });
-  });
-
-  canvas.addEventListener('click', (e) => {
-    if (!mode) return;
-    const r = rect();
-    const x = e.clientX - r.left;
-    const y = e.clientY - r.top;
-    if (mode === 'point') {
-      pendingPoints = [[x, y]];
-      openFeatureForm();
-    } else {
-      pendingPoints.push([x, y]);
-      draw();
+  // While a drawing tool is active, the map must NOT pan on touch — otherwise
+  // a finger tap that moves even a couple of pixels is treated as a drag and
+  // no click ever fires. Dragging is restored the moment drawing stops.
+  function enterMode(newMode) {
+    mode = newMode;
+    pendingPoints = [];
+    pendingType = newMode;
+    document.getElementById('finishShapeBtn').style.display = newMode === 'line' || newMode === 'area' ? '' : 'none';
+    document.getElementById('stopDrawBtn').style.display = '';
+    if (leafletMap) {
+      if (pendingLayer) { leafletMap.removeLayer(pendingLayer); pendingLayer = null; }
+      leafletMap.dragging.disable();
     }
+  }
+
+  function exitMode() {
+    mode = null;
+    pendingPoints = [];
+    pendingType = null;
+    templateObjectType = null;
+    document.getElementById('finishShapeBtn').style.display = 'none';
+    document.getElementById('stopDrawBtn').style.display = 'none';
+    if (leafletMap) {
+      if (pendingLayer) { leafletMap.removeLayer(pendingLayer); pendingLayer = null; }
+      leafletMap.dragging.enable();
+    }
+  }
+
+  document.querySelectorAll('[data-mode]').forEach((btn) => {
+    btn.addEventListener('click', () => enterMode(btn.dataset.mode));
+  });
+
+  document.getElementById('stopDrawBtn').addEventListener('click', exitMode);
+
+  document.querySelectorAll('.template-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      enterMode('point');
+      templateObjectType = btn.dataset.objectType;
+    });
   });
 
   document.getElementById('finishShapeBtn').addEventListener('click', () => {
@@ -198,10 +208,11 @@
   });
 
   document.getElementById('undoBtn').addEventListener('click', () => {
+    if (leafletMap && savedLayers.length > 0) { leafletMap.removeLayer(savedLayers[savedLayers.length - 1]); }
+    savedLayers.pop();
     features.pop();
     syncInputs();
     renderFeatureList();
-    draw();
   });
 
   function openFeatureForm() {
@@ -213,20 +224,16 @@
   }
 
   document.getElementById('cancelFeatureBtn').addEventListener('click', () => {
-    pendingPoints = [];
-    mode = null;
-    templateObjectType = null;
     document.getElementById('featureForm').style.display = 'none';
-    document.getElementById('finishShapeBtn').style.display = 'none';
-    draw();
+    exitMode();
   });
 
   document.getElementById('saveFeatureBtn').addEventListener('click', () => {
     const itemSelect = document.getElementById('featureItem');
     const opt = itemSelect.options[itemSelect.selectedIndex];
-    features.push({
+    const feature = {
       id: 'f' + Date.now(),
-      type: pendingType,
+      type: pendingType === 'rectangle' ? 'area' : pendingType,
       objectType: document.getElementById('featureObjectType').value,
       coords: pendingPoints,
       itemId: itemSelect.value || null,
@@ -234,20 +241,113 @@
       qty: parseFloat(document.getElementById('featureQty').value) || 0,
       condition: document.getElementById('featureCondition').value,
       notes: document.getElementById('featureNotes').value
-    });
-    pendingPoints = [];
-    mode = null;
-    templateObjectType = null;
+    };
+    features.push(feature);
+    if (leafletMap) {
+      if (pendingLayer) { leafletMap.removeLayer(pendingLayer); pendingLayer = null; }
+      savedLayers.push(drawFeature(leafletMap, feature, '#1e5631'));
+    }
     document.getElementById('featureForm').style.display = 'none';
-    document.getElementById('finishShapeBtn').style.display = 'none';
+    exitMode();
     syncInputs();
     renderFeatureList();
-    draw();
   });
 
-  window.addEventListener('resize', resizeCanvas);
-  resizeCanvas();
   syncInputs();
   renderFeatureList();
+
+  function initMap(center) {
+    const map = L.map('digitizeMap', { tap: true, tapTolerance: 15 }).setView(center, 19);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 20,
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    L.circleMarker(center, { radius: 6, color: '#154889', fillColor: '#154889', fillOpacity: 1 })
+      .addTo(map)
+      .bindTooltip('You are here');
+
+    features.forEach((f) => savedLayers.push(drawFeature(map, f, '#1e5631')));
+
+    map.on('click', (e) => {
+      if (!mode) return;
+      const ll = [e.latlng.lat, e.latlng.lng];
+      if (mode === 'point') {
+        pendingPoints = [ll];
+        openFeatureForm();
+      } else if (mode === 'rectangle') {
+        if (pendingPoints.length === 0) {
+          pendingPoints = [ll];
+          redrawPending();
+        } else {
+          const c1 = pendingPoints[0];
+          const c2 = ll;
+          pendingPoints = [[c1[0], c1[1]], [c1[0], c2[1]], [c2[0], c2[1]], [c2[0], c1[1]]];
+          redrawPending();
+          openFeatureForm();
+        }
+      } else {
+        pendingPoints.push(ll);
+        redrawPending();
+      }
+    });
+
+    leafletMap = map;
+    setTimeout(() => map.invalidateSize(), 100);
+  }
+
+  function startMap(center, message) {
+    if (mapStarted) return;
+    mapStarted = true;
+    const statusEl = document.getElementById('mapStatus');
+    if (message) { statusEl.textContent = message; } else { statusEl.style.display = 'none'; }
+    initMap(center);
+  }
+
+  // Some browsers silently never call either geolocation callback (e.g. on a
+  // non-HTTPS/non-localhost origin, which blocks the Geolocation API outright).
+  // A hard fallback timer guarantees the map — and therefore drawing — always
+  // starts within a few seconds no matter what the device/browser does.
+  function beginLocating() {
+    if (locatingStarted) return;
+    locatingStarted = true;
+    const hardFallbackTimer = setTimeout(() => {
+      startMap(FALLBACK_CENTER, 'Location took too long — showing default area. Zoom/pan to your location manually.');
+    }, 5000);
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          clearTimeout(hardFallbackTimer);
+          startMap([pos.coords.latitude, pos.coords.longitude]);
+        },
+        () => {
+          clearTimeout(hardFallbackTimer);
+          startMap(FALLBACK_CENTER, 'Could not get GPS location — showing default area. Zoom/pan to your location manually.');
+        },
+        { enableHighAccuracy: true, timeout: 4500 }
+      );
+    } else {
+      clearTimeout(hardFallbackTimer);
+      startMap(FALLBACK_CENTER, 'GPS not available on this device — showing default area.');
+    }
+  }
+
+  // Leaflet must not be initialized while its container is hidden (display:none
+  // gives it zero size and permanently corrupts its click/pixel math). If this
+  // tab isn't the one showing yet, wait for it to actually become visible.
+  const mapEl = document.getElementById('digitizeMap');
+  const panel = mapEl.closest('.tab-panel');
+  function panelVisible() { return panel && panel.offsetParent !== null; }
+
+  if (panelVisible()) {
+    beginLocating();
+  }
+  document.querySelectorAll('.tab-btn[data-tab="digitization"]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      if (!locatingStarted) { setTimeout(beginLocating, 50); }
+      else if (leafletMap) { setTimeout(() => leafletMap.invalidateSize(), 50); }
+    });
+  });
 })();
 </script>
