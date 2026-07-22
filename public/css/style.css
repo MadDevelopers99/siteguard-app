@@ -363,7 +363,7 @@ footer.site-footer { background: var(--charcoal); color: #9aa6a9; padding: 24px 
 }
 .clock-line {
   position: absolute; left: 50%; top: 50%; width: 3px; height: 88px;
-  background: var(--amber); transform-origin: top center; margin-left: -1.5px;
+  background: var(--amber); transform-origin: bottom center; margin-left: -1.5px; margin-top: -88px;
 }
 .clock-hour {
   position: absolute; width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--concrete-2);
