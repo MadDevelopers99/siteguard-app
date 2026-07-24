@@ -623,6 +623,11 @@ function ensureColumn(table, column, definition) {
 ].forEach(([column, definition]) => ensureColumn("clients", column, definition));
 
 [
+  ["till_street", "TEXT"],
+  ["till_house_number", "TEXT"]
+].forEach(([column, definition]) => ensureColumn("client_locations", column, definition));
+
+[
   ["request_id", "INTEGER REFERENCES requests(id)"],
   ["location_id", "INTEGER REFERENCES client_locations(id)"],
   ["main_admin_status", "TEXT DEFAULT 'Received from Office Admin'"],

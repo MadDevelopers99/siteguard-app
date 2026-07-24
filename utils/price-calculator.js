@@ -55,6 +55,11 @@ function calculatePrice({ zoneLength, isCustomLength, bothSides, dateFrom, dateT
   const totalGross = Math.round((BASE_SERVICE_FEE + signCost) * 100) / 100;
   const subtotalNet = Math.round((totalGross / (1 + VAT_RATE / 100)) * 100) / 100;
   const vatAmount = Math.round((totalGross - subtotalNet) * 100) / 100;
+  // Display-only figure for the public calculator's "Estimated Total + VAT = Total"
+  // breakdown line requested by the client. Internal bookkeeping (subtotal_net/
+  // vat_amount/total_gross stored on the Request) keeps the standard net+VAT=gross
+  // convention above and is unaffected by this field.
+  const grandTotal = Math.round((totalGross + vatAmount) * 100) / 100;
 
   return {
     manualReview: false,
@@ -65,7 +70,8 @@ function calculatePrice({ zoneLength, isCustomLength, bothSides, dateFrom, dateT
     signCost,
     subtotalNet,
     vatAmount,
-    totalGross
+    totalGross,
+    grandTotal
   };
 }
 
