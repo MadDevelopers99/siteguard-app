@@ -326,8 +326,10 @@
         pendingLayer = pendingPoints.length === 1
           ? L.circleMarker(pendingPoints[0], { radius: 5, color: "#d98c00", fillColor: "#d98c00", fillOpacity: 1 }).addTo(leafletMap)
           : L.polyline(pendingPoints, { color: "#d98c00", weight: 4, dashArray: "6,6" }).addTo(leafletMap);
-      } else if (mode === "polygon") {
-        pendingLayer = L.polygon(pendingPoints, { color: "#d98c00", weight: 3, dashArray: "6,6", fillOpacity: 0.1 }).addTo(leafletMap);
+      } else if (mode === "polygon" || mode === "rectangle") {
+        pendingLayer = pendingPoints.length === 1
+          ? L.circleMarker(pendingPoints[0], { radius: 5, color: "#d98c00", fillColor: "#d98c00", fillOpacity: 1 }).addTo(leafletMap)
+          : L.polygon(pendingPoints, { color: "#d98c00", weight: 3, dashArray: "6,6", fillOpacity: 0.1 }).addTo(leafletMap);
       }
     }
 
@@ -385,7 +387,7 @@
     });
 
     function finishShape() {
-      const type = mode === "polygon" ? "polygon" : "line";
+      const type = (mode === "polygon" || mode === "rectangle") ? "polygon" : "line";
       const feature = { type, coords: pendingPoints.slice() };
       savedFeatures.push(feature);
       if (pendingLayer) { leafletMap.removeLayer(pendingLayer); pendingLayer = null; }
@@ -416,11 +418,13 @@
         syncMarkingInput();
       });
 
-      // Pen-style freehand capture for Draw Line / Draw Area, and a rigid
-      // two-point capture for Straight Line: press down to start, drag to
-      // draw live, release to finish — instead of tapping point by point.
+      // Pen-style freehand capture for Draw Line / Draw Area, and rigid
+      // two-corner capture for Straight Line / Straight Area: press down to
+      // start, drag to draw live, release to finish — instead of tapping
+      // point by point.
+      const DRAW_MODES = ["line", "polygon", "straight", "rectangle"];
       leafletMap.on("mousedown", (e) => {
-        if (mode !== "line" && mode !== "polygon" && mode !== "straight") return;
+        if (!DRAW_MODES.includes(mode)) return;
         isDrawing = true;
         pendingPoints = [[e.latlng.lat, e.latlng.lng]];
         redrawPending();
@@ -434,6 +438,12 @@
           redrawPending();
           return;
         }
+        if (mode === "rectangle") {
+          const c1 = pendingPoints[0];
+          pendingPoints = [[c1[0], c1[1]], [c1[0], ll[1]], [ll[0], ll[1]], [ll[0], c1[1]]];
+          redrawPending();
+          return;
+        }
         const last = pendingPoints[pendingPoints.length - 1];
         if (last && metersBetween(last, ll) < 1) return;
         pendingPoints.push(ll);
@@ -443,7 +453,7 @@
       function endDrawing() {
         if (!isDrawing) return;
         isDrawing = false;
-        const minPoints = mode === "polygon" ? 3 : 2;
+        const minPoints = mode === "polygon" ? 3 : mode === "rectangle" ? 4 : 2;
         if (pendingPoints.length >= minPoints) {
           finishShape();
         } else {
