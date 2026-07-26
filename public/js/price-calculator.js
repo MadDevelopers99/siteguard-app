@@ -322,7 +322,7 @@
       if (!leafletMap) return;
       if (pendingLayer) { leafletMap.removeLayer(pendingLayer); pendingLayer = null; }
       if (pendingPoints.length === 0) return;
-      if (mode === "line") {
+      if (mode === "line" || mode === "straight") {
         pendingLayer = pendingPoints.length === 1
           ? L.circleMarker(pendingPoints[0], { radius: 5, color: "#d98c00", fillColor: "#d98c00", fillOpacity: 1 }).addTo(leafletMap)
           : L.polyline(pendingPoints, { color: "#d98c00", weight: 4, dashArray: "6,6" }).addTo(leafletMap);
@@ -416,11 +416,11 @@
         syncMarkingInput();
       });
 
-      // Pen-style freehand capture for Draw Line / Draw Area: press down to
-      // start, drag to draw live, release to finish — instead of tapping
-      // point by point.
+      // Pen-style freehand capture for Draw Line / Draw Area, and a rigid
+      // two-point capture for Straight Line: press down to start, drag to
+      // draw live, release to finish — instead of tapping point by point.
       leafletMap.on("mousedown", (e) => {
-        if (mode !== "line" && mode !== "polygon") return;
+        if (mode !== "line" && mode !== "polygon" && mode !== "straight") return;
         isDrawing = true;
         pendingPoints = [[e.latlng.lat, e.latlng.lng]];
         redrawPending();
@@ -429,6 +429,11 @@
       leafletMap.on("mousemove", (e) => {
         if (!isDrawing) return;
         const ll = [e.latlng.lat, e.latlng.lng];
+        if (mode === "straight") {
+          pendingPoints = [pendingPoints[0], ll];
+          redrawPending();
+          return;
+        }
         const last = pendingPoints[pendingPoints.length - 1];
         if (last && metersBetween(last, ll) < 1) return;
         pendingPoints.push(ll);
