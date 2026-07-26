@@ -410,6 +410,7 @@ footer.site-footer { background: var(--charcoal); color: #9aa6a9; padding: 24px 
 .pc-form-grid-3 { grid-template-columns: 1fr 1fr 1fr; }
 .pc-form-grid .form-group.full { grid-column: 1 / -1; }
 .pc-checkbox-label { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: normal; text-transform: none; letter-spacing: 0; color: var(--ink); }
+.pc-checkbox-label input[type="checkbox"] { width: auto; flex-shrink: 0; }
 
 .pc-address-block { border: 1px solid var(--concrete-2); border-radius: var(--radius); padding: 14px; margin-bottom: 14px; }
 .pc-address-block-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
