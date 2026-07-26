@@ -27,7 +27,7 @@
           <button type="button" class="pc-remove-address">Remove</button>
         </div>
         <div class="pc-form-grid">
-          <div class="form-group"><label>City *</label><input type="text" name="addresses[${index}][city]" placeholder="Munich" required></div>
+          <div class="form-group"><label>City *</label><input type="text" name="addresses[${index}][city]" required></div>
           <div class="form-group">
             <label>Reason / Purpose *</label>
             <select name="addresses[${index}][reason]" required>
@@ -45,17 +45,17 @@
           <div class="form-group"><label>End Time *</label><input type="time" name="addresses[${index}][end_time]" value="17:00" required></div>
         </div>
         <div class="pc-form-grid">
-          <div class="form-group"><label>Postal Code *</label><input type="text" name="addresses[${index}][postal_code]" placeholder="81677" required></div>
+          <div class="form-group"><label>Postal Code *</label><input type="text" name="addresses[${index}][postal_code]" required></div>
         </div>
         <div class="pc-section-label">FROM</div>
         <div class="pc-form-grid">
-          <div class="form-group"><label>Street *</label><input type="text" name="addresses[${index}][from_street]" placeholder="Example Street" required></div>
-          <div class="form-group"><label>House Number *</label><input type="text" name="addresses[${index}][from_house_number]" placeholder="35" required></div>
+          <div class="form-group"><label>Street *</label><input type="text" name="addresses[${index}][from_street]" required></div>
+          <div class="form-group"><label>House Number *</label><input type="text" name="addresses[${index}][from_house_number]" required></div>
         </div>
         <div class="pc-section-label">TILL</div>
         <div class="pc-form-grid">
-          <div class="form-group"><label>Street</label><input type="text" name="addresses[${index}][till_street]" placeholder="Example Street"></div>
-          <div class="form-group"><label>House Number</label><input type="text" name="addresses[${index}][till_house_number]" placeholder="51"></div>
+          <div class="form-group"><label>Street</label><input type="text" name="addresses[${index}][till_street]"></div>
+          <div class="form-group"><label>House Number</label><input type="text" name="addresses[${index}][till_house_number]"></div>
         </div>
         <div class="pc-form-grid">
           <div class="form-group">
