@@ -65,6 +65,10 @@
               ${window.PC_ZONE_LENGTH_OPTIONS.map((z) => `<option value="${escapeHtml(z)}">${escapeHtml(z)}</option>`).join("")}
             </select>
           </div>
+          <div class="form-group pc-custom-length-group" style="display:none;">
+            <label>Custom Length (meters) *</label>
+            <input type="number" min="1" step="1" name="addresses[${index}][custom_length_meters]" class="pc-custom-length-input">
+          </div>
           <div class="form-group">
             <label>&nbsp;</label>
             <label class="pc-checkbox-label"><input type="checkbox" name="addresses[${index}][both_sides]" value="1"> No-parking zone needed on both sides</label>
@@ -87,6 +91,23 @@
   document.querySelectorAll(".pc-remove-address").forEach((btn) => {
     btn.addEventListener("click", () => btn.closest(".pc-address-block").remove());
   });
+
+  // ---------- Zone Length: show a meters input when "Custom length" is chosen ----------
+  function toggleCustomLengthGroup(select) {
+    const grid = select.closest(".pc-form-grid");
+    const group = grid ? grid.querySelector(".pc-custom-length-group") : null;
+    if (!group) return;
+    const input = group.querySelector(".pc-custom-length-input");
+    const isCustom = select.value === "Custom length";
+    group.style.display = isCustom ? "" : "none";
+    if (input) input.required = isCustom;
+  }
+  window.pcToggleCustomLengthGroup = toggleCustomLengthGroup;
+
+  calcForm.addEventListener("change", (e) => {
+    if (e.target.classList.contains("pc-zone-length-select")) toggleCustomLengthGroup(e.target);
+  });
+  document.querySelectorAll(".pc-zone-length-select").forEach(toggleCustomLengthGroup);
 
   // ---------- Calculate / Submit payload ----------
   function calcPayload() {
@@ -357,6 +378,10 @@
       const meters = totalLength();
       if (meters > 0 && zoneSelect) {
         zoneSelect.value = "Custom length";
+        if (window.pcToggleCustomLengthGroup) window.pcToggleCustomLengthGroup(zoneSelect);
+        const grid = zoneSelect.closest(".pc-form-grid");
+        const customInput = grid ? grid.querySelector(".pc-custom-length-input") : null;
+        if (customInput) customInput.value = meters;
       }
       saveBtn.textContent = "Saved ✓";
       setTimeout(() => { saveBtn.textContent = "Save Marking"; }, 1500);

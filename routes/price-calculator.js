@@ -149,10 +149,12 @@ router.post("/submit", (req, res) => {
             addr.start_time || "07:00",
             addr.end_time || "17:00",
             priceResult.numberOfDays || null,
-            priceResult.manualReview ? null : addr.zone_length,
+            priceResult.manualReview ? (parseFloat(addr.custom_length_meters) || null) : addr.zone_length,
             bothSides ? "both" : "one",
             [
-              priceResult.manualReview ? `Custom zone length requested: ${addr.zone_length}. Needs manual review.` : null,
+              priceResult.manualReview
+                ? `Custom zone length requested: ${addr.custom_length_meters ? addr.custom_length_meters + " meters" : addr.zone_length}. Needs manual review.`
+                : null,
               notes || null
             ].filter(Boolean).join(" — ") || null,
             priceResult.manualReview ? 0 : priceResult.subtotalNet,
