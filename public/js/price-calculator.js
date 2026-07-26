@@ -277,7 +277,6 @@
 
     const lengthLabel = document.getElementById("pcMapLength");
     const stopDrawBtn = document.getElementById("pcStopDrawBtn");
-    const finishShapeBtn = document.getElementById("pcFinishShapeBtn");
     const undoBtn = document.getElementById("pcUndoBtn");
     const clearBtn = document.getElementById("pcClearMapBtn");
     const saveBtn = document.getElementById("pcSaveMarkingBtn");
@@ -339,7 +338,6 @@
       document.querySelectorAll(".pc-map-tool").forEach((b) => b.classList.toggle("active", b.dataset.mode === newMode));
       if (leafletMap) leafletMap.dragging.disable();
       stopDrawBtn.style.display = "";
-      finishShapeBtn.style.display = newMode === "polygon" ? "" : "none";
     }
 
     function exitMode() {
@@ -349,16 +347,12 @@
       if (leafletMap) leafletMap.dragging.enable();
       document.querySelectorAll(".pc-map-tool").forEach((b) => b.classList.remove("active"));
       stopDrawBtn.style.display = "none";
-      finishShapeBtn.style.display = "none";
     }
 
     document.querySelectorAll(".pc-map-tool").forEach((btn) => {
       btn.addEventListener("click", () => enterMode(btn.dataset.mode));
     });
     stopDrawBtn.addEventListener("click", exitMode);
-    finishShapeBtn.addEventListener("click", () => {
-      if (mode === "polygon" && pendingPoints.length >= 3) finishShape();
-    });
 
     undoBtn.addEventListener("click", () => {
       if (savedLayers.length === 0) return;
@@ -399,10 +393,9 @@
       pendingPoints = [];
       refreshLength();
       syncMarkingInput();
-      // A line is exactly two points, so it's always complete the moment the
-      // second point is placed — stop drawing immediately instead of leaving
-      // the tool armed for another line.
-      if (type === "line") exitMode();
+      // Each press-drag-release gesture is one complete shape — stop drawing
+      // immediately on release instead of leaving the tool armed.
+      exitMode();
     }
 
     function initMap(center) {
@@ -412,19 +405,52 @@
         attribution: "&copy; OpenStreetMap contributors"
       }).addTo(leafletMap);
 
+      let isDrawing = false;
+
       leafletMap.on("click", (e) => {
+        if (mode !== "point") return;
         const ll = [e.latlng.lat, e.latlng.lng];
-        if (mode === "point") {
-          savedFeatures.push({ type: "point", coords: [ll] });
-          savedLayers.push(drawSavedFeature({ type: "point", coords: [ll] }));
-          refreshLength();
-          syncMarkingInput();
-          return;
-        }
+        savedFeatures.push({ type: "point", coords: [ll] });
+        savedLayers.push(drawSavedFeature({ type: "point", coords: [ll] }));
+        refreshLength();
+        syncMarkingInput();
+      });
+
+      // Pen-style freehand capture for Draw Line / Draw Area: press down to
+      // start, drag to draw live, release to finish — instead of tapping
+      // point by point.
+      leafletMap.on("mousedown", (e) => {
+        if (mode !== "line" && mode !== "polygon") return;
+        isDrawing = true;
+        pendingPoints = [[e.latlng.lat, e.latlng.lng]];
+        redrawPending();
+      });
+
+      leafletMap.on("mousemove", (e) => {
+        if (!isDrawing) return;
+        const ll = [e.latlng.lat, e.latlng.lng];
+        const last = pendingPoints[pendingPoints.length - 1];
+        if (last && metersBetween(last, ll) < 1) return;
         pendingPoints.push(ll);
         redrawPending();
-        if (mode === "line" && pendingPoints.length === 2) finishShape();
       });
+
+      function endDrawing() {
+        if (!isDrawing) return;
+        isDrawing = false;
+        const minPoints = mode === "polygon" ? 3 : 2;
+        if (pendingPoints.length >= minPoints) {
+          finishShape();
+        } else {
+          pendingPoints = [];
+          if (pendingLayer) { leafletMap.removeLayer(pendingLayer); pendingLayer = null; }
+        }
+      }
+      leafletMap.on("mouseup", endDrawing);
+      // Safety net: finish the shape even if the pointer is released outside
+      // the map (e.g. a fast drag that exits the container before letting go).
+      document.addEventListener("mouseup", endDrawing);
+      document.addEventListener("touchend", endDrawing);
 
       enterMode("point");
       setTimeout(() => leafletMap.invalidateSize(), 100);

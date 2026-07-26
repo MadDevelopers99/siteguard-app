@@ -36,6 +36,7 @@
 <div class="hazard-rule"></div>
 
 <section class="pc-hero">
+  <div class="pc-hero-inner">
   <div class="pc-hero-left">
     <img src="/images/signs/haltverbot.svg" alt="No-Parking Zone sign" class="pc-hero-sign">
     <span class="pc-badge">Reliable traffic service for private and commercial projects</span>
@@ -129,7 +130,6 @@
                 <button type="button" class="pc-map-tool active" data-mode="point">Mark Point</button>
                 <button type="button" class="pc-map-tool" data-mode="line">Draw Line</button>
                 <button type="button" class="pc-map-tool" data-mode="polygon">Draw Area</button>
-                <button type="button" class="pc-map-tool-action" id="pcFinishShapeBtn" style="display:none;">Finish Shape</button>
                 <button type="button" class="pc-map-tool-action" id="pcUndoBtn">Undo</button>
                 <button type="button" class="pc-map-tool-action" id="pcClearMapBtn">Clear</button>
                 <button type="button" class="pc-map-tool-action" id="pcStopDrawBtn" style="display:none;">Stop Drawing (Pan Map)</button>
@@ -139,7 +139,7 @@
                 <span id="pcMapLength">Drawn length: —</span>
                 <button type="button" class="btn btn-outline btn-sm" id="pcSaveMarkingBtn">Save Marking</button>
               </div>
-              <p class="pc-map-note">Drawing a line measures its length and fills in Zone Length as "Custom length" for manual review. PDF export of your marked zone will be available once your request is confirmed and paid.</p>
+              <p class="pc-map-note">For Draw Line / Draw Area, press and drag across the map like a pen — releasing finishes the shape. Drawing a line measures its length and fills in Zone Length as "Custom length" for manual review. PDF export of your marked zone will be available once your request is confirmed and paid.</p>
               <input type="hidden" name="addresses[0][map_marking]" class="pc-map-marking-input">
             </div>
           </div>
@@ -219,6 +219,7 @@
         <div id="submitResult" style="margin-top:10px; font-size:14px;"></div>
       </div>
     </div>
+  </div>
   </div>
 </section>
 

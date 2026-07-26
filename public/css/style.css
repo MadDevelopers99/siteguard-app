@@ -386,6 +386,8 @@ footer.site-footer { background: var(--charcoal); color: #9aa6a9; padding: 24px 
 
 .pc-hero {
   background: var(--charcoal); color: #fff; padding: 48px 32px 64px;
+}
+.pc-hero-inner {
   display: flex; flex-direction: column; gap: 36px; max-width: 1100px; margin: 0 auto;
 }
 .pc-hero-left { max-width: 760px; }
