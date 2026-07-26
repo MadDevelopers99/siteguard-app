@@ -287,6 +287,22 @@
       return L.latLng(a).distanceTo(L.latLng(b));
     }
 
+    // Perpendicular pixel distance from point p to the segment a-b, used to
+    // detect real corners in a freehand drag so Straight Area can simplify
+    // the dragged path into straight edges in real time.
+    function pxDistanceToSegment(p, a, b) {
+      const P = leafletMap.latLngToContainerPoint(p);
+      const A = leafletMap.latLngToContainerPoint(a);
+      const B = leafletMap.latLngToContainerPoint(b);
+      const abx = B.x - A.x, aby = B.y - A.y;
+      const lengthSq = abx * abx + aby * aby;
+      if (lengthSq === 0) return Math.hypot(P.x - A.x, P.y - A.y);
+      let t = ((P.x - A.x) * abx + (P.y - A.y) * aby) / lengthSq;
+      t = Math.max(0, Math.min(1, t));
+      const projX = A.x + t * abx, projY = A.y + t * aby;
+      return Math.hypot(P.x - projX, P.y - projY);
+    }
+
     function totalLength() {
       let meters = 0;
       savedFeatures.forEach((f) => {
@@ -318,18 +334,19 @@
       return L.polygon(f.coords, { color: "#1e5631", weight: 3, fillOpacity: 0.15 }).addTo(leafletMap);
     }
 
-    function redrawPending() {
+    function redrawPending(previewPoints) {
+      const pts = previewPoints || pendingPoints;
       if (!leafletMap) return;
       if (pendingLayer) { leafletMap.removeLayer(pendingLayer); pendingLayer = null; }
-      if (pendingPoints.length === 0) return;
+      if (pts.length === 0) return;
       if (mode === "line" || mode === "straight") {
-        pendingLayer = pendingPoints.length === 1
-          ? L.circleMarker(pendingPoints[0], { radius: 5, color: "#d98c00", fillColor: "#d98c00", fillOpacity: 1 }).addTo(leafletMap)
-          : L.polyline(pendingPoints, { color: "#d98c00", weight: 4, dashArray: "6,6" }).addTo(leafletMap);
-      } else if (mode === "polygon" || mode === "rectangle") {
-        pendingLayer = pendingPoints.length === 1
-          ? L.circleMarker(pendingPoints[0], { radius: 5, color: "#d98c00", fillColor: "#d98c00", fillOpacity: 1 }).addTo(leafletMap)
-          : L.polygon(pendingPoints, { color: "#d98c00", weight: 3, dashArray: "6,6", fillOpacity: 0.1 }).addTo(leafletMap);
+        pendingLayer = pts.length === 1
+          ? L.circleMarker(pts[0], { radius: 5, color: "#d98c00", fillColor: "#d98c00", fillOpacity: 1 }).addTo(leafletMap)
+          : L.polyline(pts, { color: "#d98c00", weight: 4, dashArray: "6,6" }).addTo(leafletMap);
+      } else if (mode === "polygon" || mode === "rectangle" || mode === "polygon-straight") {
+        pendingLayer = pts.length === 1
+          ? L.circleMarker(pts[0], { radius: 5, color: "#d98c00", fillColor: "#d98c00", fillOpacity: 1 }).addTo(leafletMap)
+          : L.polygon(pts, { color: "#d98c00", weight: 3, dashArray: "6,6", fillOpacity: 0.1 }).addTo(leafletMap);
       }
     }
 
@@ -387,7 +404,7 @@
     });
 
     function finishShape() {
-      const type = (mode === "polygon" || mode === "rectangle") ? "polygon" : "line";
+      const type = (mode === "polygon" || mode === "rectangle" || mode === "polygon-straight") ? "polygon" : "line";
       const feature = { type, coords: pendingPoints.slice() };
       savedFeatures.push(feature);
       if (pendingLayer) { leafletMap.removeLayer(pendingLayer); pendingLayer = null; }
@@ -408,6 +425,13 @@
       }).addTo(leafletMap);
 
       let isDrawing = false;
+      // Straight Area: same press-drag-release gesture as Draw Area (Free),
+      // but the raw dragged path is simplified into straight edges live —
+      // straightAnchor is the last locked-in corner, straightLiveEnd is the
+      // still-moving far end of the segment currently being drawn.
+      let straightAnchor = null;
+      let straightLiveEnd = null;
+      const STRAIGHT_CORNER_TOLERANCE_PX = 12;
 
       leafletMap.on("click", (e) => {
         if (mode !== "point") return;
@@ -418,15 +442,19 @@
         syncMarkingInput();
       });
 
-      // Pen-style freehand capture for Draw Line / Draw Area, and rigid
-      // two-corner capture for Straight Line / Straight Area: press down to
-      // start, drag to draw live, release to finish — instead of tapping
-      // point by point.
-      const DRAW_MODES = ["line", "polygon", "straight", "rectangle"];
+      // Pen-style freehand capture for Draw Line / Draw Area, rigid
+      // two-corner capture for Straight Line / Box Area, and live-simplified
+      // capture for Straight Area: press down to start, drag to draw live,
+      // release to finish — instead of tapping point by point.
+      const DRAW_MODES = ["line", "polygon", "straight", "rectangle", "polygon-straight"];
       leafletMap.on("mousedown", (e) => {
         if (!DRAW_MODES.includes(mode)) return;
         isDrawing = true;
         pendingPoints = [[e.latlng.lat, e.latlng.lng]];
+        if (mode === "polygon-straight") {
+          straightAnchor = pendingPoints[0];
+          straightLiveEnd = null;
+        }
         redrawPending();
       });
 
@@ -444,6 +472,19 @@
           redrawPending();
           return;
         }
+        if (mode === "polygon-straight") {
+          if (straightLiveEnd === null) {
+            straightLiveEnd = ll;
+          } else if (pxDistanceToSegment(ll, straightAnchor, straightLiveEnd) > STRAIGHT_CORNER_TOLERANCE_PX) {
+            pendingPoints.push(straightLiveEnd);
+            straightAnchor = straightLiveEnd;
+            straightLiveEnd = ll;
+          } else {
+            straightLiveEnd = ll;
+          }
+          redrawPending(pendingPoints.concat([straightLiveEnd]));
+          return;
+        }
         const last = pendingPoints[pendingPoints.length - 1];
         if (last && metersBetween(last, ll) < 1) return;
         pendingPoints.push(ll);
@@ -453,7 +494,12 @@
       function endDrawing() {
         if (!isDrawing) return;
         isDrawing = false;
-        const minPoints = mode === "polygon" ? 3 : mode === "rectangle" ? 4 : 2;
+        if (mode === "polygon-straight") {
+          if (straightLiveEnd) pendingPoints.push(straightLiveEnd);
+          straightAnchor = null;
+          straightLiveEnd = null;
+        }
+        const minPoints = mode === "polygon" || mode === "polygon-straight" ? 3 : mode === "rectangle" ? 4 : 2;
         if (pendingPoints.length >= minPoints) {
           finishShape();
         } else {
