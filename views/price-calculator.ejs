@@ -133,6 +133,7 @@
                 <button type="button" class="pc-map-tool" data-mode="polygon">Draw Area (Free)</button>
                 <button type="button" class="pc-map-tool" data-mode="polygon-straight">Straight Area</button>
                 <button type="button" class="pc-map-tool" data-mode="rectangle">Box Area</button>
+                <button type="button" class="pc-map-tool-action" id="pcFinishShapeBtn" style="display:none;">Finish Shape</button>
                 <button type="button" class="pc-map-tool-action" id="pcUndoBtn">Undo</button>
                 <button type="button" class="pc-map-tool-action" id="pcClearMapBtn">Clear</button>
                 <button type="button" class="pc-map-tool-action" id="pcStopDrawBtn" style="display:none;">Stop Drawing (Pan Map)</button>
@@ -142,7 +143,7 @@
                 <span id="pcMapLength">Drawn length: —</span>
                 <button type="button" class="btn btn-outline btn-sm" id="pcSaveMarkingBtn">Save Marking</button>
               </div>
-              <p class="pc-map-note">For Draw Line / Draw Area, press and drag across the map like a pen — releasing finishes the shape. Drawing a line measures its length and fills in Zone Length as "Custom length" for manual review. PDF export of your marked zone will be available once your request is confirmed and paid.</p>
+              <p class="pc-map-note">Draw Line (Free) / Draw Area (Free): press and drag like a pen — releasing finishes the shape. Straight Line / Box Area: press and drag between two corners. Straight Area: click each corner one at a time, then double-click (or press "Finish Shape") to finish. Drawing a line measures its length and fills in Zone Length as "Custom length" for manual review. PDF export of your marked zone will be available once your request is confirmed and paid.</p>
               <input type="hidden" name="addresses[0][map_marking]" class="pc-map-marking-input">
             </div>
           </div>

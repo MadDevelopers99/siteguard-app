@@ -277,6 +277,7 @@
 
     const lengthLabel = document.getElementById("pcMapLength");
     const stopDrawBtn = document.getElementById("pcStopDrawBtn");
+    const finishShapeBtn = document.getElementById("pcFinishShapeBtn");
     const undoBtn = document.getElementById("pcUndoBtn");
     const clearBtn = document.getElementById("pcClearMapBtn");
     const saveBtn = document.getElementById("pcSaveMarkingBtn");
@@ -285,22 +286,6 @@
 
     function metersBetween(a, b) {
       return L.latLng(a).distanceTo(L.latLng(b));
-    }
-
-    // Perpendicular pixel distance from point p to the segment a-b, used to
-    // detect real corners in a freehand drag so Straight Area can simplify
-    // the dragged path into straight edges in real time.
-    function pxDistanceToSegment(p, a, b) {
-      const P = leafletMap.latLngToContainerPoint(p);
-      const A = leafletMap.latLngToContainerPoint(a);
-      const B = leafletMap.latLngToContainerPoint(b);
-      const abx = B.x - A.x, aby = B.y - A.y;
-      const lengthSq = abx * abx + aby * aby;
-      if (lengthSq === 0) return Math.hypot(P.x - A.x, P.y - A.y);
-      let t = ((P.x - A.x) * abx + (P.y - A.y) * aby) / lengthSq;
-      t = Math.max(0, Math.min(1, t));
-      const projX = A.x + t * abx, projY = A.y + t * aby;
-      return Math.hypot(P.x - projX, P.y - projY);
     }
 
     function totalLength() {
@@ -355,25 +340,36 @@
       pendingPoints = [];
       if (pendingLayer) { leafletMap.removeLayer(pendingLayer); pendingLayer = null; }
       document.querySelectorAll(".pc-map-tool").forEach((b) => b.classList.toggle("active", b.dataset.mode === newMode));
-      if (leafletMap) leafletMap.dragging.disable();
+      if (leafletMap) { leafletMap.dragging.disable(); leafletMap.doubleClickZoom.disable(); }
       stopDrawBtn.style.display = "";
+      finishShapeBtn.style.display = "none";
     }
 
     function exitMode() {
       mode = null;
       pendingPoints = [];
       if (pendingLayer && leafletMap) { leafletMap.removeLayer(pendingLayer); pendingLayer = null; }
-      if (leafletMap) leafletMap.dragging.enable();
+      if (leafletMap) { leafletMap.dragging.enable(); leafletMap.doubleClickZoom.enable(); }
       document.querySelectorAll(".pc-map-tool").forEach((b) => b.classList.remove("active"));
       stopDrawBtn.style.display = "none";
+      finishShapeBtn.style.display = "none";
     }
 
     document.querySelectorAll(".pc-map-tool").forEach((btn) => {
       btn.addEventListener("click", () => enterMode(btn.dataset.mode));
     });
     stopDrawBtn.addEventListener("click", exitMode);
+    finishShapeBtn.addEventListener("click", () => {
+      if (mode === "polygon-straight" && pendingPoints.length >= 3) finishShape();
+    });
 
     undoBtn.addEventListener("click", () => {
+      if (mode === "polygon-straight" && pendingPoints.length > 0) {
+        pendingPoints.pop();
+        redrawPending();
+        finishShapeBtn.style.display = pendingPoints.length >= 3 ? "" : "none";
+        return;
+      }
       if (savedLayers.length === 0) return;
       leafletMap.removeLayer(savedLayers.pop());
       savedFeatures.pop();
@@ -425,36 +421,49 @@
       }).addTo(leafletMap);
 
       let isDrawing = false;
-      // Straight Area: same press-drag-release gesture as Draw Area (Free),
-      // but the raw dragged path is simplified into straight edges live —
-      // straightAnchor is the last locked-in corner, straightLiveEnd is the
-      // still-moving far end of the segment currently being drawn.
-      let straightAnchor = null;
-      let straightLiveEnd = null;
-      const STRAIGHT_CORNER_TOLERANCE_PX = 12;
-
       leafletMap.on("click", (e) => {
-        if (mode !== "point") return;
         const ll = [e.latlng.lat, e.latlng.lng];
-        savedFeatures.push({ type: "point", coords: [ll] });
-        savedLayers.push(drawSavedFeature({ type: "point", coords: [ll] }));
-        refreshLength();
-        syncMarkingInput();
+        if (mode === "point") {
+          savedFeatures.push({ type: "point", coords: [ll] });
+          savedLayers.push(drawSavedFeature({ type: "point", coords: [ll] }));
+          refreshLength();
+          syncMarkingInput();
+          return;
+        }
+        // Straight Area: click each corner one at a time — point 1, then
+        // point 2 (straight line 1→2), then point 3 (straight line 2→3), and
+        // so on. Finish with the Finish Shape button or a double-click.
+        if (mode === "polygon-straight") {
+          pendingPoints.push(ll);
+          redrawPending();
+          finishShapeBtn.style.display = pendingPoints.length >= 3 ? "" : "none";
+        }
       });
 
-      // Pen-style freehand capture for Draw Line / Draw Area, rigid
-      // two-corner capture for Straight Line / Box Area, and live-simplified
-      // capture for Straight Area: press down to start, drag to draw live,
-      // release to finish — instead of tapping point by point.
-      const DRAW_MODES = ["line", "polygon", "straight", "rectangle", "polygon-straight"];
+      // A double-click's second click already lands a point via the "click"
+      // handler above — drop that redundant point, then finish with what's left.
+      leafletMap.on("dblclick", () => {
+        if (mode !== "polygon-straight") return;
+        if (pendingPoints.length > 0) pendingPoints.pop();
+        if (pendingPoints.length >= 3) finishShape();
+      });
+
+      // Live rubber-band preview from the last clicked corner to the cursor,
+      // so you can see the next straight edge before clicking it in.
+      leafletMap.on("mousemove", (e) => {
+        if (mode === "polygon-straight" && pendingPoints.length > 0) {
+          redrawPending(pendingPoints.concat([[e.latlng.lat, e.latlng.lng]]));
+        }
+      });
+
+      // Pen-style freehand capture for Draw Line / Draw Area, and rigid
+      // two-corner capture for Straight Line / Box Area: press down to
+      // start, drag to draw live, release to finish.
+      const DRAW_MODES = ["line", "polygon", "straight", "rectangle"];
       leafletMap.on("mousedown", (e) => {
         if (!DRAW_MODES.includes(mode)) return;
         isDrawing = true;
         pendingPoints = [[e.latlng.lat, e.latlng.lng]];
-        if (mode === "polygon-straight") {
-          straightAnchor = pendingPoints[0];
-          straightLiveEnd = null;
-        }
         redrawPending();
       });
 
@@ -472,19 +481,6 @@
           redrawPending();
           return;
         }
-        if (mode === "polygon-straight") {
-          if (straightLiveEnd === null) {
-            straightLiveEnd = ll;
-          } else if (pxDistanceToSegment(ll, straightAnchor, straightLiveEnd) > STRAIGHT_CORNER_TOLERANCE_PX) {
-            pendingPoints.push(straightLiveEnd);
-            straightAnchor = straightLiveEnd;
-            straightLiveEnd = ll;
-          } else {
-            straightLiveEnd = ll;
-          }
-          redrawPending(pendingPoints.concat([straightLiveEnd]));
-          return;
-        }
         const last = pendingPoints[pendingPoints.length - 1];
         if (last && metersBetween(last, ll) < 1) return;
         pendingPoints.push(ll);
@@ -494,12 +490,7 @@
       function endDrawing() {
         if (!isDrawing) return;
         isDrawing = false;
-        if (mode === "polygon-straight") {
-          if (straightLiveEnd) pendingPoints.push(straightLiveEnd);
-          straightAnchor = null;
-          straightLiveEnd = null;
-        }
-        const minPoints = mode === "polygon" || mode === "polygon-straight" ? 3 : mode === "rectangle" ? 4 : 2;
+        const minPoints = mode === "polygon" ? 3 : mode === "rectangle" ? 4 : 2;
         if (pendingPoints.length >= minPoints) {
           finishShape();
         } else {
