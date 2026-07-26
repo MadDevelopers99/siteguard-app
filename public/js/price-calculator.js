@@ -324,7 +324,9 @@
       if (pendingLayer) { leafletMap.removeLayer(pendingLayer); pendingLayer = null; }
       if (pendingPoints.length === 0) return;
       if (mode === "line") {
-        pendingLayer = L.polyline(pendingPoints, { color: "#d98c00", weight: 4, dashArray: "6,6" }).addTo(leafletMap);
+        pendingLayer = pendingPoints.length === 1
+          ? L.circleMarker(pendingPoints[0], { radius: 5, color: "#d98c00", fillColor: "#d98c00", fillOpacity: 1 }).addTo(leafletMap)
+          : L.polyline(pendingPoints, { color: "#d98c00", weight: 4, dashArray: "6,6" }).addTo(leafletMap);
       } else if (mode === "polygon") {
         pendingLayer = L.polygon(pendingPoints, { color: "#d98c00", weight: 3, dashArray: "6,6", fillOpacity: 0.1 }).addTo(leafletMap);
       }
@@ -341,9 +343,11 @@
     }
 
     function exitMode() {
+      mode = null;
       pendingPoints = [];
       if (pendingLayer && leafletMap) { leafletMap.removeLayer(pendingLayer); pendingLayer = null; }
       if (leafletMap) leafletMap.dragging.enable();
+      document.querySelectorAll(".pc-map-tool").forEach((b) => b.classList.remove("active"));
       stopDrawBtn.style.display = "none";
       finishShapeBtn.style.display = "none";
     }
@@ -395,6 +399,10 @@
       pendingPoints = [];
       refreshLength();
       syncMarkingInput();
+      // A line is exactly two points, so it's always complete the moment the
+      // second point is placed — stop drawing immediately instead of leaving
+      // the tool armed for another line.
+      if (type === "line") exitMode();
     }
 
     function initMap(center) {
