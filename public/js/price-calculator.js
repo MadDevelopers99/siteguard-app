@@ -69,9 +69,8 @@
             <label>Custom Length (meters) *</label>
             <input type="number" min="1" step="1" name="addresses[${index}][custom_length_meters]" class="pc-custom-length-input">
           </div>
-          <div class="form-group full pc-inline-toggle">
-            <label>No-Parking Zone</label>
-            <label class="pc-checkbox-label"><input type="checkbox" name="addresses[${index}][both_sides]" value="1"> Needed on both sides</label>
+          <div class="form-group full">
+            <label class="pc-checkbox-label"><input type="checkbox" name="addresses[${index}][both_sides]" value="1"> No-parking zone needed on both sides</label>
           </div>
         </div>
       </div>`;
