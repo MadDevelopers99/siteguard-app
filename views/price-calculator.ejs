@@ -16,10 +16,10 @@
     <span class="pc-brand-text"><strong>SITE GUARD</strong><small>TRAFFIC SERVICES</small></span>
   </a>
   <nav class="pc-nav">
-    <a href="#">Services</a>
-    <a href="#">No-Parking Zones</a>
-    <a href="#">Traffic Safety</a>
-    <a href="#">Construction Sites</a>
+    <a href="#services">Services</a>
+    <a href="#no-parking-zones">No-Parking Zones</a>
+    <a href="#traffic-safety">Traffic Safety</a>
+    <a href="#construction-sites">Construction Sites</a>
     <a href="#calculator">Prices</a>
     <a href="#contactSection">Contact</a>
   </nav>
@@ -39,17 +39,17 @@
   <div class="pc-hero-inner">
   <div class="pc-hero-left">
     <img src="/images/signs/haltverbot.svg" alt="No-Parking Zone sign" class="pc-hero-sign">
-    <span class="pc-badge">Reliable traffic service for private and commercial projects</span>
+    <span class="pc-badge">Temporary no-parking solutions for private and commercial projects</span>
     <h1>Calculate your no-parking zone price in seconds.</h1>
     <p class="pc-sub">Enter your location, dates, time, and zone length. We calculate your estimated price instantly and guide you through the next step.</p>
     <p class="pc-support">Whether you are planning a move, delivery, construction work, container placement, crane operation, or event, we help you organize the right temporary traffic solution.</p>
 
     <div class="pc-trust-row">
       <div class="pc-trust-item"><span class="pc-trust-icon">&#9201;</span>Fast response</div>
-      <div class="pc-trust-item"><span class="pc-trust-icon">&#128100;</span>Personal contact</div>
-      <div class="pc-trust-item"><span class="pc-trust-icon">&#128203;</span>Structured planning</div>
-      <div class="pc-trust-item"><span class="pc-trust-icon">&#128736;</span>On-site setup</div>
-      <div class="pc-trust-item"><span class="pc-trust-icon">&#128196;</span>Clear documentation</div>
+      <div class="pc-trust-item"><span class="pc-trust-icon">&#128100;</span>Dedicated support</div>
+      <div class="pc-trust-item"><span class="pc-trust-icon">&#128176;</span>Clear pricing</div>
+      <div class="pc-trust-item"><span class="pc-trust-icon">&#128736;</span>Professional setup</div>
+      <div class="pc-trust-item"><span class="pc-trust-icon">&#128196;</span>Complete documentation</div>
     </div>
 
     <div class="pc-hero-buttons">
@@ -61,149 +61,164 @@
 
   <div class="pc-hero-right" id="calculator">
     <div class="pc-card">
-      <h2>Calculate your no-parking zone price instantly</h2>
-      <p class="pc-form-subtitle">Enter the details below. Your estimated price will be calculated immediately.</p>
 
-      <form id="calcForm">
-        <div id="addressBlocks">
-          <div class="pc-address-block" data-index="0">
-            <div class="pc-address-block-header" style="display:none;">
-              <strong class="pc-address-title">Address 1</strong>
-              <button type="button" class="pc-remove-address">Remove</button>
-            </div>
-
-            <div class="pc-form-grid">
-              <div class="form-group"><label>City *</label><input type="text" name="addresses[0][city]" required></div>
-              <div class="form-group">
-                <label>Reason / Purpose *</label>
-                <select name="addresses[0][reason]" required>
-                  <option value="">Select reason</option>
-                  <% REASON_OPTIONS.forEach(r => { %><option value="<%= r %>"><%= r %></option><% }) %>
-                </select>
-              </div>
-            </div>
-
-            <div class="pc-form-grid">
-              <div class="form-group"><label>Start Date *</label><input type="date" name="addresses[0][start_date]" required></div>
-              <div class="form-group"><label>End Date *</label><input type="date" name="addresses[0][end_date]" required></div>
-            </div>
-            <div class="pc-form-grid">
-              <div class="form-group"><label>Start Time *</label><input type="time" name="addresses[0][start_time]" value="07:00" required></div>
-              <div class="form-group"><label>End Time *</label><input type="time" name="addresses[0][end_time]" value="17:00" required></div>
-            </div>
-            <div class="pc-form-grid">
-              <div class="form-group"><label>Postal Code *</label><input type="text" name="addresses[0][postal_code]" required></div>
-            </div>
-
-            <div class="pc-section-label"></div>
-            <div class="pc-form-grid">
-              <div class="form-group"><label>From Street *</label><input type="text" name="addresses[0][from_street]" required></div>
-              <div class="form-group"><label>House Number *</label><input type="text" name="addresses[0][from_house_number]" required></div>
-            </div>
-
-            <div class="pc-section-label"></div>
-            <div class="pc-form-grid">
-              <div class="form-group"><label>To Street</label><input type="text" name="addresses[0][till_street]"></div>
-              <div class="form-group"><label>House Number</label><input type="text" name="addresses[0][till_house_number]"></div>
-            </div>
-
-            <div class="pc-form-grid">
-              <div class="form-group">
-                <label>Zone Length *</label>
-                <select name="addresses[0][zone_length]" class="pc-zone-length-select" required>
-                  <option value="">Select length</option>
-                  <% ZONE_LENGTH_OPTIONS.forEach(z => { %><option value="<%= z %>"><%= z %></option><% }) %>
-                </select>
-              </div>
-              <div class="form-group pc-custom-length-group" style="display:none;">
-                <label>Custom Length (meters) *</label>
-                <input type="number" min="1" step="1" name="addresses[0][custom_length_meters]" class="pc-custom-length-input">
-              </div>
-              <div class="form-group full">
-                <label class="pc-checkbox-label"><input type="checkbox" name="addresses[0][both_sides]" value="1"> No-parking zone needed on both sides</label>
-              </div>
-            </div>
-
-            <div class="pc-map-section">
-              <label>Measure & Mark the zone on the map</label>
-              <div class="pc-map-toolbar">
-                <button type="button" class="pc-map-tool active" data-mode="point">Mark Point</button>
-                <button type="button" class="pc-map-tool" data-mode="line">Draw Line (Free)</button>
-                <button type="button" class="pc-map-tool" data-mode="straight">Straight Line</button>
-                <button type="button" class="pc-map-tool" data-mode="polygon">Draw Area (Free)</button>
-                <button type="button" class="pc-map-tool" data-mode="polygon-straight">Straight Area</button>
-                <button type="button" class="pc-map-tool" data-mode="rectangle">Box Area</button>
-                <button type="button" class="pc-map-tool-action" id="pcFinishShapeBtn" style="display:none;">Finish Shape</button>
-                <button type="button" class="pc-map-tool-action" id="pcUndoBtn">Undo</button>
-                <button type="button" class="pc-map-tool-action" id="pcClearMapBtn">Clear</button>
-                <button type="button" class="pc-map-tool-action" id="pcStopDrawBtn" style="display:none;">Stop Drawing (Pan Map)</button>
-              </div>
-              <div id="pcMarkMap" class="pc-mark-map"></div>
-              <div class="pc-map-meta">
-                <span id="pcMapLength">Drawn length: —</span>
-                <button type="button" class="btn btn-outline btn-sm" id="pcSaveMarkingBtn">Save Marking</button>
-              </div>
-              <p class="pc-map-note">Draw Line (Free) / Draw Area (Free): press and drag like a pen — releasing finishes the shape. Straight Line / Box Area: press and drag between two corners. Straight Area: click each corner one at a time, then double-click (or press "Finish Shape") to finish. Drawing a line measures its length and fills in Zone Length as "Custom length" for manual review. PDF export of your marked zone will be available once your request is confirmed and paid.</p>
-              <input type="hidden" name="addresses[0][map_marking]" class="pc-map-marking-input">
-            </div>
-          </div>
-        </div>
-
-        <button type="button" class="btn btn-outline btn-block" id="addAddressBtn">+ Add New Address</button>
-
-        <div class="form-group full" style="margin-top:14px;">
-          <button class="btn btn-block" type="submit">Calculate Price</button>
-        </div>
-      </form>
-
-      <div id="calcError" class="error-msg" style="display:none;"></div>
-
-      <div id="priceResultsWrap"></div>
-
-      <div id="manualReviewCard" class="pc-result-card" style="display:none;">
-        <h3>Manual Review Needed</h3>
-        <p>One or more zone lengths need manual review by our team. Send us your details and we'll get back to you with a price.</p>
+      <div class="pc-stepper">
+        <div class="pc-stepper-item active" data-step="pcStep1"><span class="pc-stepper-num">1</span><span class="pc-stepper-label">Project details</span></div>
+        <div class="pc-stepper-item" data-step="pcStep2"><span class="pc-stepper-num">2</span><span class="pc-stepper-label">Review price</span></div>
+        <div class="pc-stepper-item" data-step="pcStep3"><span class="pc-stepper-num">3</span><span class="pc-stepper-label">Personal details</span></div>
+        <div class="pc-stepper-item" data-step="pcStep4"><span class="pc-stepper-num">4</span><span class="pc-stepper-label">Request submitted</span></div>
       </div>
 
-      <div id="contactSection" class="pc-contact-section" style="display:none;">
-        <h3>Continue with this price</h3>
-        <p class="pc-form-subtitle">Enter your details and we will guide you through the next step.</p>
+      <!-- ===== STEP 1: Project Details ===== -->
+      <div id="pcStep1" class="pc-step">
+        <h2>Tell us about your project</h2>
+        <p class="pc-form-subtitle">Enter the details below. Your estimated price will be calculated immediately.</p>
 
-        <div class="pc-client-toggle">
-          <button type="button" class="pc-toggle-btn active" data-mode="new">New Client</button>
-          <button type="button" class="pc-toggle-btn" data-mode="existing">Existing Client</button>
+        <form id="calcForm">
+          <div id="addressBlocks">
+            <div class="pc-address-block" data-index="0">
+              <div class="pc-address-block-header" style="display:none;">
+                <strong class="pc-address-title">Address 1</strong>
+                <button type="button" class="pc-remove-address">Remove</button>
+              </div>
+
+              <div class="pc-form-grid">
+                <div class="form-group"><label>City *</label><input type="text" name="addresses[0][city]" required></div>
+                <div class="form-group">
+                  <label>Reason / Purpose *</label>
+                  <select name="addresses[0][reason]" required>
+                    <option value="">Select reason</option>
+                    <% REASON_OPTIONS.forEach(r => { %><option value="<%= r %>"><%= r %></option><% }) %>
+                  </select>
+                </div>
+              </div>
+
+              <div class="pc-form-grid">
+                <div class="form-group"><label>Start Date *</label><input type="date" name="addresses[0][start_date]" required></div>
+                <div class="form-group"><label>End Date *</label><input type="date" name="addresses[0][end_date]" required></div>
+              </div>
+              <div class="pc-form-grid">
+                <div class="form-group"><label>Start Time *</label><input type="time" name="addresses[0][start_time]" value="07:00" required></div>
+                <div class="form-group"><label>End Time *</label><input type="time" name="addresses[0][end_time]" value="17:00" required></div>
+              </div>
+              <div class="pc-form-grid">
+                <div class="form-group"><label>Postal Code *</label><input type="text" name="addresses[0][postal_code]" required></div>
+              </div>
+
+              <div class="pc-section-label"></div>
+              <div class="pc-form-grid">
+                <div class="form-group"><label>From Street *</label><input type="text" name="addresses[0][from_street]" required></div>
+                <div class="form-group"><label>House Number *</label><input type="text" name="addresses[0][from_house_number]" required></div>
+              </div>
+
+              <div class="pc-section-label"></div>
+              <div class="pc-form-grid">
+                <div class="form-group"><label>To Street</label><input type="text" name="addresses[0][till_street]"></div>
+                <div class="form-group"><label>House Number</label><input type="text" name="addresses[0][till_house_number]"></div>
+              </div>
+
+              <div class="pc-form-grid">
+                <div class="form-group">
+                  <label>Zone Length *</label>
+                  <select name="addresses[0][zone_length]" class="pc-zone-length-select" required>
+                    <option value="">Select length</option>
+                    <% ZONE_LENGTH_OPTIONS.forEach(z => { %><option value="<%= z %>"><%= z %></option><% }) %>
+                  </select>
+                </div>
+                <div class="form-group pc-custom-length-group" style="display:none;">
+                  <label>Custom Length (meters) *</label>
+                  <input type="number" min="1" step="1" name="addresses[0][custom_length_meters]" class="pc-custom-length-input">
+                </div>
+                <div class="form-group full">
+                  <label class="pc-checkbox-label"><input type="checkbox" name="addresses[0][both_sides]" value="1"> No-parking zone needed on both sides</label>
+                </div>
+              </div>
+
+              <div class="pc-map-mount" data-index="0"></div>
+            </div>
+          </div>
+
+          <button type="button" class="btn btn-outline btn-block" id="addAddressBtn">+ Add New Address</button>
+
+          <div class="form-group full" style="margin-top:14px;">
+            <button class="btn btn-block" type="submit">Calculate Price</button>
+          </div>
+        </form>
+
+        <div id="calcError" class="error-msg" style="display:none;"></div>
+      </div>
+
+      <!-- ===== STEP 2: Review Price ===== -->
+      <div id="pcStep2" class="pc-step" style="display:none;">
+        <h2>Review your price</h2>
+        <p class="pc-form-subtitle">Check the estimate below before continuing.</p>
+
+        <div id="priceResultsWrap"></div>
+
+        <div id="manualReviewCard" class="pc-result-card" style="display:none;">
+          <h3>Manual Review Needed</h3>
+          <p>One or more zone lengths need manual review by our team. Send us your details and we'll get back to you with a price.</p>
         </div>
-        <p class="pc-existing-note" id="pcExistingNote" style="display:none;">
-          Haben Sie bereits ein Kundenkonto? <a href="#" onclick="return false;">Log in</a> to reuse your saved details.
-        </p>
 
-        <form id="contactForm" class="pc-form-grid pc-form-grid-3">
+        <div class="pc-step-actions">
+          <button type="button" class="btn btn-outline" data-back="pcStep1">Back</button>
+          <button type="button" class="btn" id="toStep3Btn">Proceed With This Price</button>
+        </div>
+      </div>
+
+      <form id="contactForm">
+        <!-- ===== STEP 3: Personal Details ===== -->
+        <div id="pcStep3" class="pc-step" style="display:none;">
+          <h2>Personal details</h2>
+          <p class="pc-form-subtitle">Enter your details and we will guide you through the next step.</p>
+
+          <div class="pc-client-toggle">
+            <button type="button" class="pc-toggle-btn active" data-mode="new">New Client</button>
+            <button type="button" class="pc-toggle-btn" data-mode="existing">Existing Client</button>
+          </div>
+          <p class="pc-existing-note" id="pcExistingNote" style="display:none;">
+            Haben Sie bereits ein Kundenkonto? <a href="#" onclick="return false;">Log in</a> to reuse your saved details.
+          </p>
+
           <input type="hidden" name="client_mode" id="clientModeInput" value="new">
           <input type="hidden" name="client_type" id="clientTypeInput" value="Private">
 
-          <div class="form-group"><label>Vorname (First Name) *</label><input type="text" name="vorname" required></div>
-          <div class="form-group"><label>Nachname (Last Name) *</label><input type="text" name="nachname" required></div>
-          <div class="form-group"><label>Phone *</label><input type="text" name="phone" required></div>
-          <div class="form-group"><label>Email *</label><input type="email" name="email" required></div>
+          <div class="pc-form-grid pc-form-grid-3">
+            <div class="form-group"><label>Vorname (First Name) *</label><input type="text" name="vorname" required></div>
+            <div class="form-group"><label>Nachname (Last Name) *</label><input type="text" name="nachname" required></div>
+            <div class="form-group"><label>Phone *</label><input type="text" name="phone" required></div>
+            <div class="form-group"><label>Email *</label><input type="email" name="email" required></div>
 
-          <div class="form-group full">
-            <label>Client Type</label>
-            <div class="pc-client-type-toggle">
-              <button type="button" class="pc-type-btn active" data-type="Private">Private Client</button>
-              <button type="button" class="pc-type-btn" data-type="Company">Company Client</button>
+            <div class="form-group full">
+              <label>Client Type</label>
+              <div class="pc-client-type-toggle">
+                <button type="button" class="pc-type-btn active" data-type="Private">Private Client</button>
+                <button type="button" class="pc-type-btn" data-type="Company">Company Client</button>
+              </div>
             </div>
-          </div>
-          <div class="form-group full" id="companyFieldWrap" style="display:none;">
-            <label>Company Name</label><input type="text" name="company">
+            <div class="form-group full" id="companyFieldWrap" style="display:none;">
+              <label>Company Name</label><input type="text" name="company">
+            </div>
+
+            <div class="form-group"><label>Land (Country)</label><input type="text" name="country" value="Germany"></div>
+            <div class="form-group"><label>Street</label><input type="text" name="street"></div>
+            <div class="form-group"><label>House Number</label><input type="text" name="house_number"></div>
+            <div class="form-group"><label>Postleitzahl (ZIP)</label><input type="text" name="zip"></div>
+            <div class="form-group"><label>Stadt (City)</label><input type="text" name="city"></div>
+
+            <div class="form-group full"><label>Notes</label><textarea name="notes" rows="2" placeholder="Additional information (optional)"></textarea></div>
           </div>
 
-          <div class="form-group"><label>Land (Country)</label><input type="text" name="country" value="Germany"></div>
-          <div class="form-group"><label>Street</label><input type="text" name="street"></div>
-          <div class="form-group"><label>House Number</label><input type="text" name="house_number"></div>
-          <div class="form-group"><label>Postleitzahl (ZIP)</label><input type="text" name="zip"></div>
-          <div class="form-group"><label>Stadt (City)</label><input type="text" name="city"></div>
+          <div class="pc-step-actions">
+            <button type="button" class="btn btn-outline" data-back="pcStep2">Back</button>
+            <button type="button" class="btn" id="toStep4Btn">Proceed to Payment</button>
+          </div>
+        </div>
 
-          <div class="form-group full"><label>Notes</label><textarea name="notes" rows="2"></textarea></div>
+        <!-- ===== STEP 4: Request Submission ===== -->
+        <div id="pcStep4" class="pc-step" style="display:none;">
+          <h2>Submit your request</h2>
+          <p class="pc-form-subtitle">Choose a payment method and confirm your request.</p>
 
           <div class="form-group full pc-payment-section">
             <label>Payment Method</label>
@@ -215,15 +230,134 @@
             <p class="pc-payment-note">Payment processing will be enabled once checkout goes live — no payment is taken yet.</p>
           </div>
 
-          <div class="form-group full">
-            <button class="btn btn-block" type="submit" id="continueBtn">Continue with This Price</button>
+          <div class="form-group full pc-consent-group">
+            <label class="pc-checkbox-label"><input type="checkbox" id="pcPrivacyCheck" required> I agree that my data will be used to process this request (data privacy consent).</label>
           </div>
-        </form>
-        <p class="pc-privacy">Your data will only be used to process your request.</p>
-        <div id="submitResult" style="margin-top:10px; font-size:14px;"></div>
+          <div class="form-group full pc-consent-group">
+            <label class="pc-checkbox-label"><input type="checkbox" id="pcRobotCheck" required> I'm not a robot.</label>
+          </div>
+
+          <div class="pc-step-actions">
+            <button type="button" class="btn btn-outline" data-back="pcStep3">Back</button>
+            <button class="btn btn-block" type="submit" id="continueBtn">Submit Request</button>
+          </div>
+
+          <p class="pc-privacy">Your data will only be used to process your request.</p>
+          <div id="submitResult" style="margin-top:10px; font-size:14px;"></div>
+        </div>
+      </form>
+
+    </div>
+  </div>
+  </div>
+</section>
+
+<section class="pc-info-section" id="services">
+  <div class="pc-info-inner">
+    <span class="pc-info-eyebrow">What we offer</span>
+    <h2>Our Services</h2>
+    <p class="pc-info-intro">From a single no-parking sign to full-site traffic safety, we support removals, deliveries, construction projects, and events with equipment, permits, and setup — all coordinated from one place.</p>
+    <div class="pc-info-grid">
+      <div class="pc-info-card">
+        <img src="/images/signs/haltverbot.svg" alt="" class="pc-info-icon">
+        <h4>No-Parking Zone Signage</h4>
+        <p>Temporary parking suspension signs for moves, deliveries, and events, delivered and installed at your site.</p>
+      </div>
+      <div class="pc-info-card">
+        <img src="/images/signs/absperrschranke.svg" alt="" class="pc-info-icon">
+        <h4>Traffic Safety Equipment</h4>
+        <p>Barriers, cones, warning lights, and safety fencing for short-term or long-term site protection.</p>
+      </div>
+      <div class="pc-info-card">
+        <img src="/images/signs/arbeitsstelle.svg" alt="" class="pc-info-icon">
+        <h4>Construction Site Protection</h4>
+        <p>Site fencing, construction signage, and ongoing safety documentation for active job sites.</p>
+      </div>
+      <div class="pc-info-card">
+        <img src="/images/signs/leitbake.svg" alt="" class="pc-info-icon">
+        <h4>Permit &amp; Authority Coordination</h4>
+        <p>We help prepare the paperwork your local traffic authority (KVR) requires for approval.</p>
       </div>
     </div>
   </div>
+</section>
+
+<section class="pc-info-section pc-info-alt" id="no-parking-zones">
+  <div class="pc-info-inner">
+    <span class="pc-info-eyebrow">Halteverbotszonen</span>
+    <h2>No-Parking Zones</h2>
+    <p class="pc-info-intro">Need the street cleared for a move, delivery, container, or crane? We install temporary no-parking signs in advance so the space is ready when you need it.</p>
+    <div class="pc-info-grid">
+      <div class="pc-info-card">
+        <h4>One-Side or Both-Side Zones</h4>
+        <p>Choose the exact stretch of street and side(s) that need to stay clear.</p>
+      </div>
+      <div class="pc-info-card">
+        <h4>Advance Notice Handled</h4>
+        <p>Signs are typically placed with the lead time your local authority requires (often 72 hours).</p>
+      </div>
+      <div class="pc-info-card">
+        <h4>Custom Zone Lengths</h4>
+        <p>Standard lengths calculate instantly; longer or irregular zones go to manual review.</p>
+      </div>
+      <div class="pc-info-card">
+        <h4>Removal Included</h4>
+        <p>We collect the signs once your booking period ends — nothing left behind.</p>
+      </div>
+    </div>
+    <a class="btn" href="#calculator">Calculate Your Price</a>
+  </div>
+</section>
+
+<section class="pc-info-section" id="traffic-safety">
+  <div class="pc-info-inner">
+    <span class="pc-info-eyebrow">Safety on site</span>
+    <h2>Traffic Safety &amp; Site Security</h2>
+    <p class="pc-info-intro">Beyond no-parking zones, we provide the barriers, signage, and lighting needed to keep pedestrians, drivers, and your crew safe around any temporary work area.</p>
+    <div class="pc-info-grid">
+      <div class="pc-info-card">
+        <h4>Barriers &amp; Fencing</h4>
+        <p>Pedestrian barriers and safety fencing sized to your site.</p>
+      </div>
+      <div class="pc-info-card">
+        <h4>Warning Signage</h4>
+        <p>Standard StVO-compliant warning and work-site signs.</p>
+      </div>
+      <div class="pc-info-card">
+        <h4>Lighting &amp; Visibility</h4>
+        <p>Warning lights and reflective markers for low-light conditions.</p>
+      </div>
+      <div class="pc-info-card">
+        <h4>Traffic Plans</h4>
+        <p>Layout support for half or full road closures where required.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="pc-info-section pc-info-alt" id="construction-sites">
+  <div class="pc-info-inner">
+    <span class="pc-info-eyebrow">Job sites</span>
+    <h2>Construction Site Support</h2>
+    <p class="pc-info-intro">Active construction sites need more than a single sign — we coordinate equipment, documentation, and timing across the full project.</p>
+    <div class="pc-info-grid">
+      <div class="pc-info-card">
+        <h4>Site Protection</h4>
+        <p>Fencing and barriers to secure the perimeter of active work areas.</p>
+      </div>
+      <div class="pc-info-card">
+        <h4>Project Coordination</h4>
+        <p>Equipment scheduled around your construction timeline, not the other way around.</p>
+      </div>
+      <div class="pc-info-card">
+        <h4>Documentation</h4>
+        <p>Photos and records provided when required for authority or client reporting.</p>
+      </div>
+      <div class="pc-info-card">
+        <h4>Multiple Locations</h4>
+        <p>Request support for several addresses or phases in one booking.</p>
+      </div>
+    </div>
   </div>
 </section>
 

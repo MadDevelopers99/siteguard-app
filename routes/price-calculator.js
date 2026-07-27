@@ -62,7 +62,7 @@ router.post("/submit", (req, res) => {
     const {
       vorname, nachname, phone, email, client_mode,
       client_type, company, country, street, house_number, zip, city,
-      payment_method, notes, map_marking
+      payment_method, notes
     } = req.body;
 
     if (!vorname || !nachname || !phone || !email) {
@@ -125,7 +125,7 @@ router.post("/submit", (req, res) => {
             addr.postal_code,
             addr.city,
             bothSides ? "both" : "one",
-            idx === 0 && map_marking ? map_marking : null
+            addr.map_marking || null
           );
 
         const requestNumber = generateRequestNumber();
