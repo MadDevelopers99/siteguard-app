@@ -7,7 +7,7 @@ const { calculatePrice, ZONE_LENGTH_OPTIONS, REASON_OPTIONS } = require("../util
 const SITE_GUARD = {
   name: "Site Guard",
   tagline: "Traffic Services",
-  phone: "+49 30 1234 5678",
+  phone: "+49 1522 3834292",
   hours: "Mon–Fri 07:00–18:00"
 };
 
