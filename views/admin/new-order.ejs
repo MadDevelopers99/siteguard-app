@@ -3,25 +3,26 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>New Order (Email) — SiteGuard Admin</title>
+<title><%= sourceLabel %> — SiteGuard Admin</title>
 <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
 <div class="admin-shell">
-  <%- include('../partials/admin-sidebar', { active: 'new-order' }) %>
+  <%- include('../partials/admin-sidebar', { active: 'add-order' }) %>
 
   <div class="admin-main">
     <div class="admin-topline">
-      <h1>Add Order Received by Email</h1>
-      <a href="/admin/dashboard" style="text-decoration:none; font-size:14px;">&larr; Back to orders</a>
+      <h1>Add <%= sourceLabel %></h1>
+      <a href="/admin/orders" style="text-decoration:none; font-size:14px;">&larr; Back to orders</a>
     </div>
 
     <form method="POST" action="/admin/orders/new">
+      <input type="hidden" name="source" value="<%= source %>">
       <div class="admin-card">
         <h3>Client</h3>
         <div style="margin-bottom:14px;">
-          <label style="margin-right:16px;"><input type="radio" name="client_mode" value="existing" checked onchange="toggleClientMode()"> Existing client</label>
-          <label><input type="radio" name="client_mode" value="new" onchange="toggleClientMode()"> Register new client</label>
+          <label style="margin-right:16px;"><input type="radio" name="client_mode" value="existing" <%= presetClientMode !== 'new' ? 'checked' : '' %> onchange="toggleClientMode()"> Existing client</label>
+          <label><input type="radio" name="client_mode" value="new" <%= presetClientMode === 'new' ? 'checked' : '' %> onchange="toggleClientMode()"> Register new client</label>
         </div>
 
         <div id="existingClientBlock" class="form-grid full">
@@ -97,6 +98,7 @@
 
   document.getElementById('addLineBtn').addEventListener('click', addLineRow);
   addLineRow(); // start with one row
+  toggleClientMode(); // sync visibility with the preset client_mode radio
 </script>
 </body>
 </html>

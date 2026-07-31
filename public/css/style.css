@@ -124,12 +124,32 @@ a { color: inherit; }
   font-family: var(--font-body); width: 260px; background: #fff;
 }
 .category-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin: 24px 0; }
-.category-tabs button {
+.category-tabs button, .category-tabs a {
   font-family: var(--font-body); font-size: 13px; font-weight: 600;
   padding: 8px 14px; border-radius: 20px; border: 1px solid var(--concrete-2);
-  background: #fff; cursor: pointer; color: var(--steel);
+  background: #fff; cursor: pointer; color: var(--steel); text-decoration: none; display: inline-block;
 }
-.category-tabs button.active { background: var(--charcoal); color: var(--amber); border-color: var(--charcoal); }
+.category-tabs button.active, .category-tabs a.active { background: var(--charcoal); color: var(--amber); border-color: var(--charcoal); }
+
+/* ---------- Order Actions dropdown (views/admin/orders.ejs) ---------- */
+.action-menu { position: relative; }
+.action-menu summary {
+  list-style: none; cursor: pointer; font-size: 13px; font-weight: 600; padding: 6px 12px;
+  border: 1px solid var(--concrete-2); border-radius: var(--radius); background: #fff; color: var(--charcoal);
+}
+.action-menu summary::-webkit-details-marker { display: none; }
+.action-menu[open] summary { background: var(--concrete); }
+.action-menu-list {
+  position: absolute; right: 0; top: calc(100% + 4px); background: #fff; border: 1px solid var(--concrete-2);
+  border-radius: var(--radius); box-shadow: 0 8px 24px rgba(0,0,0,0.15); z-index: 20; min-width: 170px; padding: 6px;
+}
+.action-menu-list a, .action-menu-list button {
+  display: block; width: 100%; text-align: left; padding: 8px 10px; font-size: 13px; border: none; background: none;
+  cursor: pointer; color: var(--ink); border-radius: 3px; text-decoration: none; font-family: var(--font-body);
+}
+.action-menu-list a:hover, .action-menu-list button:hover { background: var(--concrete); }
+.action-menu-list form { margin: 0; }
+.action-menu-list .danger { color: var(--danger); }
 
 .item-grid {
   display: grid;
@@ -236,6 +256,25 @@ a { color: inherit; }
   border-left: 3px solid transparent;
 }
 .admin-sidebar a:hover, .admin-sidebar a.active { color: #fff; background: var(--charcoal-2); border-left-color: var(--amber); }
+
+.admin-sidebar .nav-parent-btn {
+  display: block; width: 100%; text-align: left; padding: 12px 24px; color: #cfd6d8; font-size: 14px; font-weight: 500;
+  border: none; border-left: 3px solid transparent; background: none; cursor: pointer; font-family: var(--font-body);
+  position: relative;
+}
+.admin-sidebar .nav-parent-btn::after { content: '▾'; position: absolute; right: 20px; transition: transform 0.15s ease; }
+.admin-sidebar .nav-group.open .nav-parent-btn::after { transform: rotate(180deg); }
+.admin-sidebar .nav-parent-btn:hover { color: #fff; background: var(--charcoal-2); }
+.admin-sidebar .nav-parent-row { display: flex; align-items: center; }
+.admin-sidebar .nav-parent-row .nav-parent-link { flex: 1; }
+.admin-sidebar .nav-toggle {
+  background: none; border: none; color: #cfd6d8; cursor: pointer; padding: 12px 20px 12px 4px; font-size: 12px;
+  transition: transform 0.15s ease;
+}
+.admin-sidebar .nav-group.open .nav-toggle { transform: rotate(180deg); }
+.admin-sidebar .nav-children { display: none; background: rgba(0,0,0,0.15); }
+.admin-sidebar .nav-group.open .nav-children { display: block; }
+.admin-sidebar .nav-children a { padding-left: 40px; font-size: 13px; }
 .admin-main { flex: 1; padding: 32px 40px; }
 .admin-topline { display:flex; justify-content: space-between; align-items:center; margin-bottom: 24px; }
 .admin-topline h1 { font-family: var(--font-display); font-size: 30px; margin:0; }
@@ -268,6 +307,12 @@ table.data-table tr:hover td { background: #fbfaf7; }
 .badge-cancelled { background: #f8d7da; color: #a12631; }
 .badge-website { background: #eef1f2; color: var(--steel); }
 .badge-email { background: #fdeccb; color: #a15b00; }
+.badge-manual { background: #e6e3da; color: var(--charcoal); }
+.badge-approval_needed { background: #ffe1c2; color: #a1550c; }
+.badge-returned_from_ma { background: #f8d7da; color: #a12631; }
+.badge-unpaid { background: #fff3cd; color: #8a6300; }
+.badge-paid { background: #dcf3e4; color: #1f7a44; }
+.badge-invoice { background: #d9edf7; color: #23617a; }
 
 .admin-card { background: #fff; border: 1px solid var(--concrete-2); border-radius: var(--radius); padding: 24px; margin-bottom: 20px; }
 .admin-card h3 { font-family: var(--font-display); font-size: 20px; margin: 0 0 14px; }

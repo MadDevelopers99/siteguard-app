@@ -8,23 +8,32 @@
 </head>
 <body>
 <div class="admin-shell">
-  <%- include('../partials/admin-sidebar', { active: 'dashboard' }) %>
+  <%- include('../partials/admin-sidebar', { active: 'orders' }) %>
 
   <div class="admin-main">
     <div class="admin-topline">
       <h1>Order <%= order.order_number %></h1>
-      <a href="/admin/dashboard" style="text-decoration:none; font-size:14px;">&larr; Back to orders</a>
+      <a href="/admin/orders" style="text-decoration:none; font-size:14px;">&larr; Back to orders</a>
+    </div>
+
+    <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px;">
+      <form method="POST" action="/admin/orders/<%= order.id %>/confirm"><button class="btn btn-sm" type="submit">Confirm Order</button></form>
+      <form method="POST" action="/admin/orders/<%= order.id %>/send-to-ma"><button class="btn btn-sm" type="submit">Send to MA</button></form>
+      <form method="POST" action="/admin/orders/<%= order.id %>/mark-delivered"><button class="btn btn-sm" type="submit">Mark Delivered</button></form>
+      <form method="POST" action="/admin/orders/<%= order.id %>/cancel" onsubmit="return confirm('Cancel this order?');"><button class="btn btn-sm" type="submit" style="background:var(--danger); color:#fff;">Cancel Order</button></form>
+      <a class="btn btn-sm" style="text-decoration:none;" href="<%= order.request_id ? '/admin/requests/' + order.request_id : '/admin/orders/' + order.id + '/edit' %>">Edit Order</a>
+      <a class="btn btn-sm" style="text-decoration:none;" href="/admin/orders/<%= order.id %>/pdf">Download PDF</a>
     </div>
 
     <div class="admin-card">
       <h3>Client Info</h3>
       <div class="form-grid">
-        <div><strong>Name:</strong> <%= order.name %></div>
-        <div><strong>Company:</strong> <%= order.company || '—' %></div>
-        <div><strong>Email:</strong> <%= order.email || '—' %></div>
-        <div><strong>Phone:</strong> <%= order.phone || '—' %></div>
-        <div><strong>City:</strong> <%= order.city || '—' %></div>
-        <div><strong>Address:</strong> <%= order.address || '—' %></div>
+        <div><strong>Name:</strong> <%= order.client_name %></div>
+        <div><strong>Company:</strong> <%= order.client_company || '—' %></div>
+        <div><strong>Email:</strong> <%= order.client_email || '—' %></div>
+        <div><strong>Phone:</strong> <%= order.client_phone || '—' %></div>
+        <div><strong>City:</strong> <%= order.client_city || '—' %></div>
+        <div><strong>Address:</strong> <%= order.client_address || '—' %></div>
       </div>
     </div>
 
@@ -32,21 +41,54 @@
       <h3>Order Details</h3>
       <div class="form-grid">
         <div><strong>Source:</strong> <span class="badge badge-<%= order.source %>"><%= order.source %></span></div>
-        <div><strong>Status:</strong> <span class="badge badge-<%= order.status %>"><%= order.status %></span></div>
+        <div><strong>Status:</strong> <span class="badge badge-<%= order.status %>"><%= orderStatusLabel(order.status) %></span></div>
+        <div><strong>Payment:</strong> <span class="badge badge-<%= (order.payment_status || 'Unpaid').toLowerCase() %>"><%= order.payment_status || 'Unpaid' %></span></div>
         <div><strong>Site address:</strong> <%= order.site_address || '—' %></div>
         <div><strong>Needed by:</strong> <%= order.needed_by || '—' %></div>
         <div><strong>Created:</strong> <%= order.created_at %></div>
         <div><strong>Notes:</strong> <%= order.notes || '—' %></div>
       </div>
 
-      <form method="POST" action="/admin/orders/<%= order.order_id %>/status" style="margin-top:16px; display:flex; gap:10px; align-items:center;">
+      <form method="POST" action="/admin/orders/<%= order.id %>/status" style="margin-top:16px; display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
         <label style="margin:0; font-size:13px; font-weight:600;">Update status:</label>
         <select name="status">
-          <% ["pending","confirmed","dispatched","delivered","cancelled"].forEach(s => { %>
-            <option value="<%= s %>" <%= order.status === s ? 'selected' : '' %>><%= s.charAt(0).toUpperCase() + s.slice(1) %></option>
+          <% ORDER_STATUS_OPTIONS.forEach(s => { %>
+            <option value="<%= s.value %>" <%= order.status === s.value ? 'selected' : '' %>><%= s.label %></option>
           <% }) %>
         </select>
         <button class="btn btn-sm" type="submit">Save</button>
+      </form>
+
+      <form method="POST" action="/admin/orders/<%= order.id %>/payment-status" style="margin-top:10px; display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+        <label style="margin:0; font-size:13px; font-weight:600;">Update payment:</label>
+        <select name="payment_status">
+          <% ORDER_PAYMENT_STATUS_OPTIONS.forEach(p => { %>
+            <option value="<%= p %>" <%= order.payment_status === p ? 'selected' : '' %>><%= p %></option>
+          <% }) %>
+        </select>
+        <button class="btn btn-sm" type="submit">Save</button>
+      </form>
+    </div>
+
+    <div class="admin-card" id="return">
+      <h3>Return / Correction</h3>
+      <form method="POST" action="/admin/orders/<%= order.id %>/return" class="form-grid">
+        <div>
+          <label style="display:block; font-size:12px; font-weight:600; margin-bottom:4px;">Reason</label>
+          <select name="return_reason" style="width:100%; padding:8px;">
+            <option value="">— select —</option>
+            <% RETURN_REASONS.forEach(r => { %>
+              <option value="<%= r %>" <%= order.return_reason === r ? 'selected' : '' %>><%= r %></option>
+            <% }) %>
+          </select>
+        </div>
+        <div>
+          <label style="display:block; font-size:12px; font-weight:600; margin-bottom:4px;">Note</label>
+          <input type="text" name="return_note" value="<%= order.return_note || '' %>" style="width:100%; padding:8px; box-sizing:border-box;">
+        </div>
+        <div class="full" style="grid-column: 1 / -1;">
+          <button class="btn btn-sm" type="submit">Mark as Returned / Needs Correction</button>
+        </div>
       </form>
     </div>
 
@@ -54,13 +96,7 @@
       <h3>Operations (Main Admin)</h3>
       <div class="form-grid">
         <div><strong>Status:</strong> <span class="badge badge-<%= statusBadgeClass(order.main_admin_status) %>"><%= order.main_admin_status %></span></div>
-        <% if (order.return_reason) { %>
-          <div><strong>Return Reason:</strong> <%= order.return_reason %></div>
-        <% } %>
       </div>
-      <% if (order.return_note) { %>
-        <p style="margin-top:10px; color:#8a8f90;"><%= order.return_note %></p>
-      <% } %>
     </div>
 
     <% if (linkedRequest) { %>
@@ -97,7 +133,7 @@
         <div style="text-align:right; margin-top:14px; font-family: var(--font-mono);">
           <div>Subtotal Net: €<%= (linkedRequest.subtotal_net || 0).toFixed(2) %></div>
           <div>VAT <%= linkedRequest.vat_rate || 19 %>%: €<%= (linkedRequest.vat_amount || 0).toFixed(2) %></div>
-          <div style="font-size:20px; font-weight:600;">Total Gross: €<%= order.total.toFixed(2) %></div>
+          <div style="font-size:20px; font-weight:600;">Total Gross: €<%= order.effective_total.toFixed(2) %></div>
         </div>
       </div>
     <% } else { %>
@@ -121,7 +157,7 @@
           </table>
         </div>
         <div style="text-align:right; margin-top:14px; font-family: var(--font-mono); font-size:20px; font-weight:600;">
-          Total: €<%= order.total.toFixed(2) %>
+          Total: €<%= order.effective_total.toFixed(2) %>
         </div>
       </div>
     <% } %>

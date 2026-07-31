@@ -632,7 +632,8 @@ function ensureColumn(table, column, definition) {
   ["location_id", "INTEGER REFERENCES client_locations(id)"],
   ["main_admin_status", "TEXT DEFAULT 'Received from Office Admin'"],
   ["return_reason", "TEXT"],
-  ["return_note", "TEXT"]
+  ["return_note", "TEXT"],
+  ["payment_status", "TEXT DEFAULT 'Unpaid'"]
 ].forEach(([column, definition]) => ensureColumn("orders", column, definition));
 
 [["role", "TEXT DEFAULT 'office_admin'"]].forEach(([column, definition]) =>

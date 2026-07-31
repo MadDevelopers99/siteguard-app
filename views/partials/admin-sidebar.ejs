@@ -1,10 +1,56 @@
 <div class="admin-sidebar">
   <div class="brand"><span class="mark">SG</span> SiteGuard</div>
-  <a href="/admin/dashboard" class="<%= active === 'dashboard' ? 'active' : '' %>">Orders</a>
-  <a href="/admin/orders/new/form" class="<%= active === 'new-order' ? 'active' : '' %>">+ New Order (Email)</a>
-  <a href="/admin/clients" class="<%= active === 'clients' ? 'active' : '' %>">Clients</a>
+
+  <a href="/admin/dashboard" class="<%= active === 'dashboard' ? 'active' : '' %>">Dashboard (Overall)</a>
+  <a href="/admin/orders" class="<%= active === 'orders' ? 'active' : '' %>">Orders</a>
+
+  <div class="nav-group <%= active === 'add-order' ? 'open' : '' %>">
+    <button type="button" class="nav-parent-btn">Add / Import / Edit Orders</button>
+    <div class="nav-children">
+      <a href="/admin/orders/new/form?source=website">+ Website Order</a>
+      <a href="/admin/orders/new/form?source=email">+ Email Order</a>
+      <a href="/admin/orders/new/form?source=manual">+ Manual Order</a>
+    </div>
+  </div>
+
+  <div class="nav-group">
+    <button type="button" class="nav-parent-btn">Manage Orders</button>
+    <div class="nav-children">
+      <a href="/admin/orders?status=approval_needed">Approval Needed</a>
+      <a href="/admin/orders?status=confirmed">Confirmed</a>
+      <a href="/admin/orders?status=dispatched">Dispatched to MA</a>
+      <a href="/admin/orders?status=returned_from_ma">Returned from MA</a>
+      <a href="/admin/orders?status=delivered">Delivered</a>
+      <a href="/admin/orders?status=cancelled">Cancelled</a>
+    </div>
+  </div>
+
+  <div class="nav-group <%= active === 'clients' ? 'open' : '' %>">
+    <div class="nav-parent-row">
+      <a href="/admin/clients" class="nav-parent-link <%= active === 'clients' ? 'active' : '' %>">Clients</a>
+      <button type="button" class="nav-toggle">▾</button>
+    </div>
+    <div class="nav-children">
+      <a href="/admin/clients/new">+ Add Client</a>
+      <a href="/admin/orders/new/form?source=email&client_mode=existing">+ Existing Client</a>
+      <a href="/admin/clients/import">Import Clients</a>
+    </div>
+  </div>
+
+  <a href="/admin/employees" class="<%= active === 'employees' ? 'active' : '' %>">Office Employees</a>
+  <a href="/admin/invoices" class="<%= active === 'invoices' ? 'active' : '' %>">Invoices</a>
+  <a href="/admin/reports" class="<%= active === 'reports' ? 'active' : '' %>">Reports</a>
+  <a href="/admin/settings" class="<%= active === 'settings' ? 'active' : '' %>">Settings</a>
   <a href="/admin/items" class="<%= active === 'items' ? 'active' : '' %>">Items</a>
   <a href="/admin/items/new" class="<%= active === 'new-item' ? 'active' : '' %>">+ New Item</a>
   <a href="/admin/inventory/dashboard">Inventories ↗</a>
   <a href="/" target="_blank">View Site ↗</a>
 </div>
+
+<script>
+  document.querySelectorAll('.admin-sidebar .nav-parent-btn, .admin-sidebar .nav-toggle').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      btn.closest('.nav-group').classList.toggle('open');
+    });
+  });
+</script>

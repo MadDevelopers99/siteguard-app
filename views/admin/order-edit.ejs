@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Edit Order <%= order.order_number %> — SiteGuard Admin</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="admin-shell">
+  <%- include('../partials/admin-sidebar', { active: 'orders' }) %>
+
+  <div class="admin-main">
+    <div class="admin-topline">
+      <h1>Edit Order <%= order.order_number %></h1>
+      <a href="/admin/orders/<%= order.order_id %>" style="text-decoration:none; font-size:14px;">&larr; Back to order</a>
+    </div>
+
+    <form method="POST" action="/admin/orders/<%= order.order_id %>/edit">
+      <div class="admin-card">
+        <h3>Client</h3>
+        <div class="form-grid">
+          <div><strong>Name:</strong> <%= order.name %></div>
+          <div><strong>Company:</strong> <%= order.company || '—' %></div>
+          <div><strong>Email:</strong> <%= order.email || '—' %></div>
+          <div><strong>Phone:</strong> <%= order.phone || '—' %></div>
+        </div>
+        <p style="font-size:12px; color:var(--steel); margin-top:10px;">To change client details, edit the client record directly from the Clients page.</p>
+      </div>
+
+      <div class="admin-card">
+        <h3>Order Info</h3>
+        <div class="form-grid">
+          <div class="form-group"><label>Site / delivery address</label><input type="text" name="site_address" value="<%= order.site_address || '' %>"></div>
+          <div class="form-group"><label>Needed by</label><input type="date" name="needed_by" value="<%= order.needed_by || '' %>"></div>
+        </div>
+        <div class="form-group full" style="margin-top:10px;">
+          <label>Notes</label>
+          <textarea name="notes" rows="3"><%= order.notes || '' %></textarea>
+        </div>
+      </div>
+
+      <div class="admin-card">
+        <h3>Items</h3>
+        <div id="lineItemsContainer"></div>
+        <button type="button" class="btn btn-outline btn-sm" id="addLineBtn">+ Add item</button>
+      </div>
+
+      <button class="btn" type="submit" style="font-size:16px; padding:12px 24px;">Save Changes</button>
+    </form>
+  </div>
+</div>
+
+<script>
+  const ITEMS = <%- JSON.stringify(items.map(i => ({ id: i.id, name: i.name, sku: i.sku, price: i.price }))) %>;
+  const EXISTING_LINES = <%- JSON.stringify(lineItems.map(li => ({ item_id: li.item_id, quantity: li.quantity }))) %>;
+
+  function addLineRow(preset) {
+    const container = document.getElementById('lineItemsContainer');
+    const row = document.createElement('div');
+    row.className = 'order-line-item-row';
+    const options = ITEMS.map(i => `<option value="${i.id}" ${preset && String(preset.item_id) === String(i.id) ? 'selected' : ''}>${i.sku} — ${i.name} (€${i.price.toFixed(2)})</option>`).join('');
+    row.innerHTML = `
+      <select name="item_ids">
+        <option value="">— select item —</option>
+        ${options}
+      </select>
+      <input type="number" name="quantities" value="${preset ? preset.quantity : 1}" min="1">
+      <button type="button" class="remove-line">Remove</button>
+    `;
+    row.querySelector('.remove-line').addEventListener('click', () => row.remove());
+    container.appendChild(row);
+  }
+
+  document.getElementById('addLineBtn').addEventListener('click', () => addLineRow());
+  if (EXISTING_LINES.length > 0) {
+    EXISTING_LINES.forEach(addLineRow);
+  } else {
+    addLineRow();
+  }
+</script>
+</body>
+</html>

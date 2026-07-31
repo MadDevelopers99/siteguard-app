@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Orders — SiteGuard Admin</title>
+<title>Dashboard — SiteGuard Admin</title>
 <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
@@ -12,76 +12,53 @@
 
   <div class="admin-main">
     <div class="admin-topline">
-      <h1>Orders</h1>
+      <h1>Dashboard</h1>
       <form class="logout-form" method="POST" action="/admin/logout">
         <button type="submit">Log out (<%= adminName %>)</button>
       </form>
     </div>
 
     <p style="color:var(--steel); margin:-14px 0 20px; font-size:14px;">
-      All orders placed through the website or logged manually from email — filter, search, or export to Excel below.
+      Overall order status and revenue at a glance.
     </p>
 
+    <h3 style="margin-bottom:8px;">Orders</h3>
     <div class="stat-row">
       <div class="stat-card"><span class="num"><%= stats.total_orders || 0 %></span><span class="label">Total Orders</span></div>
-      <div class="stat-card"><span class="num"><%= stats.pending_count || 0 %></span><span class="label">Pending</span></div>
-      <div class="stat-card"><span class="num">€<%= (stats.total_value || 0).toFixed(2) %></span><span class="label">Total Value</span></div>
-      <div class="stat-card"><span class="num"><%= stats.email_count || 0 %></span><span class="label">From Email</span></div>
+      <div class="stat-card"><span class="num"><%= stats.website_orders || 0 %></span><span class="label">Website Orders</span></div>
+      <div class="stat-card"><span class="num"><%= stats.email_orders || 0 %></span><span class="label">Email Orders</span></div>
+      <div class="stat-card"><span class="num"><%= stats.manual_orders || 0 %></span><span class="label">Manual Orders</span></div>
+    </div>
+    <div class="stat-row">
+      <div class="stat-card"><span class="num"><%= stats.pending_orders || 0 %></span><span class="label">Pending Orders</span></div>
+      <div class="stat-card"><span class="num"><%= stats.approval_needed || 0 %></span><span class="label">Approval Needed</span></div>
+      <div class="stat-card"><span class="num"><%= stats.confirmed_orders || 0 %></span><span class="label">Confirmed Orders</span></div>
+      <div class="stat-card"><span class="num"><%= stats.dispatched_orders || 0 %></span><span class="label">Dispatched to MA</span></div>
+    </div>
+    <div class="stat-row">
+      <div class="stat-card"><span class="num"><%= stats.returned_orders || 0 %></span><span class="label">Returned from MA</span></div>
+      <div class="stat-card"><span class="num"><%= stats.delivered_orders || 0 %></span><span class="label">Delivered / Completed</span></div>
+      <div class="stat-card"><span class="num"><%= stats.cancelled_orders || 0 %></span><span class="label">Cancelled Orders</span></div>
     </div>
 
-    <form class="filter-bar" method="GET" action="/admin/dashboard">
-      <input type="text" name="q" placeholder="Search client, company, order #…" value="<%= filters.q %>">
-      <select name="status">
-        <option value="">All statuses</option>
-        <% ["pending","confirmed","dispatched","delivered","cancelled"].forEach(s => { %>
-          <option value="<%= s %>" <%= filters.status === s ? 'selected' : '' %>><%= s.charAt(0).toUpperCase() + s.slice(1) %></option>
-        <% }) %>
-      </select>
-      <select name="source">
-        <option value="">All sources</option>
-        <option value="website" <%= filters.source === 'website' ? 'selected' : '' %>>Website</option>
-        <option value="email" <%= filters.source === 'email' ? 'selected' : '' %>>Email (manual)</option>
-      </select>
-      <button class="btn btn-outline btn-sm" type="submit">Filter</button>
-      <a class="btn btn-sm" style="text-decoration:none;" href="/admin/orders/export.csv">Export to Excel (CSV)</a>
-    </form>
+    <h3 style="margin:24px 0 8px;">Revenue</h3>
+    <div class="stat-row">
+      <div class="stat-card"><span class="num">€<%= (stats.confirmed_value || 0).toFixed(2) %></span><span class="label">Total Confirmed Value</span></div>
+      <div class="stat-card"><span class="num">€<%= (stats.delivered_value || 0).toFixed(2) %></span><span class="label">Total Delivered Value</span></div>
+      <div class="stat-card"><span class="num">€<%= (stats.revenue_this_month || 0).toFixed(2) %></span><span class="label">Overall Revenue This Month</span></div>
+      <div class="stat-card"><span class="num">€<%= (stats.pending_revenue || 0).toFixed(2) %></span><span class="label">Pending Revenue</span></div>
+      <div class="stat-card"><span class="num">€<%= (stats.cancelled_value || 0).toFixed(2) %></span><span class="label">Cancelled Value</span></div>
+    </div>
 
-    <div class="data-table-wrap">
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>Order #</th>
-            <th>Date</th>
-            <th>Client</th>
-            <th>Company</th>
-            <th>Email</th>
-            <th>Phone</th>
-            <th>City</th>
-            <th>Source</th>
-            <th>Status</th>
-            <th>Total</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% if (orders.length === 0) { %>
-            <tr><td colspan="10" style="text-align:center; color:#8a8f90;">No orders match these filters.</td></tr>
-          <% } %>
-          <% orders.forEach(o => { %>
-            <tr>
-              <td><a class="order-link" href="/admin/orders/<%= o.id %>"><%= o.order_number %></a></td>
-              <td><%= o.created_at %></td>
-              <td><%= o.client_name %></td>
-              <td><%= o.client_company || '—' %></td>
-              <td><%= o.client_email || '—' %></td>
-              <td><%= o.client_phone || '—' %></td>
-              <td><%= o.client_city || '—' %></td>
-              <td><span class="badge badge-<%= o.source %>"><%= o.source %></span></td>
-              <td><span class="badge badge-<%= o.status %>"><%= o.status %></span></td>
-              <td>€<%= o.total.toFixed(2) %></td>
-            </tr>
-          <% }) %>
-        </tbody>
-      </table>
+    <div class="admin-card">
+      <h3>Quick Links</h3>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <a class="btn btn-sm" style="text-decoration:none;" href="/admin/orders">All Orders</a>
+        <a class="btn btn-sm" style="text-decoration:none;" href="/admin/orders?status=approval_needed">Approval Needed</a>
+        <a class="btn btn-sm" style="text-decoration:none;" href="/admin/orders?status=pending">Pending</a>
+        <a class="btn btn-sm" style="text-decoration:none;" href="/admin/invoices">Invoices</a>
+        <a class="btn btn-sm" style="text-decoration:none;" href="/admin/reports">Reports</a>
+      </div>
     </div>
   </div>
 </div>

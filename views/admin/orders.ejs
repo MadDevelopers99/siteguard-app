@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Orders — SiteGuard Admin</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="admin-shell">
+  <%- include('../partials/admin-sidebar', { active: 'orders' }) %>
+
+  <div class="admin-main">
+    <div class="admin-topline">
+      <h1>Orders</h1>
+      <form class="logout-form" method="POST" action="/admin/logout">
+        <button type="submit">Log out (<%= adminName %>)</button>
+      </form>
+    </div>
+
+    <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:10px;">
+      <a class="btn btn-sm" style="text-decoration:none;" href="/admin/orders/new/form?source=website">+ New Website Order</a>
+      <a class="btn btn-sm" style="text-decoration:none;" href="/admin/orders/new/form?source=email">+ New Email Order</a>
+      <a class="btn btn-sm" style="text-decoration:none;" href="/admin/orders/new/form?source=manual">+ New Manual Order</a>
+    </div>
+
+    <div class="category-tabs">
+      <a class="<%= !filters.status && !filters.source ? 'active' : '' %>" href="/admin/orders">All</a>
+      <a class="<%= filters.source === 'website' ? 'active' : '' %>" href="/admin/orders?source=website">From Website</a>
+      <a class="<%= filters.source === 'email' ? 'active' : '' %>" href="/admin/orders?source=email">From Email</a>
+      <a class="<%= filters.source === 'manual' ? 'active' : '' %>" href="/admin/orders?source=manual">From Manual</a>
+      <% ORDER_STATUS_OPTIONS.forEach(s => { %>
+        <a class="<%= filters.status === s.value ? 'active' : '' %>" href="/admin/orders?status=<%= s.value %>"><%= s.label %></a>
+      <% }) %>
+    </div>
+
+    <form class="filter-bar" method="GET" action="/admin/orders">
+      <input type="text" name="q" placeholder="Order #, client, company, email, phone…" value="<%= filters.q %>">
+      <select name="status">
+        <option value="">All statuses</option>
+        <% ORDER_STATUS_OPTIONS.forEach(s => { %>
+          <option value="<%= s.value %>" <%= filters.status === s.value ? 'selected' : '' %>><%= s.label %></option>
+        <% }) %>
+      </select>
+      <select name="source">
+        <option value="">All sources</option>
+        <% ORDER_SOURCE_OPTIONS.forEach(s => { %>
+          <option value="<%= s %>" <%= filters.source === s ? 'selected' : '' %>><%= s.charAt(0).toUpperCase() + s.slice(1) %></option>
+        <% }) %>
+      </select>
+      <input type="text" name="city" placeholder="City" value="<%= filters.city %>">
+      <select name="service_type">
+        <option value="">All service types</option>
+        <% REQUEST_TYPES.forEach(t => { %>
+          <option value="<%= t %>" <%= filters.service_type === t ? 'selected' : '' %>><%= t %></option>
+        <% }) %>
+      </select>
+      <select name="payment_status">
+        <option value="">All payment status</option>
+        <% ORDER_PAYMENT_STATUS_OPTIONS.forEach(p => { %>
+          <option value="<%= p %>" <%= filters.payment_status === p ? 'selected' : '' %>><%= p %></option>
+        <% }) %>
+      </select>
+      <select name="ma_status">
+        <option value="">All MA status</option>
+        <% MAIN_ADMIN_STATUSES.forEach(m => { %>
+          <option value="<%= m %>" <%= filters.ma_status === m ? 'selected' : '' %>><%= m %></option>
+        <% }) %>
+      </select>
+      <label style="font-size:12px; color:var(--steel); display:flex; align-items:center; gap:4px;">From
+        <input type="date" name="date_from" value="<%= filters.date_from %>">
+      </label>
+      <label style="font-size:12px; color:var(--steel); display:flex; align-items:center; gap:4px;">To
+        <input type="date" name="date_to" value="<%= filters.date_to %>">
+      </label>
+      <button class="btn btn-sm" type="submit">Filter</button>
+      <a class="btn btn-sm" style="text-decoration:none;" href="/admin/orders">Reset Filters</a>
+      <a class="btn btn-sm" style="text-decoration:none;" href="/admin/orders/export.csv?<%= new URLSearchParams(filters).toString() %>">Export CSV</a>
+      <a class="btn btn-sm" style="text-decoration:none;" href="/admin/orders/export.xlsx?<%= new URLSearchParams(filters).toString() %>">Export Excel</a>
+    </form>
+
+    <div class="data-table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Order #</th><th>Date</th><th>Source</th><th>Client</th><th>Company</th><th>City</th>
+            <th>Service Type</th><th>Start Date</th><th>End Date</th><th>Zone Length</th><th>Price</th>
+            <th>Payment</th><th>Status</th><th>MA Status</th><th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (orders.length === 0) { %>
+            <tr><td colspan="15" style="text-align:center; color:#8a8f90;">No orders match these filters.</td></tr>
+          <% } %>
+          <% orders.forEach(o => { %>
+            <tr>
+              <td><a class="order-link" href="/admin/orders/<%= o.id %>"><%= o.order_number %></a></td>
+              <td><%= o.created_at %></td>
+              <td><span class="badge badge-<%= o.source %>"><%= o.source %></span></td>
+              <td><%= o.client_name %></td>
+              <td><%= o.client_company || '—' %></td>
+              <td><%= o.display_city || '—' %></td>
+              <td><%= o.service_type || '—' %></td>
+              <td><%= o.start_date || o.needed_by || '—' %></td>
+              <td><%= o.end_date || '—' %></td>
+              <td><%= o.zone_length_m ? o.zone_length_m + ' m' : '—' %></td>
+              <td>€<%= o.effective_total.toFixed(2) %></td>
+              <td><span class="badge badge-<%= (o.payment_status || 'Unpaid').toLowerCase() %>"><%= o.payment_status || 'Unpaid' %></span></td>
+              <td><span class="badge badge-<%= o.status %>"><%= orderStatusLabel(o.status) %></span></td>
+              <td><span class="badge badge-<%= statusBadgeClass(o.main_admin_status) %>"><%= o.main_admin_status %></span></td>
+              <td>
+                <details class="action-menu">
+                  <summary>Actions ▾</summary>
+                  <div class="action-menu-list">
+                    <a href="/admin/orders/<%= o.id %>">View Order</a>
+                    <a href="<%= o.request_id ? '/admin/requests/' + o.request_id : '/admin/orders/' + o.id + '/edit' %>">Edit Order</a>
+                    <form method="POST" action="/admin/orders/<%= o.id %>/confirm"><button type="submit">Confirm Order</button></form>
+                    <form method="POST" action="/admin/orders/<%= o.id %>/send-to-ma"><button type="submit">Send to MA</button></form>
+                    <form method="POST" action="/admin/orders/<%= o.id %>/mark-delivered"><button type="submit">Mark Delivered</button></form>
+                    <a href="/admin/orders/<%= o.id %>#return">Return / Correction</a>
+                    <form method="POST" action="/admin/orders/<%= o.id %>/cancel" onsubmit="return confirm('Cancel this order?');"><button type="submit" class="danger">Cancel Order</button></form>
+                    <a href="/admin/orders/<%= o.id %>/pdf">Download PDF</a>
+                  </div>
+                </details>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+</body>
+</html>

@@ -423,6 +423,24 @@ const SG_COMPANY = {
   phone: "+49 89 1234567"
 };
 
+// ---------- Office Admin order dashboard ----------
+
+const ORDER_STATUS_OPTIONS = [
+  { value: "pending", label: "Pending" },
+  { value: "approval_needed", label: "Approval Needed" },
+  { value: "confirmed", label: "Confirmed" },
+  { value: "dispatched", label: "Dispatched to MA" },
+  { value: "returned_from_ma", label: "Returned from MA" },
+  { value: "delivered", label: "Delivered / Completed" },
+  { value: "cancelled", label: "Cancelled" }
+];
+
+const ORDER_SOURCE_OPTIONS = ["website", "email", "manual"];
+
+const ORDER_PAYMENT_STATUS_OPTIONS = ["Unpaid", "Paid", "Invoice"];
+
+const ADMIN_ROLE_OPTIONS = ["office_admin", "main_admin"];
+
 module.exports = {
   REQUEST_TYPES,
   URGENCY_OPTIONS,
@@ -472,5 +490,9 @@ module.exports = {
   ISSUE_TYPE_OPTIONS,
   PHOTO_CATEGORY_OPTIONS,
   DIGITIZATION_OBJECT_TYPES,
-  SG_COMPANY
+  SG_COMPANY,
+  ORDER_STATUS_OPTIONS,
+  ORDER_SOURCE_OPTIONS,
+  ORDER_PAYMENT_STATUS_OPTIONS,
+  ADMIN_ROLE_OPTIONS
 };

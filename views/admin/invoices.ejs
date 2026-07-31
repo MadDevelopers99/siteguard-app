@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Invoices — SiteGuard Admin</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="admin-shell">
+  <%- include('../partials/admin-sidebar', { active: 'invoices' }) %>
+
+  <div class="admin-main">
+    <div class="admin-topline">
+      <h1>Invoices</h1>
+      <form class="logout-form" method="POST" action="/admin/logout">
+        <button type="submit">Log out (<%= adminName %>)</button>
+      </form>
+    </div>
+
+    <p style="color:var(--steel); margin:-14px 0 20px; font-size:14px;">
+      Confirmed and delivered orders — track payment status and download an invoice PDF.
+    </p>
+
+    <form class="filter-bar" method="GET" action="/admin/invoices">
+      <input type="text" name="q" placeholder="Order #, client, company…" value="<%= filters.q %>">
+      <select name="payment_status">
+        <option value="">All payment status</option>
+        <% ORDER_PAYMENT_STATUS_OPTIONS.forEach(p => { %>
+          <option value="<%= p %>" <%= filters.payment_status === p ? 'selected' : '' %>><%= p %></option>
+        <% }) %>
+      </select>
+      <button class="btn btn-sm" type="submit">Filter</button>
+      <a class="btn btn-sm" style="text-decoration:none;" href="/admin/invoices">Reset Filters</a>
+    </form>
+
+    <div class="data-table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr><th>Order #</th><th>Date</th><th>Client</th><th>Company</th><th>Status</th><th>Price</th><th>Payment</th><th>Action</th></tr>
+        </thead>
+        <tbody>
+          <% if (orders.length === 0) { %>
+            <tr><td colspan="8" style="text-align:center; color:#8a8f90;">No invoices match these filters.</td></tr>
+          <% } %>
+          <% orders.forEach(o => { %>
+            <tr>
+              <td><a class="order-link" href="/admin/orders/<%= o.id %>"><%= o.order_number %></a></td>
+              <td><%= o.created_at %></td>
+              <td><%= o.client_name %></td>
+              <td><%= o.client_company || '—' %></td>
+              <td><span class="badge badge-<%= o.status %>"><%= o.status %></span></td>
+              <td>€<%= o.effective_total.toFixed(2) %></td>
+              <td>
+                <form method="POST" action="/admin/orders/<%= o.id %>/payment-status" style="display:inline;">
+                  <select name="payment_status" onchange="this.form.submit()">
+                    <% ORDER_PAYMENT_STATUS_OPTIONS.forEach(p => { %>
+                      <option value="<%= p %>" <%= (o.payment_status || 'Unpaid') === p ? 'selected' : '' %>><%= p %></option>
+                    <% }) %>
+                  </select>
+                </form>
+              </td>
+              <td><a class="btn btn-outline btn-sm" style="text-decoration:none;" href="/admin/orders/<%= o.id %>/pdf">Download PDF</a></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+</body>
+</html>
