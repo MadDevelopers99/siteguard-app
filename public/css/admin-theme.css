@@ -1,0 +1,139 @@
+/* ---------- Office Admin v2 theme ----------
+   Modern ERP/CRM look (piloted on Office Admin only, per client's sample
+   mockup). Scoped entirely under .office-admin-v2 so it can never leak into
+   Main Admin, the Driver app, or the public site, which keep the original
+   SiteGuard charcoal/amber look. Loaded after style.css so these rules win. */
+
+.office-admin-v2 {
+  --oa-bg: #f5f7fb;
+  --oa-panel: #ffffff;
+  --oa-panel-2: #eef3f8;
+  --oa-text: #172033;
+  --oa-muted: #6b7280;
+  --oa-brand: #2563eb;
+  --oa-brand-dark: #1d4ed8;
+  --oa-success: #16a34a;
+  --oa-warning: #d97706;
+  --oa-danger: #dc2626;
+  --oa-border: #dbe2ea;
+  --oa-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+  --oa-radius: 16px;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+}
+
+.office-admin-v2.admin-shell { background: var(--oa-bg); }
+
+/* ---------- Sidebar ---------- */
+.office-admin-v2 .admin-sidebar {
+  background: #0f172a; width: 260px; padding: 20px 12px;
+}
+.office-admin-v2 .admin-sidebar .brand {
+  padding: 8px 10px 22px; font-family: inherit; font-size: 17px; font-weight: 700;
+  display: flex; align-items: center; gap: 10px;
+}
+.office-admin-v2 .admin-sidebar .brand .mark {
+  width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(135deg, #3b82f6, #22c55e);
+  display: flex; align-items: center; justify-content: center; font-weight: 800; transform: none;
+}
+.office-admin-v2 .admin-sidebar a,
+.office-admin-v2 .admin-sidebar .nav-parent-btn {
+  border-radius: 10px; border-left: none; margin: 2px 0; font-family: inherit; color: #cbd5e1;
+}
+.office-admin-v2 .admin-sidebar a:hover,
+.office-admin-v2 .admin-sidebar a.active,
+.office-admin-v2 .admin-sidebar .nav-parent-btn:hover {
+  background: #1e293b; color: #fff;
+}
+.office-admin-v2 .admin-sidebar .nav-children { background: rgba(0, 0, 0, 0.18); border-radius: 10px; margin: 2px 0; }
+.office-admin-v2 .admin-sidebar .nav-children a { padding-left: 36px; border-radius: 10px; }
+
+/* ---------- Main content ---------- */
+.office-admin-v2 .admin-main { background: var(--oa-bg); color: var(--oa-text); }
+.office-admin-v2 .admin-topline {
+  background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(8px); border: 1px solid var(--oa-border);
+  border-radius: var(--oa-radius); padding: 18px 24px; margin-bottom: 24px; box-shadow: var(--oa-shadow);
+}
+.office-admin-v2 .admin-topline h1 { font-family: inherit; font-size: 26px; font-weight: 800; color: var(--oa-text); }
+.office-admin-v2 .logout-form button {
+  border: 1px solid var(--oa-border); border-radius: 10px; background: #fff; color: var(--oa-text);
+}
+
+/* ---------- Stat cards ---------- */
+.office-admin-v2 .stat-card {
+  border: 1px solid var(--oa-border); border-radius: var(--oa-radius); box-shadow: var(--oa-shadow); padding: 18px 20px;
+}
+.office-admin-v2 .stat-card .num { font-family: inherit; font-size: 28px; font-weight: 800; color: var(--oa-text); }
+.office-admin-v2 .stat-card .label { color: var(--oa-muted); text-transform: none; letter-spacing: 0; font-size: 13px; }
+
+/* ---------- Cards ---------- */
+.office-admin-v2 .admin-card {
+  border: 1px solid var(--oa-border); border-radius: var(--oa-radius); box-shadow: var(--oa-shadow);
+}
+.office-admin-v2 .admin-card h3 { font-family: inherit; font-size: 18px; font-weight: 700; color: var(--oa-text); }
+
+/* ---------- Filters / category pills ---------- */
+.office-admin-v2 .filter-bar select,
+.office-admin-v2 .filter-bar input,
+.office-admin-v2 .form-group input,
+.office-admin-v2 .form-group select,
+.office-admin-v2 .form-group textarea {
+  border: 1px solid var(--oa-border); border-radius: 10px; font-family: inherit; background: #fff;
+}
+.office-admin-v2 .form-group label { text-transform: none; letter-spacing: 0; color: var(--oa-muted); font-weight: 500; }
+.office-admin-v2 .category-tabs button,
+.office-admin-v2 .category-tabs a {
+  border-radius: 999px; border: 1px solid var(--oa-border); font-family: inherit; color: var(--oa-muted);
+}
+.office-admin-v2 .category-tabs button.active,
+.office-admin-v2 .category-tabs a.active {
+  background: var(--oa-brand); color: #fff; border-color: var(--oa-brand);
+}
+
+/* ---------- Tables ---------- */
+.office-admin-v2 .data-table-wrap { border: 1px solid var(--oa-border); border-radius: var(--oa-radius); box-shadow: var(--oa-shadow); }
+.office-admin-v2 table.data-table { font-family: inherit; }
+.office-admin-v2 table.data-table th {
+  background: var(--oa-panel-2); color: var(--oa-muted); border-bottom: 1px solid var(--oa-border);
+  font-size: 11px; letter-spacing: 0.06em;
+}
+.office-admin-v2 table.data-table td { border-bottom: 1px solid var(--oa-border); color: var(--oa-text); }
+.office-admin-v2 table.data-table tr:hover td { background: #f8fafc; }
+.office-admin-v2 .order-link { font-family: inherit; color: var(--oa-brand); }
+.office-admin-v2 .order-link:hover { color: var(--oa-brand-dark); }
+
+/* ---------- Badges ---------- */
+.office-admin-v2 .badge { border-radius: 999px; font-weight: 700; letter-spacing: 0.02em; }
+.office-admin-v2 .badge-confirmed,
+.office-admin-v2 .badge-invoice { background: #dbeafe; color: #1d4ed8; }
+.office-admin-v2 .badge-pending,
+.office-admin-v2 .badge-approval_needed,
+.office-admin-v2 .badge-unpaid { background: #ffedd5; color: #9a3412; }
+.office-admin-v2 .badge-dispatched { background: #ede9fe; color: #6d28d9; }
+.office-admin-v2 .badge-delivered,
+.office-admin-v2 .badge-paid { background: #dcfce7; color: #166534; }
+.office-admin-v2 .badge-cancelled,
+.office-admin-v2 .badge-returned_from_ma { background: #fee2e2; color: #991b1b; }
+.office-admin-v2 .badge-website,
+.office-admin-v2 .badge-manual { background: #e5e7eb; color: #374151; }
+.office-admin-v2 .badge-email { background: #ffedd5; color: #9a3412; }
+
+/* ---------- Buttons ---------- */
+.office-admin-v2 .btn {
+  font-family: inherit; border-radius: 10px; border: 1px solid var(--oa-brand);
+  background: var(--oa-brand); color: #fff; backdrop-filter: none; box-shadow: none;
+}
+.office-admin-v2 .btn:hover { background: var(--oa-brand-dark); box-shadow: none; }
+.office-admin-v2 .btn-outline {
+  background: #fff; border: 1px solid var(--oa-border); color: var(--oa-text); backdrop-filter: none; box-shadow: none;
+}
+.office-admin-v2 .btn-outline:hover { background: var(--oa-panel-2); }
+.office-admin-v2 .btn-danger { background: var(--oa-danger); border-color: var(--oa-danger); backdrop-filter: none; }
+.office-admin-v2 .btn-danger:hover { background: #b91c1c; }
+
+/* ---------- Action dropdown (Orders list) ---------- */
+.office-admin-v2 .action-menu summary { border-radius: 10px; border-color: var(--oa-border); }
+.office-admin-v2 .action-menu-list { border-radius: 12px; border-color: var(--oa-border); box-shadow: var(--oa-shadow); }
+
+/* ---------- Toggle-style buttons (client/type toggles reused from price calc pattern, if any) ---------- */
+.office-admin-v2 .pc-toggle-btn.active,
+.office-admin-v2 .pc-type-btn.active { background: var(--oa-brand); }
