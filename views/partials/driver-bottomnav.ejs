@@ -21,3 +21,47 @@
     <span class="icon">&#128100;</span><span>Profile</span>
   </a>
 </nav>
+
+<% if (typeof TRACCAR_SERVER_URL !== 'undefined' && TRACCAR_SERVER_URL) { %>
+<script>
+  // Background GPS reporting to a self-hosted Traccar server (optional —
+  // only runs when TRACCAR_SERVER_URL is configured in .env). Uses Traccar's
+  // OsmAnd protocol (plain HTTP GET, no auth) so the driver's device ID here
+  // must be pre-registered on the Traccar server, or the server must have
+  // "Allow auto registration" enabled. Silently no-ops on any failure —
+  // tracking is a nice-to-have, it must never break the driver app.
+  (function () {
+    if (!navigator.geolocation) return;
+    const TRACCAR_URL = <%- JSON.stringify(TRACCAR_SERVER_URL) %>;
+    const DEVICE_ID = "driver-<%= driverId %>";
+    const MIN_INTERVAL_MS = 25000;
+    let lastSent = 0;
+
+    function report(pos) {
+      const now = Date.now();
+      if (now - lastSent < MIN_INTERVAL_MS) return;
+      lastSent = now;
+
+      const params = new URLSearchParams({
+        id: DEVICE_ID,
+        lat: pos.coords.latitude,
+        lon: pos.coords.longitude,
+        timestamp: Math.floor(pos.timestamp / 1000),
+        accuracy: pos.coords.accuracy || "",
+        speed: pos.coords.speed || "",
+        bearing: pos.coords.heading || ""
+      });
+
+      fetch(`${TRACCAR_URL}/?${params.toString()}`).catch(() => {
+        // Server unreachable / not configured yet — ignore, try again next tick.
+      });
+    }
+
+    navigator.geolocation.watchPosition(report, () => {}, {
+      enableHighAccuracy: true,
+      maximumAge: 10000,
+      timeout: 15000
+    });
+  })();
+</script>
+<% } %>

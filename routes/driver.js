@@ -32,6 +32,15 @@ router.post("/logout", (req, res) => {
 
 router.use(requireDriver);
 
+// Exposed to every driver view (incl. the shared bottom-nav partial) without
+// each route needing to pass them explicitly — used for background GPS
+// reporting to an optional self-hosted Traccar server (see .env.example).
+router.use((req, res, next) => {
+  res.locals.driverId = req.session.driverId;
+  res.locals.TRACCAR_SERVER_URL = process.env.TRACCAR_SERVER_URL || "";
+  next();
+});
+
 // Old single-page panel URLs — keep working for anyone with a stale link/bookmark.
 router.get("/jobs", (req, res) => res.redirect(301, "/driver/tasks"));
 router.get("/jobs/:id", (req, res) => res.redirect(301, `/driver/tasks/${req.params.id}`));

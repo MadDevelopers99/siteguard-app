@@ -550,6 +550,16 @@ router.get("/completed", (req, res) => {
   res.render("main-admin/completed", { orders, statusBadgeClass, mainAdminName: req.session.mainAdminName });
 });
 
+// ---------- Live Map (Traccar GPS tracking, optional) ----------
+router.get("/live-map", (req, res) => {
+  const drivers = db.prepare("SELECT id, name FROM drivers ORDER BY name").all();
+  res.render("main-admin/live-map", {
+    drivers,
+    TRACCAR_WEB_URL: process.env.TRACCAR_WEB_URL || "",
+    mainAdminName: req.session.mainAdminName
+  });
+});
+
 // ---------- Reports ----------
 router.get("/reports", (req, res) => {
   const byStatus = db
