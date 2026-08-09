@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Projects — SiteGuard Time Tracking</title>
+<link rel="stylesheet" href="/css/style.css">
+<link rel="stylesheet" href="/css/admin-theme.css">
+</head>
+<body>
+<div class="admin-shell sg-admin-v2">
+  <%- include('../partials/time-sidebar', { active: 'projects', userName: userName }) %>
+
+  <div class="admin-main">
+    <div class="admin-topline">
+      <h1>Projects</h1>
+      <a class="btn btn-sm" style="text-decoration:none;" href="/time/projects/new">+ New Project</a>
+    </div>
+
+    <p style="color:var(--steel); margin:-14px 0 20px; font-size:14px;">
+      Ongoing customer projects that staff log time against. Separate from the one-off Orders/Requests pipeline.
+    </p>
+
+    <form class="filter-bar" method="GET" action="/time/projects">
+      <input type="text" name="q" placeholder="Search project name…" value="<%= filters.q %>">
+      <select name="client_id">
+        <option value="">All customers</option>
+        <% clients.forEach(c => { %>
+          <option value="<%= c.id %>" <%= String(filters.client_id) === String(c.id) ? 'selected' : '' %>><%= c.name %></option>
+        <% }) %>
+      </select>
+      <select name="status">
+        <option value="">All statuses</option>
+        <% PROJECT_STATUS_OPTIONS.forEach(s => { %>
+          <option value="<%= s %>" <%= filters.status === s ? 'selected' : '' %>><%= s %></option>
+        <% }) %>
+      </select>
+      <button class="btn btn-outline btn-sm" type="submit">Filter</button>
+    </form>
+
+    <div class="data-table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Project</th><th>Customer</th><th>Status</th><th>Budget (h)</th><th>Logged (h)</th><th>Rate</th><th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (projects.length === 0) { %>
+            <tr><td colspan="7" style="text-align:center; color:#8a8f90;">No projects match these filters.</td></tr>
+          <% } %>
+          <% projects.forEach(p => { %>
+            <tr>
+              <td><a class="order-link" href="/time/projects/<%= p.id %>"><%= p.name %></a></td>
+              <td><%= p.client_name %><%= p.client_company ? ' — ' + p.client_company : '' %></td>
+              <td><span class="badge badge-<%= p.status === 'Active' ? 'confirmed' : p.status === 'Completed' ? 'delivered' : p.status === 'Cancelled' ? 'cancelled' : 'pending' %>"><%= p.status %></span></td>
+              <td><%= p.budget_hours != null ? p.budget_hours : '—' %></td>
+              <td><%= (p.minutes_logged / 60).toFixed(1) %></td>
+              <td><%= p.hourly_rate != null ? '€' + p.hourly_rate.toFixed(2) : '—' %></td>
+              <td style="display:flex; gap:6px;">
+                <a class="btn btn-outline btn-sm" style="text-decoration:none;" href="/time/projects/<%= p.id %>">View</a>
+                <a class="btn btn-outline btn-sm" style="text-decoration:none;" href="/time/projects/<%= p.id %>/edit">Edit</a>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+</body>
+</html>

@@ -27,4 +27,13 @@ function requireAnyRole(req, res, next) {
   return res.redirect("/admin/login");
 }
 
-module.exports = { requireAdmin, requireMainAdmin, requireDriver, requireAnyRole };
+// Time Tracking portal has its own standalone account system, independent
+// of the Admin/Main Admin/Driver sessions above.
+function requireTimeUser(req, res, next) {
+  if (req.session && req.session.timeUserId) {
+    return next();
+  }
+  return res.redirect("/time/login");
+}
+
+module.exports = { requireAdmin, requireMainAdmin, requireDriver, requireAnyRole, requireTimeUser };

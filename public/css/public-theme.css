@@ -1,0 +1,81 @@
+/* ---------- SiteGuard Public Site v2 theme ----------
+   Same modern ERP/CRM look as admin-theme.css / driver-theme.css, applied
+   to the public catalog homepage and the Price Calculator page. Scoped
+   under .public-v2 so it can't affect any admin panel or the driver app.
+   Loaded after style.css. */
+
+.public-v2 {
+  --pv-bg: #f5f7fb;
+  --pv-panel: #ffffff;
+  --pv-text: #172033;
+  --pv-muted: #6b7280;
+  --pv-brand: #2563eb;
+  --pv-brand-dark: #1d4ed8;
+  --pv-success: #16a34a;
+  --pv-danger: #dc2626;
+  --pv-border: #dbe2ea;
+  --pv-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+  --pv-radius: 16px;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+  background: var(--pv-bg);
+}
+
+.public-v2 .topbar, .public-v2 .pc-hero, .public-v2 .hero { background: #0f172a; }
+.public-v2 .brand .mark, .public-v2 .pc-brand .mark {
+  background: linear-gradient(135deg, #3b82f6, #22c55e); color: #fff; transform: none; border-radius: 10px;
+}
+.public-v2 .pc-nav a:hover, .public-v2 .topbar nav a:hover { color: #60a5fa; }
+.public-v2 .eyebrow, .public-v2 .pc-badge { border-color: #60a5fa; color: #60a5fa; }
+
+/* ---------- Catalog ---------- */
+.public-v2 .category-tabs button {
+  border-radius: 999px; border: 1px solid var(--pv-border); color: var(--pv-muted); font-family: inherit;
+}
+.public-v2 .category-tabs button.active { background: var(--pv-brand); color: #fff; border-color: var(--pv-brand); }
+.public-v2 .item-card {
+  border: 1px solid var(--pv-border); border-radius: var(--pv-radius); box-shadow: var(--pv-shadow); background: #fff;
+}
+.public-v2 .item-price { color: var(--pv-brand); }
+.public-v2 .cart-fab { background: var(--pv-brand); border-color: #60a5fa; }
+.public-v2 .cart-fab .count { background: #fff; color: var(--pv-brand); }
+.public-v2 .drawer-header { background: #0f172a; }
+.public-v2 .search-box input, .public-v2 .qty-input { border: 1px solid var(--pv-border); border-radius: 10px; }
+
+/* ---------- Price Calculator ---------- */
+.public-v2 .pc-card, .public-v2 .pc-result-card, .public-v2 .pc-info-card {
+  border: 1px solid var(--pv-border); border-radius: var(--pv-radius); box-shadow: var(--pv-shadow); background: #fff;
+}
+.public-v2 .pc-info-alt { background: var(--pv-bg); }
+.public-v2 .pc-address-block { border: 1px solid var(--pv-border); border-radius: var(--pv-radius); }
+.public-v2 .pc-section-label { color: var(--pv-muted); }
+.public-v2 .pc-stepper-num { background: var(--pv-bg); color: var(--pv-muted); border-radius: 50%; }
+.public-v2 .pc-stepper-item.active .pc-stepper-num { background: var(--pv-brand); color: #fff; }
+.public-v2 .pc-stepper-item.done .pc-stepper-num { background: var(--pv-success); color: #fff; }
+.public-v2 .pc-map-tool, .public-v2 .pc-map-tool-action {
+  border-radius: 10px; border: 1px solid var(--pv-border); font-family: inherit;
+}
+.public-v2 .pc-map-tool.active { background: var(--pv-brand); color: #fff; border-color: var(--pv-brand); }
+.public-v2 .pc-toggle-btn, .public-v2 .pc-type-btn {
+  border-radius: 999px; border: 1px solid var(--pv-border); font-family: inherit;
+}
+.public-v2 .pc-toggle-btn.active, .public-v2 .pc-type-btn.active { background: var(--pv-brand); color: #fff; border-color: var(--pv-brand); }
+.public-v2 .pc-payment-option { border-radius: 10px; border: 1px solid var(--pv-border); }
+.public-v2 .pc-breakdown-grand, .public-v2 .pc-price { color: var(--pv-success); }
+.public-v2 .pc-combined-total { background: #0f172a; }
+.public-v2 .pc-form-grid input, .public-v2 .pc-form-grid select, .public-v2 .pc-form-grid textarea,
+.public-v2 .form-group input, .public-v2 .form-group select, .public-v2 .form-group textarea {
+  border: 1px solid var(--pv-border); border-radius: 10px; font-family: inherit;
+}
+
+/* ---------- Buttons ---------- */
+.public-v2 .btn {
+  font-family: inherit; border-radius: 10px; border: 1px solid var(--pv-brand);
+  background: var(--pv-brand); color: #fff; backdrop-filter: none; box-shadow: none;
+}
+.public-v2 .btn:hover { background: var(--pv-brand-dark); }
+.public-v2 .btn-outline {
+  background: transparent; border: 1px solid rgba(255,255,255,0.4); color: #fff; backdrop-filter: none; box-shadow: none;
+}
+.public-v2 .pc-card .btn-outline, .public-v2 .item-card .btn-outline {
+  border-color: var(--pv-border); color: var(--pv-text);
+}

@@ -708,6 +708,60 @@ function ensureColumn(table, column, definition) {
 
 [["gps_location", "TEXT"]].forEach(([column, definition]) => ensureColumn("documents", column, definition));
 
+// ---------- Time Tracking portal (standalone, own accounts) ----------
+// This is a fully separate portal (own login at /time/login, own account
+// table) from the Admin/Main Admin/Driver systems — not gated by any of
+// their sessions. Project is deliberately separate from requests/orders:
+// it's an ongoing bucket under a Customer (clients) that time accumulates
+// against over weeks, unlike the one-off single-visit Auftrag pipeline.
+db.exec(`
+CREATE TABLE IF NOT EXISTS time_users (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  email TEXT UNIQUE NOT NULL,
+  password_hash TEXT NOT NULL,
+  name TEXT NOT NULL,
+  created_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS projects (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  client_id INTEGER NOT NULL REFERENCES clients(id),
+  name TEXT NOT NULL,
+  description TEXT,
+  status TEXT DEFAULT 'Active',
+  budget_hours REAL,
+  hourly_rate REAL,
+  created_at TEXT DEFAULT (datetime('now')),
+  updated_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS services (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  is_active INTEGER DEFAULT 1,
+  created_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS time_entries (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  time_user_id INTEGER NOT NULL REFERENCES time_users(id),
+  project_id INTEGER NOT NULL REFERENCES projects(id),
+  service_id INTEGER REFERENCES services(id),
+  description TEXT,
+  date TEXT NOT NULL,
+  start_time TEXT NOT NULL,
+  end_time TEXT,
+  duration_minutes INTEGER,
+  is_manual INTEGER DEFAULT 0,
+  created_at TEXT DEFAULT (datetime('now')),
+  updated_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_projects_client ON projects(client_id);
+CREATE INDEX IF NOT EXISTS idx_time_entries_user ON time_entries(time_user_id);
+CREATE INDEX IF NOT EXISTS idx_time_entries_project ON time_entries(project_id);
+`);
+
 // ---------- Main Admin account seed ----------
 // Idempotent, same pattern as the inventory catalog seed below: creates a second
 // admin role ("main_admin") on first boot if one doesn't already exist.

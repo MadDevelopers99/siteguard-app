@@ -1,0 +1,12 @@
+<div class="admin-sidebar">
+  <div class="brand"><span class="mark">TT</span> Time Tracking</div>
+
+  <a href="/time" class="<%= active === 'dashboard' ? 'active' : '' %>">My Time</a>
+  <a href="/time/projects" class="<%= active === 'projects' ? 'active' : '' %>">Projects</a>
+  <a href="/time/services" class="<%= active === 'services' ? 'active' : '' %>">Services</a>
+
+  <a href="/" target="_blank">View Site ↗</a>
+  <form method="POST" action="/time/logout" style="padding: 12px 24px; margin:0;">
+    <button type="submit" class="btn btn-outline btn-sm" style="width:100%;">Log out (<%= userName %>)</button>
+  </form>
+</div>

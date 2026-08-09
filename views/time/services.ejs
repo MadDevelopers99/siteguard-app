@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Services — SiteGuard Time Tracking</title>
+<link rel="stylesheet" href="/css/style.css">
+<link rel="stylesheet" href="/css/admin-theme.css">
+</head>
+<body>
+<div class="admin-shell sg-admin-v2">
+  <%- include('../partials/time-sidebar', { active: 'services', userName: userName }) %>
+
+  <div class="admin-main">
+    <div class="admin-topline">
+      <h1>Services</h1>
+      <a href="/time/projects" style="text-decoration:none; font-size:14px;">&larr; Back to projects</a>
+    </div>
+
+    <p style="color:var(--steel); margin:-14px 0 20px; font-size:14px;">
+      The activity types staff can select when logging time (e.g. Development, Design, Meeting).
+    </p>
+
+    <div class="admin-card">
+      <h3>+ Add Service</h3>
+      <form method="POST" action="/time/services" style="display:flex; gap:10px;">
+        <input type="text" name="name" placeholder="Service name" required style="flex:1; padding:9px 10px; border:1px solid var(--concrete-2); border-radius:var(--radius);">
+        <button class="btn btn-sm" type="submit">Add</button>
+      </form>
+    </div>
+
+    <div class="data-table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr><th>Name</th><th>Status</th><th>Actions</th></tr>
+        </thead>
+        <tbody>
+          <% if (services.length === 0) { %>
+            <tr><td colspan="3" style="text-align:center; color:#8a8f90;">No services yet.</td></tr>
+          <% } %>
+          <% services.forEach(s => { %>
+            <tr>
+              <td><%= s.name %></td>
+              <td><span class="badge badge-<%= s.is_active ? 'active' : 'inactive' %>"><%= s.is_active ? 'Active' : 'Inactive' %></span></td>
+              <td>
+                <form method="POST" action="/time/services/<%= s.id %>/toggle" style="margin:0;">
+                  <button type="submit" class="btn btn-outline btn-sm"><%= s.is_active ? 'Deactivate' : 'Activate' %></button>
+                </form>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+</body>
+</html>

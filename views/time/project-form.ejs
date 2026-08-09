@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title><%= project ? 'Edit Project' : 'New Project' %> — SiteGuard Time Tracking</title>
+<link rel="stylesheet" href="/css/style.css">
+<link rel="stylesheet" href="/css/admin-theme.css">
+</head>
+<body>
+<div class="admin-shell sg-admin-v2">
+  <%- include('../partials/time-sidebar', { active: 'projects', userName: userName }) %>
+
+  <div class="admin-main">
+    <div class="admin-topline">
+      <h1><%= project && project.id ? 'Edit Project' : 'New Project' %></h1>
+      <a href="/time/projects" style="text-decoration:none; font-size:14px;">&larr; Back to projects</a>
+    </div>
+
+    <% if (typeof error !== 'undefined' && error) { %>
+      <div class="error-msg"><%= error %></div>
+    <% } %>
+
+    <form method="POST" action="<%= project && project.id ? '/time/projects/' + project.id : '/time/projects' %>">
+      <div class="admin-card">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Customer *</label>
+            <select name="client_id" required>
+              <option value="">— choose —</option>
+              <% clients.forEach(c => { %>
+                <option value="<%= c.id %>" <%= project && String(project.client_id) === String(c.id) ? 'selected' : '' %>><%= c.name %><%= c.company ? ' — ' + c.company : '' %></option>
+              <% }) %>
+            </select>
+          </div>
+          <div class="form-group"><label>Project Name *</label><input type="text" name="name" value="<%= project ? project.name : '' %>" required></div>
+          <div class="form-group">
+            <label>Status</label>
+            <select name="status">
+              <% PROJECT_STATUS_OPTIONS.forEach(s => { %>
+                <option value="<%= s %>" <%= project && project.status === s ? 'selected' : '' %>><%= s %></option>
+              <% }) %>
+            </select>
+          </div>
+          <div class="form-group"><label>Budget (hours)</label><input type="number" step="0.5" name="budget_hours" value="<%= project && project.budget_hours != null ? project.budget_hours : '' %>"></div>
+          <div class="form-group"><label>Hourly Rate (€)</label><input type="number" step="0.01" name="hourly_rate" value="<%= project && project.hourly_rate != null ? project.hourly_rate : '' %>"></div>
+        </div>
+        <div class="form-group full" style="margin-top:10px;">
+          <label>Description</label>
+          <textarea name="description" rows="3"><%= project ? (project.description || '') : '' %></textarea>
+        </div>
+      </div>
+
+      <button class="btn" type="submit" style="font-size:16px; padding:12px 24px;"><%= project && project.id ? 'Save Changes' : 'Create Project' %></button>
+    </form>
+  </div>
+</div>
+</body>
+</html>

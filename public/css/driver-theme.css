@@ -1,0 +1,90 @@
+/* ---------- SiteGuard Driver App v2 theme ----------
+   Same modern ERP/CRM look as admin-theme.css, translated to the Driver
+   app's mobile single-column layout. Scoped under .driver-v2 so it can't
+   affect Office/Main Admin or the public site. Loaded after style.css. */
+
+.driver-v2 {
+  --dv-bg: #f5f7fb;
+  --dv-panel: #ffffff;
+  --dv-text: #172033;
+  --dv-muted: #6b7280;
+  --dv-brand: #2563eb;
+  --dv-brand-dark: #1d4ed8;
+  --dv-success: #16a34a;
+  --dv-warning: #d97706;
+  --dv-danger: #dc2626;
+  --dv-border: #dbe2ea;
+  --dv-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+  --dv-radius: 16px;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+}
+
+.driver-v2.driver-shell { background: var(--dv-bg); }
+
+.driver-v2 .driver-topbar { background: #0f172a; }
+.driver-v2 .driver-topbar .brand { font-family: inherit; font-weight: 700; }
+.driver-v2 .driver-topbar a, .driver-v2 .driver-topbar button { color: #cbd5e1; }
+
+.driver-v2 .driver-card {
+  border: 1px solid var(--dv-border); border-radius: var(--dv-radius); box-shadow: var(--dv-shadow);
+}
+.driver-v2 .driver-card h3 { font-family: inherit; font-weight: 700; color: var(--dv-text); }
+
+.driver-v2 .driver-job-item { border-bottom-color: var(--dv-border); }
+.driver-v2 .job-title, .driver-v2 .driver-job-item .job-title { color: var(--dv-text); }
+
+.driver-v2 .driver-btn-lg {
+  font-family: inherit; border-radius: 12px; color: #fff;
+  background: var(--dv-brand); border: 1px solid var(--dv-brand);
+  backdrop-filter: none; box-shadow: none;
+}
+.driver-v2 .driver-btn-lg:hover { background: var(--dv-brand-dark); }
+.driver-v2 .driver-btn-lg.outline {
+  background: #fff; border: 1px solid var(--dv-border); color: var(--dv-text); backdrop-filter: none;
+}
+
+.driver-v2 .driver-field label { text-transform: none; letter-spacing: 0; color: var(--dv-muted); font-weight: 500; }
+.driver-v2 .driver-field input,
+.driver-v2 .driver-field select,
+.driver-v2 .driver-field textarea { border: 1px solid var(--dv-border); border-radius: 10px; font-family: inherit; }
+
+.driver-v2 .driver-bottomnav { background: #0f172a; border-top: 1px solid #1e293b; }
+.driver-v2 .driver-bottomnav a { color: #94a3b8; }
+.driver-v2 .driver-bottomnav a.active { color: #60a5fa; }
+
+.driver-v2 .driver-mini-card {
+  border: 1px solid var(--dv-border); border-radius: var(--dv-radius); box-shadow: var(--dv-shadow);
+}
+.driver-v2 .driver-mini-card .num { font-family: inherit; font-weight: 800; color: var(--dv-text); }
+.driver-v2 .driver-mini-card .label { text-transform: none; letter-spacing: 0; color: var(--dv-muted); }
+
+/* ---------- Badges (same palette as admin-theme.css) ---------- */
+.driver-v2 .badge { border-radius: 999px; font-weight: 700; letter-spacing: 0.02em; text-transform: none; }
+.driver-v2 .badge-confirmed,
+.driver-v2 .badge-invoice { background: #dbeafe; color: #1d4ed8; }
+.driver-v2 .badge-pending,
+.driver-v2 .badge-approval_needed,
+.driver-v2 .badge-unpaid { background: #ffedd5; color: #9a3412; }
+.driver-v2 .badge-dispatched { background: #ede9fe; color: #6d28d9; }
+.driver-v2 .badge-delivered,
+.driver-v2 .badge-paid { background: #dcfce7; color: #166534; }
+.driver-v2 .badge-cancelled,
+.driver-v2 .badge-returned_from_ma { background: #fee2e2; color: #991b1b; }
+
+/* ---------- Buttons reused inside driver views (.btn from style.css) ---------- */
+.driver-v2 .btn {
+  font-family: inherit; border-radius: 10px; border: 1px solid var(--dv-brand);
+  background: var(--dv-brand); color: #fff; backdrop-filter: none; box-shadow: none;
+}
+.driver-v2 .btn:hover { background: var(--dv-brand-dark); }
+.driver-v2 .btn-outline {
+  background: #fff; border: 1px solid var(--dv-border); color: var(--dv-text); backdrop-filter: none; box-shadow: none;
+}
+
+/* ---------- Login screen ---------- */
+.driver-v2.login-shell { background: #0f172a; }
+.driver-v2 .login-card { border-radius: var(--dv-radius); box-shadow: var(--dv-shadow); }
+.driver-v2 .login-card .brand .mark {
+  background: linear-gradient(135deg, #3b82f6, #22c55e); border-radius: 10px; transform: none;
+}
+.driver-v2 .login-switch a { color: var(--dv-brand); }

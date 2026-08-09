@@ -9,6 +9,7 @@ const adminRoutes = require("./routes/admin");
 const mainAdminRoutes = require("./routes/main-admin");
 const driverRoutes = require("./routes/driver");
 const documentsRoutes = require("./routes/admin-documents");
+const timeTrackingRoutes = require("./routes/time-tracking");
 const { requireAnyRole } = require("./middleware/auth");
 
 const app = express();
@@ -35,6 +36,10 @@ app.use("/price-calculator", priceCalculatorRoutes);
 // Mounted before /admin so it's reachable from Main Admin and Driver sessions too,
 // not just Office Admin (see routes/admin-documents.js for the role-aware redirects).
 app.use("/admin/documents", requireAnyRole, documentsRoutes);
+// Time Tracking is a fully standalone portal with its own account system
+// (time_users table) — auth is handled inside routes/time-tracking.js itself,
+// not gated by the Admin/Main Admin/Driver sessions above.
+app.use("/time", timeTrackingRoutes);
 app.use("/admin", adminRoutes);
 app.use("/main-admin", mainAdminRoutes);
 app.use("/driver", driverRoutes);

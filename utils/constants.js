@@ -294,6 +294,10 @@ const DAMAGED_MISSING_STATUSES = [
 
 const STOCK_COUNT_STATUSES = ["In Progress", "Pending Approval", "Approved", "Closed"];
 
+// ---------- Time Tracking core ----------
+
+const PROJECT_STATUS_OPTIONS = ["Active", "On Hold", "Completed", "Cancelled"];
+
 // ---------- Purchase & Sell-to-SG ----------
 
 const SUPPLIER_STATUSES = ["Active", "Inactive"];
@@ -476,6 +480,7 @@ module.exports = {
   STOCK_ADJUSTMENT_REASONS,
   DAMAGED_MISSING_TYPES,
   DAMAGED_MISSING_STATUSES,
+  PROJECT_STATUS_OPTIONS,
   STOCK_COUNT_STATUSES,
   SUPPLIER_STATUSES,
   SUPPLIER_CATEGORIES,

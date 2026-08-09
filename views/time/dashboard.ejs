@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Time — SiteGuard Time Tracking</title>
+<link rel="stylesheet" href="/css/style.css">
+<link rel="stylesheet" href="/css/admin-theme.css">
+</head>
+<body>
+<div class="admin-shell sg-admin-v2">
+  <%- include('../partials/time-sidebar', { active: 'dashboard', userName: userName }) %>
+
+  <div class="admin-main">
+    <div class="admin-topline">
+      <h1>My Time</h1>
+    </div>
+
+    <% if (error) { %>
+      <div class="error-msg"><%= error %></div>
+    <% } %>
+
+    <% if (running) { %>
+      <div class="admin-card" style="border-color:var(--oa-brand, #2563eb);">
+        <h3>Timer Running</h3>
+        <p><strong><%= running.client_name %> — <%= running.project_name %></strong></p>
+        <p style="color:var(--steel);">Started at <%= running.start_time %><%= running.description ? ' — ' + running.description : '' %></p>
+        <form method="POST" action="/time/stop">
+          <button class="btn" type="submit">Stop Timer</button>
+        </form>
+      </div>
+    <% } else { %>
+      <div class="admin-card">
+        <h3>Start Timer</h3>
+        <form method="POST" action="/time/start" class="form-grid">
+          <div class="form-group">
+            <label>Project *</label>
+            <select name="project_id" required>
+              <option value="">— choose —</option>
+              <% projects.forEach(p => { %>
+                <option value="<%= p.id %>"><%= p.client_name %> — <%= p.name %></option>
+              <% }) %>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Service</label>
+            <select name="service_id">
+              <option value="">— none —</option>
+              <% services.forEach(s => { %>
+                <option value="<%= s.id %>"><%= s.name %></option>
+              <% }) %>
+            </select>
+          </div>
+          <div class="form-group full">
+            <label>Description</label>
+            <input type="text" name="description" placeholder="What are you working on?">
+          </div>
+          <div class="form-group full">
+            <button class="btn" type="submit">Start Timer</button>
+          </div>
+        </form>
+      </div>
+    <% } %>
+
+    <div class="admin-card">
+      <h3>Manual Entry</h3>
+      <form method="POST" action="/time/manual" class="form-grid">
+        <div class="form-group"><label>Date *</label><input type="date" name="date" value="<%= new Date().toISOString().slice(0,10) %>" required></div>
+        <div class="form-group"><label>Start Time *</label><input type="time" name="start_time" required></div>
+        <div class="form-group"><label>End Time *</label><input type="time" name="end_time" required></div>
+        <div class="form-group">
+          <label>Project *</label>
+          <select name="project_id" required>
+            <option value="">— choose —</option>
+            <% projects.forEach(p => { %>
+              <option value="<%= p.id %>"><%= p.client_name %> — <%= p.name %></option>
+            <% }) %>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Service</label>
+          <select name="service_id">
+            <option value="">— none —</option>
+            <% services.forEach(s => { %>
+              <option value="<%= s.id %>"><%= s.name %></option>
+            <% }) %>
+          </select>
+        </div>
+        <div class="form-group full"><label>Description</label><input type="text" name="description"></div>
+        <div class="form-group full">
+          <button class="btn btn-outline" type="submit">Add Manual Entry</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="admin-card">
+      <h3>My Recent Entries (last 7 days)</h3>
+      <div class="data-table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr><th>Date</th><th>Project</th><th>Service</th><th>Start</th><th>End</th><th>Duration</th><th></th></tr>
+          </thead>
+          <tbody>
+            <% if (recentEntries.length === 0) { %>
+              <tr><td colspan="7" style="text-align:center; color:#8a8f90;">No entries in the last 7 days.</td></tr>
+            <% } %>
+            <% recentEntries.forEach(e => { %>
+              <tr>
+                <td><%= e.date %></td>
+                <td><%= e.client_name %> — <%= e.project_name %></td>
+                <td><%= e.service_name || '—' %></td>
+                <td><%= e.start_time %></td>
+                <td><%= e.end_time || 'running…' %></td>
+                <td><%= e.duration_minutes != null ? Math.floor(e.duration_minutes/60) + 'h ' + (e.duration_minutes%60) + 'm' : '—' %></td>
+                <td>
+                  <form method="POST" action="/time/<%= e.id %>/delete" style="margin:0;" onsubmit="return confirm('Delete this entry?');">
+                    <button type="submit" class="btn btn-outline btn-sm">Delete</button>
+                  </form>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
