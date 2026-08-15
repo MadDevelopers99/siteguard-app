@@ -1,3 +1,5 @@
 uploads/*
 !uploads/.gitkeep
 node_modules/
+# tesseract.js downloads its English language model here on first OCR run
+*.traineddata

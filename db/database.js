@@ -708,6 +708,11 @@ function ensureColumn(table, column, definition) {
 
 [["gps_location", "TEXT"]].forEach(([column, definition]) => ensureColumn("documents", column, definition));
 
+// Raw OCR read of the rear-photo plate number, kept separately from
+// plate_number so the edit page can tell "auto-detected, please verify"
+// apart from a driver's own manual entry/correction.
+[["plate_number_ocr_raw", "TEXT"]].forEach(([column, definition]) => ensureColumn("parked_vehicles", column, definition));
+
 // ---------- Time Tracking portal (standalone, own accounts) ----------
 // This is a fully separate portal (own login at /time/login, own account
 // table) from the Admin/Main Admin/Driver systems — not gated by any of
