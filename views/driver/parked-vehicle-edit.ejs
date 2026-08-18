@@ -41,10 +41,9 @@
       <form method="POST" action="/driver/tasks/<%= task.order_id %>/parked-vehicles/<%= vehicle.id %>">
         <div class="driver-field">
           <label>Plate Number</label>
-          <input type="text" name="plate_number" value="<%= vehicle.plate_number || '' %>" placeholder="e.g. M-AB-1234" required>
-          <% if (vehicle.plate_number_ocr_raw && vehicle.plate_number === vehicle.plate_number_ocr_raw) { %>
-            <p style="margin:4px 0 0; font-size:12px; color:#8a8f90;">Auto-detected from photo — please verify it's correct.</p>
-          <% } %>
+          <input type="text" id="plateNumberInput" name="plate_number" value="<%= vehicle.plate_number || '' %>" placeholder="e.g. M-AB-1234" required>
+          <p id="plateHint" style="margin:4px 0 0; font-size:12px; color:#8a8f90; <%= vehicle.plate_number_ocr_raw && vehicle.plate_number === vehicle.plate_number_ocr_raw ? '' : 'display:none;' %>">Auto-detected from photo — please verify it's correct.</p>
+          <p id="plateScanningHint" style="margin:4px 0 0; font-size:12px; color:#8a8f90; display:none;">Scanning photo for plate number…</p>
         </div>
         <div class="driver-field">
           <label>Color</label>
@@ -126,6 +125,38 @@
     line.style.display = 'none';
     label.textContent = 'Selected: Unknown';
   });
+
+  // The rear-photo plate scan now runs in the background after upload (so a
+  // large phone photo never delays the page), so poll briefly for the result
+  // instead of expecting it to already be there on page load.
+  <% if (photo && !vehicle.plate_number) { %>
+  (function () {
+    const plateInput = document.getElementById('plateNumberInput');
+    const scanningHint = document.getElementById('plateScanningHint');
+    const doneHint = document.getElementById('plateHint');
+    scanningHint.style.display = '';
+    let tries = 0;
+    const maxTries = 12;
+    const poll = setInterval(() => {
+      tries++;
+      fetch('/admin/documents/parked-vehicle/<%= vehicle.id %>/plate-status')
+        .then((r) => r.json())
+        .then((data) => {
+          if (data.plate_number && !plateInput.value) {
+            plateInput.value = data.plate_number;
+            scanningHint.style.display = 'none';
+            doneHint.style.display = '';
+            clearInterval(poll);
+          } else if (tries >= maxTries) {
+            scanningHint.textContent = "Couldn't auto-read the plate — please enter it manually.";
+            setTimeout(() => { scanningHint.style.display = 'none'; }, 4000);
+            clearInterval(poll);
+          }
+        })
+        .catch(() => { if (tries >= maxTries) clearInterval(poll); });
+    }, 2500);
+  })();
+  <% } %>
 </script>
 </body>
 </html>

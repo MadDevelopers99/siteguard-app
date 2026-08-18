@@ -5,6 +5,7 @@ const fs = require("fs");
 const crypto = require("crypto");
 const multer = require("multer");
 const Tesseract = require("tesseract.js");
+const heicConvert = require("heic-convert");
 const db = require("../db/database");
 
 const uploadsDir = path.join(__dirname, "..", "uploads");
@@ -56,7 +57,23 @@ function backToFor(req, entityType, entityId) {
   return `/main-admin/auftraege/${entityId}?tab=map`;
 }
 
-router.post("/upload", upload.single("file"), async (req, res) => {
+// iPhones default to HEIC/HEIF for camera captures, which Tesseract's
+// leptonica backend can't decode directly — convert to JPEG bytes first.
+function isHeic(file) {
+  const mime = (file.mimetype || "").toLowerCase();
+  const ext = path.extname(file.originalname || "").toLowerCase();
+  return mime === "image/heic" || mime === "image/heif" || ext === ".heic" || ext === ".heif";
+}
+
+async function ocrImageInput(file, filePath) {
+  if (isHeic(file)) {
+    const inputBuffer = fs.readFileSync(filePath);
+    return await heicConvert({ buffer: inputBuffer, format: "JPEG", quality: 0.92 });
+  }
+  return filePath;
+}
+
+router.post("/upload", upload.single("file"), (req, res) => {
   const { entity_type, entity_id, category, gps_location } = req.body;
   if (!req.file || !entity_type || !entity_id) {
     return res.status(400).send("Missing file or target.");
@@ -67,24 +84,38 @@ router.post("/upload", upload.single("file"), async (req, res) => {
      VALUES (?, ?, ?, ?, ?, ?, 'Uploaded', ?)`
   ).run(entity_type, entity_id, category || "Other", req.file.originalname, req.file.filename, uploaderName(req), gps_location || null);
 
-  // Best-effort plate scan for parked-vehicle rear photos — never blocks the
-  // upload if OCR fails or the file isn't an image.
+  const backTo = backToFor(req, entity_type, entity_id);
+
+  // Best-effort plate scan for parked-vehicle rear photos — runs in the
+  // background so a slow/large phone photo never delays the upload response.
+  // Never blocks or breaks the upload if OCR fails or the file isn't an image.
   if (entity_type === "parked_vehicle" && req.file.mimetype && req.file.mimetype.startsWith("image/")) {
-    try {
-      const { data } = await Tesseract.recognize(path.join(uploadsDir, req.file.filename), "eng");
-      const candidate = extractPlateCandidate(data.text);
-      if (candidate) {
-        db.prepare(
-          `UPDATE parked_vehicles SET plate_number_ocr_raw = ?, plate_number = COALESCE(NULLIF(plate_number, ''), ?)
-           WHERE id = ?`
-        ).run(candidate, candidate, entity_id);
-      }
-    } catch (err) {
-      console.error("Plate OCR failed:", err.message);
-    }
+    const filePath = path.join(uploadsDir, req.file.filename);
+    const file = req.file;
+    ocrImageInput(file, filePath)
+      .then((input) => Tesseract.recognize(input, "eng"))
+      .then(({ data }) => {
+        const candidate = extractPlateCandidate(data.text);
+        if (candidate) {
+          db.prepare(
+            `UPDATE parked_vehicles SET plate_number_ocr_raw = ?, plate_number = COALESCE(NULLIF(plate_number, ''), ?)
+             WHERE id = ?`
+          ).run(candidate, candidate, entity_id);
+        }
+      })
+      .catch((err) => console.error(`Plate OCR failed for parked_vehicle ${entity_id}:`, err.message));
   }
 
-  res.redirect(backToFor(req, entity_type, entity_id));
+  res.redirect(backTo);
+});
+
+// Polled by the parked-vehicle edit page while the background plate scan
+// (POST /upload above) is still running, so the field can fill in live
+// without the driver needing to refresh.
+router.get("/parked-vehicle/:id/plate-status", (req, res) => {
+  const vehicle = db.prepare("SELECT plate_number, plate_number_ocr_raw FROM parked_vehicles WHERE id = ?").get(req.params.id);
+  if (!vehicle) return res.status(404).json({ error: "Not found" });
+  res.json(vehicle);
 });
 
 router.get("/:id/download", (req, res) => {
