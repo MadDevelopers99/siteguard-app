@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title><%= asset && asset.id ? 'Edit Asset' : 'New Asset' %> — SiteGuard Time Tracking</title>
+<link rel="stylesheet" href="/css/style.css">
+<link rel="stylesheet" href="/css/admin-theme.css">
+</head>
+<body>
+<div class="admin-shell sg-admin-v2">
+  <%- include('../partials/time-sidebar', { active: 'assets', userName: userName, isAdmin: isAdmin }) %>
+
+  <div class="admin-main">
+    <div class="admin-topline">
+      <h1><%= asset && asset.id ? 'Edit Asset' : 'New Asset' %></h1>
+      <a href="/time/assets" style="text-decoration:none; font-size:14px;">&larr; Back to assets</a>
+    </div>
+
+    <% if (error) { %>
+      <div class="error-msg"><%= error %></div>
+    <% } %>
+
+    <form method="POST" action="<%= asset && asset.id ? '/time/assets/' + asset.id : '/time/assets' %>">
+      <div class="admin-card">
+        <div class="form-grid">
+          <div class="form-group"><label>Name *</label><input type="text" name="name" value="<%= asset ? asset.name : '' %>" required></div>
+          <div class="form-group"><label>Type</label><input type="text" name="asset_type" value="<%= asset ? (asset.asset_type || '') : '' %>" placeholder="e.g. Pump, Generator"></div>
+          <div class="form-group">
+            <label>Project</label>
+            <select name="project_id">
+              <option value="">— none —</option>
+              <% projects.forEach(p => { %>
+                <option value="<%= p.id %>" <%= asset && String(asset.project_id) === String(p.id) ? 'selected' : '' %>><%= p.client_name %> — <%= p.name %></option>
+              <% }) %>
+            </select>
+          </div>
+          <div class="form-group"><label>Serial Number</label><input type="text" name="serial_number" value="<%= asset ? (asset.serial_number || '') : '' %>"></div>
+          <div class="form-group">
+            <label>Status</label>
+            <select name="status">
+              <% ASSET_STATUS_OPTIONS.forEach(s => { %>
+                <option value="<%= s %>" <%= asset && asset.status === s ? 'selected' : '' %>><%= s %></option>
+              <% }) %>
+            </select>
+          </div>
+        </div>
+        <div class="form-group full" style="margin-top:10px;">
+          <label>Notes</label>
+          <textarea name="notes" rows="3"><%= asset ? (asset.notes || '') : '' %></textarea>
+        </div>
+        <p class="muted small">Click the map to set the asset's location (optional).</p>
+        <%- include('../partials/time-map', {
+          mapId: 'assetPickMap',
+          height: '300px',
+          pickMode: true,
+          latInputId: 'assetLat',
+          lngInputId: 'assetLng',
+          pickInitial: asset && asset.lat ? [asset.lat, asset.lng] : null,
+          center: asset && asset.lat ? [asset.lat, asset.lng] : null
+        }) %>
+        <input type="hidden" id="assetLat" name="lat" value="<%= asset && asset.lat != null ? asset.lat : '' %>">
+        <input type="hidden" id="assetLng" name="lng" value="<%= asset && asset.lng != null ? asset.lng : '' %>">
+      </div>
+      <button class="btn" type="submit" style="font-size:16px; padding:12px 24px;"><%= asset && asset.id ? 'Save Changes' : 'Create Asset' %></button>
+    </form>
+  </div>
+</div>
+</body>
+</html>

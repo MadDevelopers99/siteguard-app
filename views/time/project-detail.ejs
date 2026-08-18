@@ -9,7 +9,7 @@
 </head>
 <body>
 <div class="admin-shell sg-admin-v2">
-  <%- include('../partials/time-sidebar', { active: 'projects', userName: userName }) %>
+  <%- include('../partials/time-sidebar', { active: 'projects', userName: userName, isAdmin: isAdmin }) %>
 
   <div class="admin-main">
     <div class="admin-topline">
@@ -35,6 +35,56 @@
       <% if (project.description) { %>
         <p style="margin-top:14px; color:var(--steel);"><%= project.description %></p>
       <% } %>
+    </div>
+
+    <div class="admin-card">
+      <h3>Location configuration</h3>
+      <p class="muted small" style="margin-top:-6px;">
+        Click the map to set the site location. Staff arriving/leaving this radius can auto/prompt start-stop their timer.
+        Manage additional geofences for this project on the <a href="/time/geofences?project_id=<%= project.id %>">Geofence Settings</a> screen.
+      </p>
+      <% if (typeof error !== 'undefined' && error) { %>
+        <div class="error-msg"><%= error %></div>
+      <% } %>
+      <form method="POST" action="/time/projects/<%= project.id %>/geofence">
+        <%- include('../partials/time-map', {
+          mapId: 'projectLocationMap',
+          height: '320px',
+          pickMode: true,
+          latInputId: 'geofenceLat',
+          lngInputId: 'geofenceLng',
+          pickInitial: geofence ? [geofence.lat, geofence.lng] : null,
+          center: geofence ? [geofence.lat, geofence.lng] : null,
+          markers: [],
+          geofences: geofence ? [{ lat: geofence.lat, lng: geofence.lng, radiusMeters: geofence.radius_meters, name: geofence.name }] : []
+        }) %>
+        <input type="hidden" id="geofenceLat" name="lat" value="<%= geofence ? geofence.lat : '' %>">
+        <input type="hidden" id="geofenceLng" name="lng" value="<%= geofence ? geofence.lng : '' %>">
+        <div class="form-grid" style="margin-top:14px;">
+          <div class="form-group"><label>Geofence name</label><input type="text" name="name" value="<%= geofence ? geofence.name : 'Site' %>"></div>
+          <div class="form-group"><label>Radius (meters)</label><input type="number" step="10" min="10" name="radius_meters" value="<%= geofence ? geofence.radius_meters : 150 %>"></div>
+          <div class="form-group">
+            <label>Arrival behavior</label>
+            <select name="arrival_behavior">
+              <% GEOFENCE_ARRIVAL_OPTIONS.forEach(o => { %>
+                <option value="<%= o %>" <%= geofence && geofence.arrival_behavior === o ? 'selected' : '' %>><%= o %></option>
+              <% }) %>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Departure behavior</label>
+            <select name="departure_behavior">
+              <% GEOFENCE_DEPARTURE_OPTIONS.forEach(o => { %>
+                <option value="<%= o %>" <%= geofence && geofence.departure_behavior === o ? 'selected' : '' %>><%= o %></option>
+              <% }) %>
+            </select>
+          </div>
+          <div class="form-group">
+            <label><input type="checkbox" name="check_in_required" value="1" <%= geofence && geofence.check_in_required ? 'checked' : '' %>> Check-in required</label>
+          </div>
+        </div>
+        <button class="btn btn-sm" type="submit" style="margin-top:10px;">Save location</button>
+      </form>
     </div>
 
     <div class="admin-card">

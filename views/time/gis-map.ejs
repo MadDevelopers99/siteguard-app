@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GIS Map — SiteGuard Time Tracking</title>
+<link rel="stylesheet" href="/css/style.css">
+<link rel="stylesheet" href="/css/admin-theme.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+<body>
+<div class="admin-shell sg-admin-v2">
+  <%- include('../partials/time-sidebar', { active: 'gis', userName: userName, isAdmin: isAdmin }) %>
+
+  <div class="admin-main">
+    <div class="admin-topline">
+      <h1>GIS Map</h1>
+    </div>
+
+    <div id="gisMap" style="height:600px; border:1px solid var(--oa-border,#d8dfec); border-radius:10px; position:relative;"></div>
+
+    <div class="grid g4" style="margin-top:14px;">
+      <div class="card metric"><strong><%= projects.length %></strong><span>Projects mapped</span></div>
+      <div class="card metric"><strong><%= employees.length %></strong><span>Field workers</span></div>
+      <div class="card metric"><strong><%= assets.length %></strong><span>Assets</span></div>
+      <div class="card metric"><strong><%= geofences.length %></strong><span>Active geofences</span></div>
+    </div>
+
+    <div class="admin-card" style="margin-top:14px;">
+      <h3>Set a customer's location</h3>
+      <p class="muted small">Pick a customer, click the map, save — used for the Customers layer above.</p>
+      <form method="POST" action="#" id="clientLocationForm" class="form-grid">
+        <div class="form-group">
+          <label>Customer</label>
+          <select id="clientPicker">
+            <option value="">— choose —</option>
+            <% clientsForPicker.forEach(c => { %>
+              <option value="<%= c.id %>" data-lat="<%= c.lat || '' %>" data-lng="<%= c.lng || '' %>"><%= c.name %><%= c.company ? ' — ' + c.company : '' %></option>
+            <% }) %>
+          </select>
+        </div>
+        <div class="form-group"><label>Lat</label><input type="text" id="clientLatDisplay" readonly></div>
+        <div class="form-group"><label>Lng</label><input type="text" id="clientLngDisplay" readonly></div>
+        <div class="form-group full"><button class="btn btn-sm" type="submit">Save location</button></div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  const projects = <%- JSON.stringify(projects) %>;
+  const clients = <%- JSON.stringify(clients) %>;
+  const employees = <%- JSON.stringify(employees) %>;
+  const jobs = <%- JSON.stringify(jobs) %>;
+  const assets = <%- JSON.stringify(assets) %>;
+  const geofences = <%- JSON.stringify(geofences) %>;
+
+  const FALLBACK_CENTER = [48.1351, 11.5820];
+  const map = L.map('gisMap').setView(FALLBACK_CENTER, 11);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 20, attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
+
+  function dot(item, color, label) {
+    return L.circleMarker([item.lat, item.lng], { radius: 8, color, fillColor: color, fillOpacity: 1 }).bindTooltip(label);
+  }
+
+  const layers = {
+    projects: L.layerGroup(projects.map(p => dot(p, '#2968f2', `${p.client_name} — ${p.name}`))),
+    clients: L.layerGroup(clients.map(c => dot(c, '#18a85b', c.name))),
+    employees: L.layerGroup(employees.map(e => dot(e, '#e99722', e.name))),
+    jobs: L.layerGroup(jobs.map(j => dot(j, '#6d55e6', `${j.title} (${j.status})`))),
+    assets: L.layerGroup(assets.map(a => dot(a, '#e84949', a.name))),
+    geofences: L.layerGroup(geofences.map(g => L.circle([g.lat, g.lng], { radius: g.radius_meters, color: '#18a85b', fillOpacity: 0.1 }).bindTooltip(g.name)))
+  };
+  Object.values(layers).forEach(l => l.addTo(map));
+
+  const panel = L.control({ position: 'topright' });
+  panel.onAdd = function () {
+    const div = L.DomUtil.create('div', 'map-panel');
+    div.innerHTML = '<b>Layers</b>' + Object.keys(layers).map(key =>
+      `<label style="display:flex; justify-content:space-between; margin:8px 0; font-size:13px;">${key.charAt(0).toUpperCase() + key.slice(1)} <input type="checkbox" data-layer="${key}" checked></label>`
+    ).join('');
+    L.DomEvent.disableClickPropagation(div);
+    return div;
+  };
+  panel.addTo(map);
+
+  document.querySelectorAll('[data-layer]').forEach(cb => {
+    cb.addEventListener('change', () => {
+      const layer = layers[cb.dataset.layer];
+      if (cb.checked) { layer.addTo(map); } else { map.removeLayer(layer); }
+    });
+  });
+
+  const allPts = projects.concat(clients).concat(employees).concat(jobs).concat(assets).map(p => [p.lat, p.lng]);
+  if (allPts.length > 1) map.fitBounds(allPts, { padding: [30, 30] });
+
+  // "Select on map" for a customer location
+  let pickMarker = null;
+  const picker = document.getElementById('clientPicker');
+  const latDisplay = document.getElementById('clientLatDisplay');
+  const lngDisplay = document.getElementById('clientLngDisplay');
+  const form = document.getElementById('clientLocationForm');
+  let pickedLat = null, pickedLng = null;
+
+  picker.addEventListener('change', () => {
+    const opt = picker.options[picker.selectedIndex];
+    if (opt.dataset.lat && opt.dataset.lng) {
+      pickedLat = parseFloat(opt.dataset.lat);
+      pickedLng = parseFloat(opt.dataset.lng);
+      latDisplay.value = pickedLat.toFixed(6);
+      lngDisplay.value = pickedLng.toFixed(6);
+      if (pickMarker) map.removeLayer(pickMarker);
+      pickMarker = L.marker([pickedLat, pickedLng]).addTo(map);
+    }
+  });
+
+  map.on('click', (e) => {
+    if (!picker.value) return;
+    pickedLat = e.latlng.lat;
+    pickedLng = e.latlng.lng;
+    latDisplay.value = pickedLat.toFixed(6);
+    lngDisplay.value = pickedLng.toFixed(6);
+    if (pickMarker) map.removeLayer(pickMarker);
+    pickMarker = L.marker([pickedLat, pickedLng]).addTo(map);
+  });
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    if (!picker.value || pickedLat == null) { alert('Choose a customer and click the map first.'); return; }
+    form.action = '/time/gis/clients/' + picker.value + '/location';
+    const latInput = document.createElement('input');
+    latInput.type = 'hidden'; latInput.name = 'lat'; latInput.value = pickedLat;
+    const lngInput = document.createElement('input');
+    lngInput.type = 'hidden'; lngInput.name = 'lng'; lngInput.value = pickedLng;
+    form.appendChild(latInput); form.appendChild(lngInput);
+    HTMLFormElement.prototype.submit.call(form);
+  });
+})();
+</script>
+</body>
+</html>

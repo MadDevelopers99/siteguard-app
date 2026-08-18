@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard — SiteGuard Time Tracking</title>
+<link rel="stylesheet" href="/css/style.css">
+<link rel="stylesheet" href="/css/admin-theme.css">
+</head>
+<body>
+<div class="admin-shell sg-admin-v2">
+  <%- include('../partials/time-sidebar', { active: 'admin-dashboard', userName: userName, isAdmin: isAdmin }) %>
+
+  <div class="admin-main">
+    <div class="admin-topline">
+      <h1>Admin Dashboard</h1>
+    </div>
+
+    <div class="grid g4">
+      <div class="card metric"><strong><%= usersCount %></strong><span>Users</span></div>
+      <div class="card metric"><strong><%= activeTodayCount %></strong><span>Active today</span></div>
+      <div class="card metric"><strong><%= Math.floor(hoursTodayMinutes/60) %>h <%= hoursTodayMinutes%60 %>m</strong><span>Hours today</span></div>
+      <div class="card metric"><strong><%= projectsCount %></strong><span>Projects</span></div>
+    </div>
+
+    <div class="grid g2" style="margin-top:14px;">
+      <div class="admin-card">
+        <h3>Compliance & quality</h3>
+        <div class="row"><span>Approved entries</span><b><%= approvedPct %>%</b></div>
+        <div class="row"><span>Location verified</span><b><%= locationVerifiedPct %>%</b></div>
+        <div class="row"><span>Manual (unverified) entries</span><b><%= manualPct %>%</b></div>
+        <div class="row"><span>Staff with no entries in 7 days</span><b><%= missingTimesheets %></b></div>
+      </div>
+      <div class="admin-card">
+        <h3>Administration</h3>
+        <div class="check"><a href="/time/team">Users, roles and teams</a></div>
+        <div class="check"><a href="/time/tracking?tab=approvals">Approval chains</a></div>
+        <div class="check"><a href="/time/geofences">Geofence & data retention rules</a></div>
+        <div class="check"><a href="/time/integrations">Billing & connected accounts</a></div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

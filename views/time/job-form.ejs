@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title><%= job && job.id ? 'Edit Job' : 'New Job' %> — SiteGuard Time Tracking</title>
+<link rel="stylesheet" href="/css/style.css">
+<link rel="stylesheet" href="/css/admin-theme.css">
+</head>
+<body>
+<div class="admin-shell sg-admin-v2">
+  <%- include('../partials/time-sidebar', { active: 'dispatch', userName: userName, isAdmin: isAdmin }) %>
+
+  <div class="admin-main">
+    <div class="admin-topline">
+      <h1><%= job && job.id ? 'Edit Job' : 'New Job' %></h1>
+      <a href="/time/jobs" style="text-decoration:none; font-size:14px;">&larr; Back to jobs</a>
+    </div>
+
+    <% if (error) { %>
+      <div class="error-msg"><%= error %></div>
+    <% } %>
+
+    <form method="POST" action="<%= job && job.id ? '/time/jobs/' + job.id : '/time/jobs' %>">
+      <div class="admin-card">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Project *</label>
+            <select name="project_id" required>
+              <option value="">— choose —</option>
+              <% projects.forEach(p => { %>
+                <option value="<%= p.id %>" <%= job && String(job.project_id) === String(p.id) ? 'selected' : '' %>><%= p.client_name %> — <%= p.name %></option>
+              <% }) %>
+            </select>
+          </div>
+          <div class="form-group"><label>Title *</label><input type="text" name="title" value="<%= job ? job.title : '' %>" required></div>
+          <div class="form-group">
+            <label>Service / skill required</label>
+            <select name="service_id">
+              <option value="">— none —</option>
+              <% services.forEach(s => { %>
+                <option value="<%= s.id %>" <%= job && String(job.service_id) === String(s.id) ? 'selected' : '' %>><%= s.name %></option>
+              <% }) %>
+            </select>
+          </div>
+          <div class="form-group"><label>Scheduled Date</label><input type="date" name="scheduled_date" value="<%= job ? (job.scheduled_date || '') : '' %>"></div>
+          <div class="form-group"><label>Start Time</label><input type="time" name="scheduled_start" value="<%= job ? (job.scheduled_start || '') : '' %>"></div>
+          <div class="form-group"><label>End Time</label><input type="time" name="scheduled_end" value="<%= job ? (job.scheduled_end || '') : '' %>"></div>
+          <% if (job && job.id) { %>
+            <div class="form-group">
+              <label>Status</label>
+              <select name="status">
+                <% TIME_JOB_STATUS_OPTIONS.forEach(s => { %>
+                  <option value="<%= s %>" <%= job.status === s ? 'selected' : '' %>><%= s %></option>
+                <% }) %>
+              </select>
+            </div>
+          <% } %>
+        </div>
+        <div class="form-group full" style="margin-top:10px;">
+          <label>Instructions</label>
+          <textarea name="instructions" rows="3"><%= job ? (job.instructions || '') : '' %></textarea>
+        </div>
+        <p class="muted small">Location defaults to the project's site if left blank — click the map to override.</p>
+        <%- include('../partials/time-map', {
+          mapId: 'jobPickMap',
+          height: '300px',
+          pickMode: true,
+          latInputId: 'jobLat',
+          lngInputId: 'jobLng',
+          pickInitial: job && job.lat ? [job.lat, job.lng] : null,
+          center: job && job.lat ? [job.lat, job.lng] : null
+        }) %>
+        <input type="hidden" id="jobLat" name="lat" value="<%= job && job.lat != null ? job.lat : '' %>">
+        <input type="hidden" id="jobLng" name="lng" value="<%= job && job.lng != null ? job.lng : '' %>">
+      </div>
+      <button class="btn" type="submit" style="font-size:16px; padding:12px 24px;"><%= job && job.id ? 'Save Changes' : 'Create Job' %></button>
+    </form>
+  </div>
+</div>
+</body>
+</html>

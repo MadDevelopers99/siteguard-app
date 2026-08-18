@@ -298,6 +298,82 @@ const STOCK_COUNT_STATUSES = ["In Progress", "Pending Approval", "Approved", "Cl
 
 const PROJECT_STATUS_OPTIONS = ["Active", "On Hold", "Completed", "Cancelled"];
 
+// ---------- Time Tracking: GIS / Ops extension ----------
+
+const TIME_JOB_STATUS_OPTIONS = ["Unassigned", "Assigned", "In Progress", "Completed", "Cancelled"];
+
+const TIME_ENTRY_STATUS_OPTIONS = ["Pending", "Approved", "Rejected"];
+
+const ASSET_STATUS_OPTIONS = ["Active", "In Maintenance", "Retired"];
+
+const GEOFENCE_ARRIVAL_OPTIONS = ["Notify only", "Prompt to start timer", "Auto start timer"];
+
+const GEOFENCE_DEPARTURE_OPTIONS = ["Notify only", "Prompt to stop timer", "Auto stop timer"];
+
+const INTEGRATION_PROVIDERS = [
+  {
+    key: "clockodo",
+    name: "Clockodo",
+    description: "Time, customers, projects, users and webhooks",
+    fields: [
+      { name: "api_key", label: "API Key", type: "text" },
+      { name: "api_email", label: "Account Email", type: "text" }
+    ]
+  },
+  {
+    key: "clockin",
+    name: "clockin",
+    description: "Mobile time, documents and workforce workflows",
+    fields: [{ name: "api_key", label: "API Key", type: "text" }]
+  },
+  {
+    key: "arcgis",
+    name: "ArcGIS",
+    description: "Enterprise maps, layers, assets and field tasks",
+    fields: [
+      { name: "org_url", label: "Organization URL", type: "text" },
+      { name: "client_id", label: "Client ID", type: "text" },
+      { name: "client_secret", label: "Client Secret", type: "password" }
+    ]
+  },
+  {
+    key: "qgis_postgis",
+    name: "QGIS / PostGIS",
+    description: "Open-source GIS data and spatial queries",
+    fields: [{ name: "connection_string", label: "Connection String", type: "text" }]
+  },
+  {
+    key: "xero_datev",
+    name: "Xero / DATEV",
+    description: "Accounting and invoicing exchange",
+    fields: [{ name: "api_key", label: "API Key", type: "text" }]
+  },
+  {
+    key: "google_calendar",
+    name: "Google Calendar",
+    description: "Appointments and planned visits",
+    fields: [{ name: "calendar_id", label: "Calendar ID", type: "text" }]
+  },
+  {
+    key: "slack_teams",
+    name: "Slack / Teams",
+    description: "Operational notifications",
+    fields: [{ name: "webhook_url", label: "Webhook URL", type: "text" }]
+  },
+  {
+    key: "zapier_make",
+    name: "Zapier / Make",
+    description: "Workflow automation",
+    fields: [{ name: "webhook_url", label: "Webhook URL", type: "text" }]
+  },
+  {
+    key: "rest_api",
+    name: "REST API + Webhooks",
+    description: "Developer integration layer",
+    fields: [{ name: "webhook_url", label: "Webhook URL", type: "text" }]
+  }
+];
+
 // ---------- Purchase & Sell-to-SG ----------
 
 const SUPPLIER_STATUSES = ["Active", "Inactive"];
@@ -481,6 +557,12 @@ module.exports = {
   DAMAGED_MISSING_TYPES,
   DAMAGED_MISSING_STATUSES,
   PROJECT_STATUS_OPTIONS,
+  TIME_JOB_STATUS_OPTIONS,
+  TIME_ENTRY_STATUS_OPTIONS,
+  ASSET_STATUS_OPTIONS,
+  GEOFENCE_ARRIVAL_OPTIONS,
+  GEOFENCE_DEPARTURE_OPTIONS,
+  INTEGRATION_PROVIDERS,
   STOCK_COUNT_STATUSES,
   SUPPLIER_STATUSES,
   SUPPLIER_CATEGORIES,

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title><%= job.title %> — SiteGuard Time Tracking</title>
+<link rel="stylesheet" href="/css/style.css">
+<link rel="stylesheet" href="/css/admin-theme.css">
+</head>
+<body>
+<div class="admin-shell sg-admin-v2">
+  <%- include('../partials/time-sidebar', { active: 'dispatch', userName: userName, isAdmin: isAdmin }) %>
+
+  <div class="admin-main">
+    <div class="admin-topline">
+      <h1><%= job.title %></h1>
+      <div style="display:flex; gap:12px; align-items:center;">
+        <a class="btn btn-outline btn-sm" style="text-decoration:none;" href="/time/jobs/<%= job.id %>/edit">Edit</a>
+        <a href="/time/jobs" style="text-decoration:none; font-size:14px;">&larr; Back to jobs</a>
+      </div>
+    </div>
+
+    <div class="grid g2">
+      <div class="admin-card">
+        <span class="badge badge-<%= job.status === 'Completed' ? 'delivered' : job.status === 'Cancelled' ? 'cancelled' : job.status === 'Unassigned' ? 'pending' : 'confirmed' %>"><%= job.status %></span>
+        <h3 style="margin-top:8px;"><%= job.client_name %> — <%= job.project_name %></h3>
+        <div class="row"><span>Assigned to</span><b><%= job.assigned_name || 'Unassigned' %></b></div>
+        <div class="row"><span>Scheduled</span><b><%= job.scheduled_date || '—' %><%= job.scheduled_start ? ' ' + job.scheduled_start + '–' + (job.scheduled_end || '') : '' %></b></div>
+        <% if (job.instructions) { %><p style="margin-top:14px; color:var(--steel);"><%= job.instructions %></p><% } %>
+
+        <h3 style="margin-top:20px;">Checklist</h3>
+        <% checklist.forEach((item, i) => { %>
+          <form method="POST" action="/time/jobs/<%= job.id %>/checklist" style="margin:4px 0;">
+            <input type="hidden" name="toggle_index" value="<%= i %>">
+            <label>
+              <input type="checkbox" <%= item.done ? 'checked' : '' %> onchange="this.form.submit()">
+              <span style="<%= item.done ? 'text-decoration:line-through; color:#8a8f90;' : '' %>"><%= item.text %></span>
+            </label>
+          </form>
+        <% }) %>
+        <form method="POST" action="/time/jobs/<%= job.id %>/checklist" style="display:flex; gap:8px; margin-top:8px;">
+          <input type="text" name="text" placeholder="Add checklist item…" style="flex:1; padding:8px;">
+          <button class="btn btn-outline btn-sm" type="submit">Add</button>
+        </form>
+
+        <% if (job.completion_notes) { %>
+          <h3 style="margin-top:20px;">Completion notes</h3>
+          <p style="color:var(--steel);"><%= job.completion_notes %></p>
+        <% } %>
+      </div>
+
+      <div>
+        <%- include('../partials/time-map', {
+          mapId: 'jobDetailMap',
+          height: '360px',
+          markers: job.lat != null ? [{ lat: job.lat, lng: job.lng, label: job.title, color: '#2968f2' }] : []
+        }) %>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

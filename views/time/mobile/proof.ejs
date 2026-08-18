@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Proof of Service — SiteGuard Time Tracking</title>
+<link rel="stylesheet" href="/css/style.css">
+<link rel="stylesheet" href="/css/driver-theme.css">
+</head>
+<body>
+<div class="driver-shell driver-v2">
+  <div class="driver-topbar">
+    <span class="brand">Proof of Service</span>
+    <a href="/time/m/jobs/<%= job.id %>" style="text-decoration:none;">Cancel</a>
+  </div>
+
+  <div class="driver-main">
+    <div class="driver-card">
+      <h3><%= job.title %></h3>
+
+      <div class="driver-field">
+        <label>Photos</label>
+        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px;">
+          <% photos.forEach(p => { %>
+            <a href="/time/m/photos/<%= p.id %>/download" style="width:80px; height:80px; display:block; border-radius:8px; overflow:hidden; background:#eee;">
+              <img src="/time/m/photos/<%= p.id %>/download" style="width:100%; height:100%; object-fit:cover;" alt="">
+            </a>
+          <% }) %>
+        </div>
+        <form method="POST" action="/time/m/jobs/<%= job.id %>/proof/photo" enctype="multipart/form-data">
+          <input type="file" name="file" accept="image/*" capture="environment" required>
+          <button class="driver-btn-lg outline" type="submit" style="margin-top:8px;">Add Photo</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="driver-card">
+      <form method="POST" action="/time/m/jobs/<%= job.id %>/proof" id="proofForm">
+        <div class="driver-field">
+          <label>Customer signature</label>
+          <canvas id="sigPad" width="320" height="140" style="border:1px dashed #aab6ca; border-radius:12px; width:100%; touch-action:none;"></canvas>
+          <button type="button" class="btn btn-outline btn-sm" id="clearSig" style="margin-top:6px;">Clear</button>
+          <input type="hidden" name="signature_data" id="signatureData">
+        </div>
+        <div class="driver-field">
+          <label>Completion notes</label>
+          <textarea name="completion_notes" rows="3"></textarea>
+        </div>
+        <button class="driver-btn-lg" type="submit">Submit & Stop Timer</button>
+      </form>
+    </div>
+  </div>
+
+  <%- include('../../partials/time-bottomnav', { active: 'jobs' }) %>
+</div>
+
+<script>
+  const canvas = document.getElementById('sigPad');
+  const ctx = canvas.getContext('2d');
+  ctx.strokeStyle = '#172039';
+  ctx.lineWidth = 2;
+  let drawing = false;
+
+  function pos(e) {
+    const rect = canvas.getBoundingClientRect();
+    const t = e.touches ? e.touches[0] : e;
+    return { x: (t.clientX - rect.left) * (canvas.width / rect.width), y: (t.clientY - rect.top) * (canvas.height / rect.height) };
+  }
+  function start(e) { drawing = true; const p = pos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); e.preventDefault(); }
+  function move(e) { if (!drawing) return; const p = pos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); e.preventDefault(); }
+  function end() { drawing = false; }
+
+  canvas.addEventListener('mousedown', start);
+  canvas.addEventListener('mousemove', move);
+  canvas.addEventListener('mouseup', end);
+  canvas.addEventListener('touchstart', start);
+  canvas.addEventListener('touchmove', move);
+  canvas.addEventListener('touchend', end);
+
+  document.getElementById('clearSig').addEventListener('click', () => ctx.clearRect(0, 0, canvas.width, canvas.height));
+
+  document.getElementById('proofForm').addEventListener('submit', () => {
+    document.getElementById('signatureData').value = canvas.toDataURL('image/png');
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,119 @@
+<%
+// Reusable Leaflet map partial for the Time Tracking portal, generalized from
+// views/partials/task-tabs/digitization.ejs's click-to-draw pattern.
+//
+// Locals (all optional except mapId):
+//   mapId          - unique DOM id for this map instance (default "timeMap")
+//   height         - CSS height (default "420px")
+//   center         - [lat,lng] initial center; falls back to browser geolocation, then Munich
+//   markers        - [{lat,lng,label,color}] shown as labeled dots
+//   geofences      - [{lat,lng,radiusMeters,name}] shown as translucent circles
+//   routeLine      - [[lat,lng],...] shown as an ordered polyline connecting stops
+//   pickMode       - true => clicking the map sets latInputId/lngInputId hidden inputs
+//   latInputId     - hidden <input> id to receive the picked latitude (pickMode only)
+//   lngInputId     - hidden <input> id to receive the picked longitude (pickMode only)
+//   pickInitial    - [lat,lng] to show an initial draggable pick marker (pickMode only)
+const _mapId = typeof mapId !== 'undefined' ? mapId : 'timeMap';
+const _height = typeof height !== 'undefined' ? height : '420px';
+const _center = typeof center !== 'undefined' ? center : null;
+const _markers = typeof markers !== 'undefined' ? markers : [];
+const _geofences = typeof geofences !== 'undefined' ? geofences : [];
+const _routeLine = typeof routeLine !== 'undefined' ? routeLine : [];
+const _pickMode = typeof pickMode !== 'undefined' ? pickMode : false;
+const _latInputId = typeof latInputId !== 'undefined' ? latInputId : null;
+const _lngInputId = typeof lngInputId !== 'undefined' ? lngInputId : null;
+const _pickInitial = typeof pickInitial !== 'undefined' ? pickInitial : null;
+%>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<div id="<%= _mapId %>" style="height:<%= _height %>; border:1px solid var(--oa-border, #d8dfec); border-radius:10px;"></div>
+<script>
+(function () {
+  const FALLBACK_CENTER = [48.1351, 11.5820];
+  const providedCenter = <%- JSON.stringify(_center) %>;
+  const markers = <%- JSON.stringify(_markers) %>;
+  const geofences = <%- JSON.stringify(_geofences) %>;
+  const routeLine = <%- JSON.stringify(_routeLine) %>;
+  const pickMode = <%- JSON.stringify(_pickMode) %>;
+  const latInputId = <%- JSON.stringify(_latInputId) %>;
+  const lngInputId = <%- JSON.stringify(_lngInputId) %>;
+  const pickInitial = <%- JSON.stringify(_pickInitial) %>;
+
+  function buildMap(center) {
+    const map = L.map(<%- JSON.stringify(_mapId) %>).setView(center, pickMode || routeLine.length ? 14 : 12);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 20,
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    markers.forEach((m) => {
+      L.circleMarker([m.lat, m.lng], {
+        radius: 8,
+        color: m.color || '#2968f2',
+        fillColor: m.color || '#2968f2',
+        fillOpacity: 1
+      }).addTo(map).bindTooltip(m.label || '');
+    });
+
+    geofences.forEach((g) => {
+      L.circle([g.lat, g.lng], {
+        radius: g.radiusMeters || 150,
+        color: '#18a85b',
+        fillColor: '#18a85b',
+        fillOpacity: 0.12,
+        weight: 2
+      }).addTo(map).bindTooltip(g.name || 'Geofence');
+    });
+
+    if (routeLine.length > 1) {
+      L.polyline(routeLine, { color: '#2968f2', weight: 4 }).addTo(map);
+      routeLine.forEach((pt, i) => {
+        L.circleMarker(pt, { radius: 7, color: '#2968f2', fillColor: '#fff', fillOpacity: 1, weight: 3 })
+          .addTo(map)
+          .bindTooltip(String(i + 1));
+      });
+    }
+
+    if (pickMode) {
+      let pickMarker = null;
+      function setPick(latlng) {
+        const latEl = document.getElementById(latInputId);
+        const lngEl = document.getElementById(lngInputId);
+        if (latEl) latEl.value = latlng.lat.toFixed(6);
+        if (lngEl) lngEl.value = latlng.lng.toFixed(6);
+        if (pickMarker) { map.removeLayer(pickMarker); }
+        pickMarker = L.marker(latlng, { draggable: true }).addTo(map);
+        pickMarker.on('dragend', () => setPick(pickMarker.getLatLng()));
+      }
+      if (pickInitial) setPick({ lat: pickInitial[0], lng: pickInitial[1] });
+      map.on('click', (e) => setPick(e.latlng));
+    }
+
+    if (markers.length + geofences.length + routeLine.length > 1) {
+      const allPts = markers.map((m) => [m.lat, m.lng])
+        .concat(geofences.map((g) => [g.lat, g.lng]))
+        .concat(routeLine);
+      if (allPts.length > 1) map.fitBounds(allPts, { padding: [30, 30] });
+    }
+
+    setTimeout(() => map.invalidateSize(), 100);
+  }
+
+  if (providedCenter) {
+    buildMap(providedCenter);
+  } else if (pickInitial) {
+    buildMap(pickInitial);
+  } else if (markers.length) {
+    buildMap([markers[0].lat, markers[0].lng]);
+  } else if (navigator.geolocation) {
+    const fallbackTimer = setTimeout(() => buildMap(FALLBACK_CENTER), 4500);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => { clearTimeout(fallbackTimer); buildMap([pos.coords.latitude, pos.coords.longitude]); },
+      () => { clearTimeout(fallbackTimer); buildMap(FALLBACK_CENTER); },
+      { enableHighAccuracy: true, timeout: 4000 }
+    );
+  } else {
+    buildMap(FALLBACK_CENTER);
+  }
+})();
+</script>

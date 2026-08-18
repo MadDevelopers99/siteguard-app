@@ -767,6 +767,182 @@ CREATE INDEX IF NOT EXISTS idx_time_entries_user ON time_entries(time_user_id);
 CREATE INDEX IF NOT EXISTS idx_time_entries_project ON time_entries(project_id);
 `);
 
+// ---------- Time Tracking: GIS / Ops extension ----------
+// New tables are prefixed time_ (matching time_users/time_entries) to keep
+// this domain explicitly decoupled from drivers/vehicles/orders. FKs only
+// ever point at projects/time_users/services — never at drivers/admins/orders.
+db.exec(`
+CREATE TABLE IF NOT EXISTS time_geofences (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  project_id INTEGER NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+  name TEXT NOT NULL,
+  lat REAL NOT NULL,
+  lng REAL NOT NULL,
+  radius_meters REAL DEFAULT 150,
+  check_in_required INTEGER DEFAULT 0,
+  arrival_behavior TEXT DEFAULT 'Notify only',
+  departure_behavior TEXT DEFAULT 'Notify only',
+  retention_days INTEGER DEFAULT 90,
+  created_at TEXT DEFAULT (datetime('now')),
+  updated_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS time_jobs (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  project_id INTEGER NOT NULL REFERENCES projects(id),
+  assigned_time_user_id INTEGER REFERENCES time_users(id),
+  title TEXT NOT NULL,
+  instructions TEXT,
+  checklist TEXT,
+  status TEXT DEFAULT 'Unassigned',
+  scheduled_date TEXT,
+  scheduled_start TEXT,
+  scheduled_end TEXT,
+  lat REAL,
+  lng REAL,
+  stop_order INTEGER,
+  signature_data TEXT,
+  completion_notes TEXT,
+  completed_at TEXT,
+  completed_by INTEGER REFERENCES time_users(id),
+  created_at TEXT DEFAULT (datetime('now')),
+  updated_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS time_locations (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  time_user_id INTEGER NOT NULL REFERENCES time_users(id) ON DELETE CASCADE,
+  lat REAL NOT NULL,
+  lng REAL NOT NULL,
+  accuracy REAL,
+  recorded_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS time_geofence_events (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  geofence_id INTEGER NOT NULL REFERENCES time_geofences(id) ON DELETE CASCADE,
+  time_user_id INTEGER NOT NULL REFERENCES time_users(id) ON DELETE CASCADE,
+  job_id INTEGER REFERENCES time_jobs(id),
+  event_type TEXT NOT NULL,
+  lat REAL,
+  lng REAL,
+  accuracy REAL,
+  occurred_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS time_user_skills (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  time_user_id INTEGER NOT NULL REFERENCES time_users(id) ON DELETE CASCADE,
+  service_id INTEGER NOT NULL REFERENCES services(id) ON DELETE CASCADE,
+  UNIQUE(time_user_id, service_id)
+);
+
+CREATE TABLE IF NOT EXISTS time_assets (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  asset_type TEXT,
+  project_id INTEGER REFERENCES projects(id),
+  serial_number TEXT,
+  status TEXT DEFAULT 'Active',
+  lat REAL,
+  lng REAL,
+  notes TEXT,
+  created_at TEXT DEFAULT (datetime('now')),
+  updated_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS time_asset_maintenance (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  asset_id INTEGER NOT NULL REFERENCES time_assets(id) ON DELETE CASCADE,
+  date TEXT DEFAULT (datetime('now')),
+  description TEXT NOT NULL,
+  performed_by TEXT,
+  cost REAL,
+  created_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS time_integrations (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  provider_key TEXT UNIQUE NOT NULL,
+  display_name TEXT NOT NULL,
+  config TEXT,
+  status TEXT DEFAULT 'not_configured',
+  updated_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS time_day_off (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  time_user_id INTEGER NOT NULL REFERENCES time_users(id) ON DELETE CASCADE,
+  date TEXT NOT NULL,
+  note TEXT,
+  created_at TEXT DEFAULT (datetime('now')),
+  UNIQUE(time_user_id, date)
+);
+
+CREATE INDEX IF NOT EXISTS idx_time_geofences_project ON time_geofences(project_id);
+CREATE INDEX IF NOT EXISTS idx_time_jobs_project ON time_jobs(project_id);
+CREATE INDEX IF NOT EXISTS idx_time_jobs_assigned ON time_jobs(assigned_time_user_id);
+CREATE INDEX IF NOT EXISTS idx_time_jobs_date ON time_jobs(scheduled_date);
+CREATE INDEX IF NOT EXISTS idx_time_locations_user ON time_locations(time_user_id, recorded_at);
+CREATE INDEX IF NOT EXISTS idx_time_geofence_events_geofence ON time_geofence_events(geofence_id);
+CREATE INDEX IF NOT EXISTS idx_time_geofence_events_user ON time_geofence_events(time_user_id);
+CREATE INDEX IF NOT EXISTS idx_time_assets_project ON time_assets(project_id);
+CREATE INDEX IF NOT EXISTS idx_time_day_off_user ON time_day_off(time_user_id, date);
+`);
+
+[["is_admin", "INTEGER DEFAULT 0"], ["phone", "TEXT"]].forEach(([column, definition]) =>
+  ensureColumn("time_users", column, definition)
+);
+
+[
+  ["job_id", "INTEGER REFERENCES time_jobs(id)"],
+  ["status", "TEXT DEFAULT 'Approved'"],
+  ["approved_by", "INTEGER REFERENCES time_users(id)"],
+  ["approved_at", "TEXT"],
+  ["check_in_lat", "REAL"],
+  ["check_in_lng", "REAL"],
+  ["check_in_accuracy", "REAL"],
+  ["location_verified", "INTEGER DEFAULT 0"],
+  ["client_ref", "TEXT"]
+].forEach(([column, definition]) => ensureColumn("time_entries", column, definition));
+
+[["lat", "REAL"], ["lng", "REAL"]].forEach(([column, definition]) => ensureColumn("clients", column, definition));
+
+[["service_id", "INTEGER REFERENCES services(id)"]].forEach(([column, definition]) =>
+  ensureColumn("time_jobs", column, definition)
+);
+
+// ---------- Time Tracking admin account seed ----------
+const timeAdminCount = db.prepare("SELECT COUNT(*) AS n FROM time_users WHERE is_admin = 1").get().n;
+if (timeAdminCount === 0) {
+  const bcrypt = require("bcryptjs");
+  const email = process.env.TIME_ADMIN_EMAIL || "timeadmin@siteguard.de";
+  const password = process.env.TIME_ADMIN_PASSWORD || "ChangeMe123!";
+  const name = process.env.TIME_ADMIN_NAME || "Time Tracking Admin";
+  const hash = bcrypt.hashSync(password, 10);
+  db.prepare("INSERT INTO time_users (email, password_hash, name, is_admin) VALUES (?, ?, ?, 1)").run(email, hash, name);
+  console.log(`Created Time Tracking admin account -> email: ${email} / password: ${password}`);
+}
+
+// ---------- Time Tracking integrations seed ----------
+const timeIntegrationsCount = db.prepare("SELECT COUNT(*) AS n FROM time_integrations").get().n;
+if (timeIntegrationsCount === 0) {
+  const insertIntegration = db.prepare(
+    "INSERT INTO time_integrations (provider_key, display_name) VALUES (?, ?)"
+  );
+  [
+    ["clockodo", "Clockodo"],
+    ["clockin", "clockin"],
+    ["arcgis", "ArcGIS"],
+    ["qgis_postgis", "QGIS / PostGIS"],
+    ["xero_datev", "Xero / DATEV"],
+    ["google_calendar", "Google Calendar"],
+    ["slack_teams", "Slack / Teams"],
+    ["zapier_make", "Zapier / Make"],
+    ["rest_api", "REST API + Webhooks"]
+  ].forEach(([key, name]) => insertIntegration.run(key, name));
+}
+
 // ---------- Main Admin account seed ----------
 // Idempotent, same pattern as the inventory catalog seed below: creates a second
 // admin role ("main_admin") on first boot if one doesn't already exist.

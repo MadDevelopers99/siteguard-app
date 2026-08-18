@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Time Entry — SiteGuard Time Tracking</title>
+<link rel="stylesheet" href="/css/style.css">
+<link rel="stylesheet" href="/css/admin-theme.css">
+</head>
+<body>
+<div class="admin-shell sg-admin-v2">
+  <%- include('../partials/time-sidebar', { active: 'tracking', userName: userName, isAdmin: isAdmin }) %>
+
+  <div class="admin-main">
+    <div class="admin-topline">
+      <h1>Time Entry + Location</h1>
+      <a href="/time/tracking?tab=timesheet" style="text-decoration:none; font-size:14px;">&larr; Back</a>
+    </div>
+
+    <div class="grid g2">
+      <div class="admin-card">
+        <span class="badge badge-<%= entry.location_verified ? 'confirmed' : 'pending' %>"><%= entry.location_verified ? 'Geofence verified' : 'Not location-verified' %></span>
+        <h2><%= entry.client_name %> — <%= entry.project_name %></h2>
+        <div class="row"><span>Staff</span><b><%= entry.staff_name %></b></div>
+        <div class="row"><span>Date</span><b><%= entry.date %></b></div>
+        <div class="row"><span>Time</span><b><%= entry.start_time %>–<%= entry.end_time || 'running…' %></b></div>
+        <div class="row"><span>Duration</span><b><%= entry.duration_minutes != null ? Math.floor(entry.duration_minutes/60) + 'h ' + (entry.duration_minutes%60) + 'm' : '—' %></b></div>
+        <div class="row"><span>Type</span><b><%= entry.is_manual ? 'Manual' : 'Timer' %></b></div>
+        <div class="row"><span>Status</span><span class="badge badge-<%= entry.status === 'Approved' ? 'confirmed' : entry.status === 'Rejected' ? 'cancelled' : 'pending' %>"><%= entry.status %></span></div>
+        <% if (entry.check_in_lat != null) { %>
+          <div class="row"><span>Check-in accuracy</span><b>±<%= Math.round(entry.check_in_accuracy || 0) %> m</b></div>
+        <% } %>
+        <% if (entry.description) { %><p style="margin-top:14px; color:var(--steel);"><%= entry.description %></p><% } %>
+      </div>
+
+      <div>
+        <%- include('../partials/time-map', {
+          mapId: 'entryMap',
+          height: '320px',
+          markers: entry.check_in_lat != null ? [{ lat: entry.check_in_lat, lng: entry.check_in_lng, label: 'Check-in', color: '#2968f2' }] : []
+        }) %>
+        <div class="map-panel-static admin-card" style="margin-top:12px;">
+          <b>Location evidence</b>
+          <% if (events.length === 0) { %>
+            <p class="small muted">No geofence events recorded for this entry.</p>
+          <% } %>
+          <% events.forEach(ev => { %>
+            <p class="small muted"><%= ev.event_type === 'enter' ? 'Entered' : 'Exited' %> <%= ev.geofence_name %> at <%= ev.occurred_at %></p>
+          <% }) %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

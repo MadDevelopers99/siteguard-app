@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jobs — SiteGuard Time Tracking</title>
+<link rel="stylesheet" href="/css/style.css">
+<link rel="stylesheet" href="/css/admin-theme.css">
+</head>
+<body>
+<div class="admin-shell sg-admin-v2">
+  <%- include('../partials/time-sidebar', { active: 'dispatch', userName: userName, isAdmin: isAdmin }) %>
+
+  <div class="admin-main">
+    <div class="admin-topline">
+      <h1>Jobs</h1>
+      <div style="display:flex; gap:8px;">
+        <a class="btn btn-outline btn-sm" style="text-decoration:none;" href="/time/jobs?mine=1">My Jobs</a>
+        <a class="btn btn-sm" style="text-decoration:none;" href="/time/jobs/new">+ New Job</a>
+      </div>
+    </div>
+
+    <div class="data-table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr><th>Title</th><th>Project</th><th>Assigned</th><th>Scheduled</th><th>Status</th><th>Actions</th></tr>
+        </thead>
+        <tbody>
+          <% if (jobs.length === 0) { %>
+            <tr><td colspan="6" style="text-align:center; color:#8a8f90;">No jobs yet.</td></tr>
+          <% } %>
+          <% jobs.forEach(j => { %>
+            <tr>
+              <td><a href="/time/jobs/<%= j.id %>"><%= j.title %></a></td>
+              <td><%= j.client_name %> — <%= j.project_name %></td>
+              <td><%= j.assigned_name || '—' %></td>
+              <td><%= j.scheduled_date || '—' %><%= j.scheduled_start ? ' ' + j.scheduled_start : '' %></td>
+              <td><span class="badge badge-<%= j.status === 'Completed' ? 'delivered' : j.status === 'Cancelled' ? 'cancelled' : j.status === 'Unassigned' ? 'pending' : 'confirmed' %>"><%= j.status %></span></td>
+              <td><a class="btn btn-outline btn-sm" style="text-decoration:none;" href="/time/jobs/<%= j.id %>/edit">Edit</a></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+</body>
+</html>

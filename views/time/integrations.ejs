@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Integrations — SiteGuard Time Tracking</title>
+<link rel="stylesheet" href="/css/style.css">
+<link rel="stylesheet" href="/css/admin-theme.css">
+</head>
+<body>
+<div class="admin-shell sg-admin-v2">
+  <%- include('../partials/time-sidebar', { active: 'integrations', userName: userName, isAdmin: isAdmin }) %>
+
+  <div class="admin-main">
+    <div class="admin-topline">
+      <h1>Integrations</h1>
+    </div>
+    <p class="muted small" style="margin-top:-14px;">
+      Save connection settings for each connector. No live third-party calls are made yet — connecting a
+      real account/API key here marks it "Configured" so it's ready to wire up once you have those credentials.
+    </p>
+
+    <div class="grid g3">
+      <% integrations.forEach(i => { %>
+        <div class="admin-card">
+          <span class="badge badge-<%= i.status === 'configured' ? 'confirmed' : 'pending' %>"><%= i.status === 'configured' ? 'Configured' : 'Not configured' %></span>
+          <h3><%= i.display_name %></h3>
+          <p class="muted small"><%= i.def ? i.def.description : '' %></p>
+          <div style="display:flex; gap:8px;">
+            <a class="btn btn-outline btn-sm" style="text-decoration:none;" href="/time/integrations/<%= i.provider_key %>/configure">Configure</a>
+            <% if (i.status === 'configured') { %>
+              <form method="POST" action="/time/integrations/<%= i.provider_key %>/disconnect" style="margin:0;">
+                <button type="submit" class="btn btn-outline btn-sm">Disconnect</button>
+              </form>
+            <% } %>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+  </div>
+</div>
+</body>
+</html>

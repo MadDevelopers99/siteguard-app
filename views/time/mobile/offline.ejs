@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Offline Mode — SiteGuard Time Tracking</title>
+<link rel="stylesheet" href="/css/style.css">
+<link rel="stylesheet" href="/css/driver-theme.css">
+</head>
+<body>
+<div class="driver-shell driver-v2">
+  <div class="driver-topbar">
+    <span class="brand">Sync</span>
+    <a href="/time/m/home" style="text-decoration:none;">Home</a>
+  </div>
+
+  <div class="driver-main">
+    <div class="driver-card" id="statusCard" style="text-align:center; padding:24px 16px;">
+      <div id="statusIcon" style="font-size:32px;"></div>
+      <h2 id="statusHeading"></h2>
+      <p id="statusSub" style="color:#8a8f90;"></p>
+      <button class="driver-btn-lg" id="syncNowBtn">Sync Now</button>
+    </div>
+
+    <div class="driver-card">
+      <h3>Add a time entry while offline</h3>
+      <form id="offlineForm">
+        <div class="driver-field">
+          <label>Project</label>
+          <select name="project_id" required>
+            <% projects.forEach(p => { %><option value="<%= p.id %>"><%= p.client_name %> — <%= p.name %></option><% }) %>
+          </select>
+        </div>
+        <div class="driver-field"><label>Date</label><input type="date" name="date" required></div>
+        <div class="driver-field"><label>Start</label><input type="time" name="start_time" required></div>
+        <div class="driver-field"><label>End</label><input type="time" name="end_time" required></div>
+        <div class="driver-field"><label>Description</label><input type="text" name="description"></div>
+        <button class="driver-btn-lg outline" type="submit">Queue Entry</button>
+      </form>
+    </div>
+
+    <div class="driver-card">
+      <h3>Queued items</h3>
+      <div id="queueList"></div>
+    </div>
+  </div>
+
+  <%- include('../../partials/time-bottomnav', { active: 'offline' }) %>
+</div>
+
+<script>
+  const QUEUE_KEY = 'timeTrackingOfflineQueue';
+
+  function getQueue() {
+    try { return JSON.parse(localStorage.getItem(QUEUE_KEY) || '[]'); } catch (e) { return []; }
+  }
+  function setQueue(q) { localStorage.setItem(QUEUE_KEY, JSON.stringify(q)); }
+
+  function renderStatus() {
+    const online = navigator.onLine;
+    const queue = getQueue();
+    document.getElementById('statusIcon').textContent = online ? '✓' : '⚠';
+    document.getElementById('statusHeading').textContent = online ? "You're online" : "You're offline";
+    document.getElementById('statusSub').textContent = online
+      ? (queue.length ? queue.length + ' item(s) waiting to sync.' : 'Everything is synced.')
+      : 'Keep working — entries queue locally and sync when connectivity returns.';
+    document.getElementById('syncNowBtn').disabled = !online || queue.length === 0;
+  }
+
+  function renderQueue() {
+    const queue = getQueue();
+    const list = document.getElementById('queueList');
+    if (queue.length === 0) {
+      list.innerHTML = '<p style="color:#8a8f90;">Nothing queued.</p>';
+      return;
+    }
+    list.innerHTML = queue.map((item, i) =>
+      `<div class="row"><span>${item.date} · ${item.start_time}-${item.end_time}</span><span class="badge badge-pending">${item.synced ? 'Synced' : 'Pending'}</span></div>`
+    ).join('');
+  }
+
+  function queueEntry(entry) {
+    const queue = getQueue();
+    entry.client_ref = 'offline-' + Date.now() + '-' + Math.random().toString(36).slice(2);
+    queue.push(entry);
+    setQueue(queue);
+    renderQueue();
+    renderStatus();
+  }
+
+  async function flushQueue() {
+    if (!navigator.onLine) return;
+    const queue = getQueue();
+    const remaining = [];
+    for (const item of queue) {
+      try {
+        const body = new URLSearchParams(item);
+        const resp = await fetch('/time/manual', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: body.toString() });
+        if (!resp.ok && resp.status !== 302) remaining.push(item);
+      } catch (e) {
+        remaining.push(item);
+      }
+    }
+    setQueue(remaining);
+    renderQueue();
+    renderStatus();
+  }
+
+  document.getElementById('offlineForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const form = e.target;
+    const entry = {
+      project_id: form.project_id.value,
+      date: form.date.value,
+      start_time: form.start_time.value,
+      end_time: form.end_time.value,
+      description: form.description.value
+    };
+    if (navigator.onLine) {
+      const body = new URLSearchParams(entry);
+      fetch('/time/manual', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: body.toString() })
+        .then(() => { form.reset(); renderStatus(); });
+    } else {
+      queueEntry(entry);
+      form.reset();
+    }
+  });
+
+  document.getElementById('syncNowBtn').addEventListener('click', flushQueue);
+  window.addEventListener('online', () => { renderStatus(); flushQueue(); });
+  window.addEventListener('offline', renderStatus);
+
+  renderStatus();
+  renderQueue();
+</script>
+</body>
+</html>

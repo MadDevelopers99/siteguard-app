@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dispatch — SiteGuard Time Tracking</title>
+<link rel="stylesheet" href="/css/style.css">
+<link rel="stylesheet" href="/css/admin-theme.css">
+</head>
+<body>
+<div class="admin-shell sg-admin-v2">
+  <%- include('../partials/time-sidebar', { active: 'dispatch', userName: userName, isAdmin: isAdmin }) %>
+
+  <div class="admin-main">
+    <div class="admin-topline">
+      <h1>Dispatch</h1>
+      <a class="btn btn-outline btn-sm" style="text-decoration:none;" href="/time/jobs/new">+ New Job</a>
+    </div>
+
+    <div class="split">
+      <div class="admin-card">
+        <div class="section-title"><h3>Unassigned jobs</h3><span class="badge"><%= unassigned.length %></span></div>
+        <% if (unassigned.length === 0) { %>
+          <p class="muted small">Nothing unassigned right now.</p>
+        <% } %>
+        <% unassigned.forEach(j => { %>
+          <div class="job">
+            <b><%= j.title %></b>
+            <p class="muted small"><%= j.client_name %> — <%= j.project_name %><%= j.scheduled_date ? ' · ' + j.scheduled_date : '' %><%= j.scheduled_start ? ' ' + j.scheduled_start : '' %></p>
+            <a class="btn btn-outline btn-sm" style="text-decoration:none;" href="/time/dispatch?job=<%= j.id %>">Select</a>
+          </div>
+        <% }) %>
+      </div>
+
+      <div>
+        <%- include('../partials/time-map', {
+          mapId: 'dispatchMap',
+          height: '360px',
+          markers: (unassigned.filter(j => j.lat != null).map(j => ({ lat: j.lat, lng: j.lng, label: j.title, color: '#2968f2' })))
+        }) %>
+
+        <% if (selectedJob) { %>
+          <div class="admin-card" style="margin-top:14px;">
+            <h3>Best match — <%= selectedJob.title %></h3>
+            <div class="data-table-wrap">
+              <table class="data-table">
+                <thead><tr><th>Staff</th><th>Distance</th><th>Skill</th><th>Active jobs</th><th></th></tr></thead>
+                <tbody>
+                  <% candidates.forEach(c => { %>
+                    <tr>
+                      <td><%= c.name %></td>
+                      <td><%= c.distanceKm != null ? c.distanceKm.toFixed(1) + ' km' : 'unknown' %></td>
+                      <td><%= c.hasSkill ? '✓' : '—' %></td>
+                      <td><%= c.activeJobs %></td>
+                      <td>
+                        <form method="POST" action="/time/dispatch/<%= selectedJob.id %>/assign" style="margin:0;">
+                          <input type="hidden" name="time_user_id" value="<%= c.id %>">
+                          <button class="btn btn-sm" type="submit">Assign</button>
+                        </form>
+                      </td>
+                    </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

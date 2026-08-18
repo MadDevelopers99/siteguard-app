@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Check In — SiteGuard Time Tracking</title>
+<link rel="stylesheet" href="/css/style.css">
+<link rel="stylesheet" href="/css/driver-theme.css">
+</head>
+<body>
+<div class="driver-shell driver-v2">
+  <div class="driver-topbar">
+    <span class="brand">Check In</span>
+    <a href="/time/m/jobs/<%= job.id %>" style="text-decoration:none;">Cancel</a>
+  </div>
+
+  <div class="driver-main">
+    <div class="driver-card">
+      <% if (geofence) { %><span class="badge badge-confirmed">Geofence: <%= geofence.name %> (<%= geofence.radius_meters %>m)</span><% } %>
+      <h2><%= job.client_name %> — <%= job.project_name %></h2>
+      <p><%= job.title %></p>
+
+      <% if (error) { %>
+        <div class="error-msg"><%= error %></div>
+      <% } %>
+
+      <p id="statusText" style="color:#8a8f90;">Getting your location…</p>
+
+      <form method="POST" action="/time/m/jobs/<%= job.id %>/checkin" id="checkinForm">
+        <input type="hidden" name="lat" id="ciLat">
+        <input type="hidden" name="lng" id="ciLng">
+        <input type="hidden" name="accuracy" id="ciAccuracy">
+        <input type="hidden" name="force" id="ciForce" value="0">
+        <button class="driver-btn-lg" type="submit" id="checkinBtn" disabled>Verifying location…</button>
+      </form>
+      <% if (tooFar) { %>
+        <form method="POST" action="/time/m/jobs/<%= job.id %>/checkin" style="margin-top:8px;">
+          <input type="hidden" name="lat" value="<%= typeof lat !== 'undefined' ? lat : '' %>">
+          <input type="hidden" name="lng" value="<%= typeof lng !== 'undefined' ? lng : '' %>">
+          <input type="hidden" name="force" value="1">
+          <button class="driver-btn-lg outline" type="submit">Start Anyway</button>
+        </form>
+      <% } %>
+    </div>
+  </div>
+</div>
+
+<script>
+  const statusText = document.getElementById('statusText');
+  const btn = document.getElementById('checkinBtn');
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        document.getElementById('ciLat').value = pos.coords.latitude;
+        document.getElementById('ciLng').value = pos.coords.longitude;
+        document.getElementById('ciAccuracy').value = pos.coords.accuracy || '';
+        statusText.textContent = 'Location found (±' + Math.round(pos.coords.accuracy || 0) + 'm). Tap below to check in.';
+        btn.disabled = false;
+        btn.textContent = 'Confirm Arrival & Start Timer';
+      },
+      () => {
+        statusText.textContent = 'Could not get your location — check permissions and try again.';
+      },
+      { enableHighAccuracy: true, timeout: 8000 }
+    );
+  } else {
+    statusText.textContent = 'Geolocation is not available on this device.';
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Asset Management — SiteGuard Time Tracking</title>
+<link rel="stylesheet" href="/css/style.css">
+<link rel="stylesheet" href="/css/admin-theme.css">
+</head>
+<body>
+<div class="admin-shell sg-admin-v2">
+  <%- include('../partials/time-sidebar', { active: 'assets', userName: userName, isAdmin: isAdmin }) %>
+
+  <div class="admin-main">
+    <div class="admin-topline">
+      <h1>Asset Management</h1>
+      <a class="btn btn-sm" style="text-decoration:none;" href="/time/assets/new">+ New Asset</a>
+    </div>
+
+    <div class="split">
+      <%- include('../partials/time-map', { mapId: 'assetsMap', height: '400px', markers: markers }) %>
+
+      <div class="admin-card">
+        <form class="filter-bar" method="GET" action="/time/assets" style="margin-bottom:14px;">
+          <select name="project_id">
+            <option value="">All projects</option>
+            <% projects.forEach(p => { %>
+              <option value="<%= p.id %>" <%= String(filters.project_id) === String(p.id) ? 'selected' : '' %>><%= p.client_name %> — <%= p.name %></option>
+            <% }) %>
+          </select>
+          <select name="status">
+            <option value="">All statuses</option>
+            <% ASSET_STATUS_OPTIONS.forEach(s => { %>
+              <option value="<%= s %>" <%= filters.status === s ? 'selected' : '' %>><%= s %></option>
+            <% }) %>
+          </select>
+          <button class="btn btn-outline btn-sm" type="submit">Filter</button>
+        </form>
+
+        <% assets.forEach(a => { %>
+          <div class="row">
+            <span><a href="/time/assets/<%= a.id %>"><b><%= a.name %></b></a><br><span class="small muted"><%= a.project_name ? a.client_name + ' — ' + a.project_name : 'Unassigned' %></span></span>
+            <span class="badge badge-<%= a.status === 'Active' ? 'confirmed' : a.status === 'Retired' ? 'cancelled' : 'pending' %>"><%= a.status %></span>
+          </div>
+        <% }) %>
+        <% if (assets.length === 0) { %>
+          <p class="muted small">No assets match these filters.</p>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

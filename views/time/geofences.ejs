@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Geofence Settings — SiteGuard Time Tracking</title>
+<link rel="stylesheet" href="/css/style.css">
+<link rel="stylesheet" href="/css/admin-theme.css">
+</head>
+<body>
+<div class="admin-shell sg-admin-v2">
+  <%- include('../partials/time-sidebar', { active: 'geofences', userName: userName, isAdmin: isAdmin }) %>
+
+  <div class="admin-main">
+    <div class="admin-topline">
+      <h1>Geofence Settings</h1>
+      <a class="btn btn-sm" style="text-decoration:none;" href="/time/geofences/new">+ New</a>
+    </div>
+
+    <p class="muted small" style="margin-top:-14px;">Create and manage location rules that projects use to prompt or auto start/stop timers.</p>
+
+    <div class="data-table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr><th>Geofence</th><th>Project</th><th>Radius</th><th>Arrival</th><th>Departure</th><th>Check-in</th><th>Actions</th></tr>
+        </thead>
+        <tbody>
+          <% if (geofences.length === 0) { %>
+            <tr><td colspan="7" style="text-align:center; color:#8a8f90;">No geofences yet.</td></tr>
+          <% } %>
+          <% geofences.forEach(g => { %>
+            <tr>
+              <td><b><%= g.name %></b></td>
+              <td><%= g.client_name %> — <%= g.project_name %></td>
+              <td><%= g.radius_meters %> m</td>
+              <td><%= g.arrival_behavior %></td>
+              <td><%= g.departure_behavior %></td>
+              <td><span class="badge badge-<%= g.check_in_required ? 'confirmed' : 'pending' %>"><%= g.check_in_required ? 'Required' : 'Optional' %></span></td>
+              <td style="display:flex; gap:6px;">
+                <a class="btn btn-outline btn-sm" style="text-decoration:none;" href="/time/geofences/<%= g.id %>/edit">Edit</a>
+                <form method="POST" action="/time/geofences/<%= g.id %>/delete" style="margin:0;" onsubmit="return confirm('Delete this geofence?');">
+                  <button type="submit" class="btn btn-outline btn-sm">Delete</button>
+                </form>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+</body>
+</html>

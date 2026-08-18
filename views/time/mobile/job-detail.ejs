@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title><%= job.title %> — SiteGuard Time Tracking</title>
+<link rel="stylesheet" href="/css/style.css">
+<link rel="stylesheet" href="/css/driver-theme.css">
+</head>
+<body>
+<div class="driver-shell driver-v2">
+  <div class="driver-topbar">
+    <span class="brand"><%= job.title %></span>
+    <a href="/time/m/home" style="text-decoration:none;">Home</a>
+  </div>
+
+  <div class="driver-main">
+    <div class="driver-card">
+      <span class="badge badge-<%= job.status === 'Completed' ? 'delivered' : job.status === 'Unassigned' ? 'pending' : 'confirmed' %>"><%= job.status %></span>
+      <h2><%= job.project_name %></h2>
+      <p><%= job.client_name %></p>
+      <p><%= job.scheduled_date || '—' %><%= job.scheduled_start ? ' ' + job.scheduled_start : '' %></p>
+      <% if (job.instructions) { %><p style="color:#8a8f90;"><%= job.instructions %></p><% } %>
+    </div>
+
+    <div class="driver-card">
+      <h3>Checklist</h3>
+      <% checklist.forEach((item, i) => { %>
+        <form method="POST" action="/time/m/jobs/<%= job.id %>/checklist" style="margin:4px 0;">
+          <input type="hidden" name="toggle_index" value="<%= i %>">
+          <label>
+            <input type="checkbox" <%= item.done ? 'checked' : '' %> onchange="this.form.requestSubmit()">
+            <span style="<%= item.done ? 'text-decoration:line-through; color:#8a8f90;' : '' %>"><%= item.text %></span>
+          </label>
+        </form>
+      <% }) %>
+      <% if (checklist.length === 0) { %><p style="color:#8a8f90;">No checklist items.</p><% } %>
+    </div>
+
+    <a class="driver-btn-lg" style="display:block; text-align:center; text-decoration:none;" href="/time/m/jobs/<%= job.id %>/checkin">Check In / Start Timer</a>
+    <a class="driver-btn-lg outline" style="display:block; text-align:center; text-decoration:none; margin-top:8px;" href="/time/m/jobs/<%= job.id %>/proof">Complete Job</a>
+  </div>
+
+  <%- include('../../partials/time-bottomnav', { active: 'jobs' }) %>
+</div>
+</body>
+</html>

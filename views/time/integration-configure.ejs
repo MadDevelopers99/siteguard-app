@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Configure <%= def.name %> — SiteGuard Time Tracking</title>
+<link rel="stylesheet" href="/css/style.css">
+<link rel="stylesheet" href="/css/admin-theme.css">
+</head>
+<body>
+<div class="admin-shell sg-admin-v2">
+  <%- include('../partials/time-sidebar', { active: 'integrations', userName: userName, isAdmin: isAdmin }) %>
+
+  <div class="admin-main">
+    <div class="admin-topline">
+      <h1>Configure <%= def.name %></h1>
+      <a href="/time/integrations" style="text-decoration:none; font-size:14px;">&larr; Back to integrations</a>
+    </div>
+
+    <% if (error) { %>
+      <div class="error-msg"><%= error %></div>
+    <% } %>
+
+    <div class="admin-card">
+      <p class="muted small"><%= def.description %></p>
+      <form method="POST" action="/time/integrations/<%= def.key %>/configure">
+        <div class="form-grid">
+          <% def.fields.forEach(f => { %>
+            <div class="form-group">
+              <label><%= f.label %></label>
+              <input type="<%= f.type %>" name="<%= f.name %>" value="<%= config[f.name] || '' %>">
+            </div>
+          <% }) %>
+        </div>
+        <button class="btn" type="submit" style="margin-top:14px;">Save configuration</button>
+      </form>
+    </div>
+  </div>
+</div>
+</body>
+</html>

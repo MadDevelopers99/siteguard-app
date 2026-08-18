@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Route Planning — SiteGuard Time Tracking</title>
+<link rel="stylesheet" href="/css/style.css">
+<link rel="stylesheet" href="/css/admin-theme.css">
+</head>
+<body>
+<div class="admin-shell sg-admin-v2">
+  <%- include('../partials/time-sidebar', { active: 'route-planning', userName: userName, isAdmin: isAdmin }) %>
+
+  <div class="admin-main">
+    <div class="admin-topline">
+      <h1>Route Planning</h1>
+      <form method="GET" action="/time/route-planning" style="margin:0;">
+        <select name="user" onchange="this.form.submit()">
+          <% users.forEach(u => { %>
+            <option value="<%= u.id %>" <%= String(userId) === String(u.id) ? 'selected' : '' %>><%= u.name %></option>
+          <% }) %>
+        </select>
+      </form>
+    </div>
+
+    <p class="muted small" style="margin-top:-14px;">
+      Straight-line distance estimate — not a real road-routing engine. Travel time assumes an average <%= 40 %> km/h.
+    </p>
+
+    <div class="split">
+      <div class="admin-card">
+        <div class="section-title">
+          <h3>Stops</h3>
+          <form method="POST" action="/time/route-planning/optimize" style="margin:0;">
+            <input type="hidden" name="user_id" value="<%= userId %>">
+            <button class="btn btn-sm" type="submit">Optimize route</button>
+          </form>
+        </div>
+        <% if (stops.length === 0) { %>
+          <p class="muted small">No assigned jobs with a location yet.</p>
+        <% } %>
+        <% stops.forEach((s, i) => { %>
+          <div class="row">
+            <span><span class="badge"><%= i + 1 %></span> &nbsp;<%= s.scheduled_start || '—' %> · <%= s.client_name %> — <%= s.project_name %> (<%= s.title %>)</span>
+            <span style="display:flex; gap:4px;">
+              <form method="POST" action="/time/route-planning/reorder" style="margin:0;">
+                <input type="hidden" name="user_id" value="<%= userId %>">
+                <input type="hidden" name="job_id" value="<%= s.id %>">
+                <input type="hidden" name="direction" value="up">
+                <button class="btn btn-outline btn-sm" type="submit" <%= i === 0 ? 'disabled' : '' %>>↑</button>
+              </form>
+              <form method="POST" action="/time/route-planning/reorder" style="margin:0;">
+                <input type="hidden" name="user_id" value="<%= userId %>">
+                <input type="hidden" name="job_id" value="<%= s.id %>">
+                <input type="hidden" name="direction" value="down">
+                <button class="btn btn-outline btn-sm" type="submit" <%= i === stops.length - 1 ? 'disabled' : '' %>>↓</button>
+              </form>
+            </span>
+          </div>
+        <% }) %>
+
+        <div class="grid g2" style="margin-top:14px;">
+          <div class="callout"><b><%= distanceKm.toFixed(1) %> km</b><div class="small muted">Distance (estimated)</div></div>
+          <div class="callout"><b><%= Math.floor(travelMinutes/60) %>h <%= travelMinutes%60 %>m</b><div class="small muted">Travel (estimated)</div></div>
+        </div>
+      </div>
+
+      <%- include('../partials/time-map', {
+        mapId: 'routeMap',
+        height: '520px',
+        routeLine: stops.map(s => [s.lat, s.lng])
+      }) %>
+    </div>
+  </div>
+</div>
+</body>
+</html>

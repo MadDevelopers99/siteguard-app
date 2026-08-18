@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Time Tracking — SiteGuard</title>
+<link rel="stylesheet" href="/css/style.css">
+<link rel="stylesheet" href="/css/driver-theme.css">
+</head>
+<body>
+<div class="driver-shell driver-v2">
+  <div class="driver-topbar">
+    <span class="brand">My Time</span>
+    <form method="POST" action="/time/logout" style="margin:0;">
+      <button type="submit">Log out</button>
+    </form>
+  </div>
+
+  <div class="driver-main">
+    <div class="driver-card">
+      <h3>Hello, <%= userName %></h3>
+      <p><%= Math.floor(hoursTodayMinutes/60) %>h <%= hoursTodayMinutes%60 %>m tracked today (all staff)</p>
+    </div>
+
+    <% if (running) { %>
+      <div class="driver-card">
+        <h3>Timer Running</h3>
+        <p><%= running.client_name %> — <%= running.project_name %></p>
+        <p style="color:#8a8f90;">Started at <%= running.start_time %></p>
+        <form method="POST" action="/time/stop">
+          <button class="driver-btn-lg" type="submit">Stop Timer</button>
+        </form>
+      </div>
+    <% } %>
+
+    <div class="driver-card">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h3>Today's Jobs</h3>
+        <span class="badge badge-confirmed"><%= todayJobs.length %></span>
+      </div>
+      <% if (todayJobs.length === 0) { %>
+        <p style="color:#8a8f90;">No jobs scheduled today.</p>
+      <% } %>
+      <% todayJobs.forEach((j, i) => { %>
+        <div class="driver-job-item" style="padding:10px 0; border-bottom:1px solid #eee;">
+          <div class="job-title"><%= j.scheduled_start || '' %> <%= j.title %><% if (i === 0) { %> <span class="badge badge-confirmed">Next</span><% } %></div>
+          <div class="job-meta"><%= j.client_name %> — <%= j.project_name %></div>
+          <div style="display:flex; gap:8px; margin-top:6px;">
+            <a class="btn btn-outline btn-sm" style="text-decoration:none;" href="/time/m/jobs/<%= j.id %>">Open</a>
+            <a class="btn btn-sm" style="text-decoration:none;" href="/time/m/jobs/<%= j.id %>/checkin">Check In</a>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+  </div>
+
+  <%- include('../../partials/time-bottomnav', { active: 'home' }) %>
+</div>
+</body>
+</html>

@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const db = require("../db/database");
-const { PROJECT_STATUS_OPTIONS } = require("../utils/constants");
+const { PROJECT_STATUS_OPTIONS, GEOFENCE_ARRIVAL_OPTIONS, GEOFENCE_DEPARTURE_OPTIONS } = require("../utils/constants");
 
 router.use((req, res, next) => {
   res.locals.userName = req.session.timeUserName;
@@ -92,7 +92,59 @@ router.get("/:id", (req, res) => {
   const hoursLogged = Math.round((minutesLogged / 60) * 100) / 100;
   const remainingHours = project.budget_hours != null ? Math.round((project.budget_hours - hoursLogged) * 100) / 100 : null;
 
-  res.render("time/project-detail", { project, entries, hoursLogged, remainingHours });
+  // "Primary" geofence = the first one created for this project. Multiple
+  // geofences per project are supported in full via the Geofence Settings
+  // screen (/time/geofences) — this card just manages the main one inline.
+  const geofence = db.prepare("SELECT * FROM time_geofences WHERE project_id = ? ORDER BY id LIMIT 1").get(project.id);
+
+  res.render("time/project-detail", {
+    project,
+    entries,
+    hoursLogged,
+    remainingHours,
+    geofence,
+    GEOFENCE_ARRIVAL_OPTIONS,
+    GEOFENCE_DEPARTURE_OPTIONS,
+    error: req.query.error || null
+  });
+});
+
+// ---------- Location / primary geofence (inline card on the detail page) ----------
+router.post("/:id/geofence", (req, res) => {
+  const project = db.prepare("SELECT id FROM projects WHERE id = ?").get(req.params.id);
+  if (!project) return res.status(404).send("Project not found");
+
+  const { name, lat, lng, radius_meters, check_in_required, arrival_behavior, departure_behavior } = req.body;
+  const latNum = parseFloat(lat);
+  const lngNum = parseFloat(lng);
+  if (!Number.isFinite(latNum) || !Number.isFinite(lngNum)) {
+    return res.redirect(`/time/projects/${project.id}?error=${encodeURIComponent("Please pick a location on the map.")}`);
+  }
+
+  const existing = db.prepare("SELECT id FROM time_geofences WHERE project_id = ? ORDER BY id LIMIT 1").get(project.id);
+  const params = [
+    name || "Site",
+    latNum,
+    lngNum,
+    radius_meters ? parseFloat(radius_meters) : 150,
+    check_in_required ? 1 : 0,
+    arrival_behavior || "Notify only",
+    departure_behavior || "Notify only"
+  ];
+
+  if (existing) {
+    db.prepare(
+      `UPDATE time_geofences SET name = ?, lat = ?, lng = ?, radius_meters = ?, check_in_required = ?,
+       arrival_behavior = ?, departure_behavior = ?, updated_at = datetime('now') WHERE id = ?`
+    ).run(...params, existing.id);
+  } else {
+    db.prepare(
+      `INSERT INTO time_geofences (project_id, name, lat, lng, radius_meters, check_in_required, arrival_behavior, departure_behavior)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+    ).run(project.id, ...params);
+  }
+
+  res.redirect(`/time/projects/${project.id}`);
 });
 
 // ---------- Edit ----------

@@ -1,0 +1,71 @@
+<nav class="driver-bottomnav">
+  <a href="/time/m/home" class="<%= typeof active !== 'undefined' && active === 'home' ? 'active' : '' %>">
+    <span class="icon">&#8962;</span><span>Home</span>
+  </a>
+  <a href="/time/jobs" class="<%= typeof active !== 'undefined' && active === 'jobs' ? 'active' : '' %>">
+    <span class="icon">&#9776;</span><span>Jobs</span>
+  </a>
+  <a href="/time/gis" class="<%= typeof active !== 'undefined' && active === 'map' ? 'active' : '' %>">
+    <span class="icon">&#9736;</span><span>Map</span>
+  </a>
+  <a href="/time/m/offline" class="<%= typeof active !== 'undefined' && active === 'offline' ? 'active' : '' %>">
+    <span class="icon">&#8635;</span><span>Sync</span>
+  </a>
+</nav>
+
+<script>
+  // Background location ping to SiteGuard's own /time/location/ping (never
+  // Traccar/external — this is the Time Tracking portal's own, separate
+  // location pipeline, feeding geofence enter/exit + Team Live Status).
+  (function () {
+    if (!navigator.geolocation) return;
+    const MIN_INTERVAL_MS = 25000;
+    let lastSent = 0;
+
+    function report(pos) {
+      const now = Date.now();
+      if (now - lastSent < MIN_INTERVAL_MS) return;
+      lastSent = now;
+
+      const body = new URLSearchParams({
+        lat: pos.coords.latitude,
+        lng: pos.coords.longitude,
+        accuracy: pos.coords.accuracy || ""
+      });
+
+      fetch("/time/location/ping", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: body.toString()
+      })
+        .then((r) => (r.ok ? r.json() : null))
+        .then((data) => {
+          if (!data || !data.transitions) return;
+          data.transitions.forEach((t) => {
+            if (t.eventType === "enter" && t.arrivalBehavior === "Prompt to start timer") {
+              if (confirm(`You've arrived at ${t.geofenceName}. Start timer?`)) {
+                fetch("/time/start", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                  body: new URLSearchParams({ project_id: t.projectId }).toString()
+                }).then(() => location.reload());
+              }
+            } else if (t.eventType === "exit" && t.departureBehavior === "Prompt to stop timer") {
+              if (confirm(`You've left ${t.geofenceName}. Stop timer?`)) {
+                fetch("/time/stop", { method: "POST" }).then(() => location.reload());
+              }
+            }
+          });
+        })
+        .catch(() => {
+          // Offline or server unreachable — ignore, next tick will retry once back online.
+        });
+    }
+
+    navigator.geolocation.watchPosition(report, () => {}, {
+      enableHighAccuracy: true,
+      maximumAge: 10000,
+      timeout: 15000
+    });
+  })();
+</script>

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard — SiteGuard Time Tracking</title>
+<link rel="stylesheet" href="/css/style.css">
+<link rel="stylesheet" href="/css/admin-theme.css">
+</head>
+<body>
+<div class="admin-shell sg-admin-v2">
+  <%- include('../partials/time-sidebar', { active: 'dashboard', userName: userName, isAdmin: isAdmin }) %>
+
+  <div class="admin-main">
+    <div class="admin-topline">
+      <h1>Dashboard</h1>
+      <p style="margin:4px 0 0; color:var(--steel); font-size:14px;">Operations overview</p>
+    </div>
+
+    <div class="grid g4">
+      <div class="card metric"><strong><%= Math.floor(hoursTodayMinutes/60) %>h <%= hoursTodayMinutes%60 %>m</strong><span>Tracked today</span></div>
+      <div class="card metric"><strong><%= activeProjectsCount %></strong><span>Active projects</span></div>
+      <div class="card metric"><strong><%= onSiteCount %></strong><span>Staff on site</span></div>
+      <div class="card metric"><strong><%= pendingApprovalsCount %></strong><span>Pending approvals</span></div>
+    </div>
+
+    <div class="grid g2" style="margin-top:14px;">
+      <div class="admin-card">
+        <h3>Hours this week</h3>
+        <%
+          const days = [];
+          for (let i = 6; i >= 0; i--) {
+            const d = new Date();
+            d.setDate(d.getDate() - i);
+            const iso = d.toISOString().slice(0, 10);
+            const row = weeklyHours.find(w => w.date === iso);
+            days.push({ iso, minutes: row ? row.minutes : 0 });
+          }
+          const maxMinutes = Math.max(1, ...days.map(d => d.minutes));
+        %>
+        <div class="bars">
+          <% days.forEach(d => { %>
+            <i style="height:<%= Math.max(4, Math.round((d.minutes / maxMinutes) * 100)) %>%" title="<%= d.iso %>: <%= Math.floor(d.minutes/60) %>h <%= d.minutes%60 %>m"></i>
+          <% }) %>
+        </div>
+      </div>
+
+      <div class="admin-card">
+        <h3>Project utilization</h3>
+        <% if (projectUtilization.length === 0) { %>
+          <p class="muted small">No active projects with logged time yet.</p>
+        <% } %>
+        <% projectUtilization.forEach(p => { %>
+          <div class="row"><b><%= p.client_name %> — <%= p.name %></b><span><%= p.loggedHours %>h<%= p.pct != null ? ' (' + p.pct + '%)' : '' %></span></div>
+          <div class="progress"><i style="width:<%= p.pct != null ? p.pct : Math.min(100, p.loggedHours) %>%"></i></div>
+        <% }) %>
+      </div>
+    </div>
+
+    <div class="grid g2" style="margin-top:14px;">
+      <div class="admin-card">
+        <h3>Recent time entries</h3>
+        <% if (recentEntries.length === 0) { %>
+          <p class="muted small">No entries yet.</p>
+        <% } %>
+        <% recentEntries.forEach(e => { %>
+          <div class="row">
+            <span><a href="/time/entries/<%= e.id %>"><%= e.staff_name %> — <%= e.project_name %></a></span>
+            <b><%= e.duration_minutes != null ? Math.floor(e.duration_minutes/60) + 'h ' + (e.duration_minutes%60) + 'm' : 'running…' %></b>
+          </div>
+        <% }) %>
+      </div>
+      <div class="admin-card">
+        <h3>Field status</h3>
+        <% if (fieldStatus.length === 0) { %>
+          <p class="muted small">No one is actively tracked right now.</p>
+        <% } %>
+        <% fieldStatus.forEach(f => { %>
+          <div class="row">
+            <span><%= f.name %><%= f.running ? ' · ' + f.running.project_name : '' %></span>
+            <span class="badge badge-<%= f.status === 'On site' ? 'confirmed' : 'pending' %>"><%= f.status %></span>
+          </div>
+        <% }) %>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

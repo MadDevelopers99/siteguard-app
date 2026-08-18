@@ -1,12 +1,62 @@
 <div class="admin-sidebar">
   <div class="brand"><span class="mark">TT</span> Time Tracking</div>
 
-  <a href="/time" class="<%= active === 'dashboard' ? 'active' : '' %>">My Time</a>
-  <a href="/time/projects" class="<%= active === 'projects' ? 'active' : '' %>">Projects</a>
-  <a href="/time/services" class="<%= active === 'services' ? 'active' : '' %>">Services</a>
+  <div class="nav-group <%= ['dashboard','tracking','calendar'].includes(active) ? 'open' : '' %>">
+    <button type="button" class="nav-parent-btn">Ops</button>
+    <div class="nav-children">
+      <a href="/time" class="<%= active === 'dashboard' ? 'active' : '' %>">Dashboard</a>
+      <a href="/time/tracking" class="<%= active === 'tracking' ? 'active' : '' %>">Time Tracking</a>
+      <a href="/time/calendar" class="<%= active === 'calendar' ? 'active' : '' %>">Calendar & Schedule</a>
+    </div>
+  </div>
+
+  <div class="nav-group <%= ['projects','dispatch','route-planning','gis','geofences'].includes(active) ? 'open' : '' %>">
+    <button type="button" class="nav-parent-btn">Field</button>
+    <div class="nav-children">
+      <a href="/time/projects" class="<%= active === 'projects' ? 'active' : '' %>">Projects</a>
+      <a href="/time/dispatch" class="<%= active === 'dispatch' ? 'active' : '' %>">Dispatch</a>
+      <a href="/time/route-planning" class="<%= active === 'route-planning' ? 'active' : '' %>">Route Planning</a>
+      <a href="/time/gis" class="<%= active === 'gis' ? 'active' : '' %>">GIS Map</a>
+      <a href="/time/geofences" class="<%= active === 'geofences' ? 'active' : '' %>">Geofence Settings</a>
+    </div>
+  </div>
+
+  <div class="nav-group <%= ['assets','team'].includes(active) ? 'open' : '' %>">
+    <button type="button" class="nav-parent-btn">Resources</button>
+    <div class="nav-children">
+      <a href="/time/assets" class="<%= active === 'assets' ? 'active' : '' %>">Asset Management</a>
+      <a href="/time/team" class="<%= active === 'team' ? 'active' : '' %>">Team & Live Status</a>
+    </div>
+  </div>
+
+  <div class="nav-group <%= ['reports','admin-dashboard'].includes(active) ? 'open' : '' %>">
+    <button type="button" class="nav-parent-btn">Insights</button>
+    <div class="nav-children">
+      <a href="/time/reports" class="<%= active === 'reports' ? 'active' : '' %>">Reports</a>
+      <% if (typeof isAdmin !== 'undefined' && isAdmin) { %>
+        <a href="/time/admin" class="<%= active === 'admin-dashboard' ? 'active' : '' %>">Admin Dashboard</a>
+      <% } %>
+    </div>
+  </div>
+
+  <div class="nav-group <%= ['services','integrations'].includes(active) ? 'open' : '' %>">
+    <button type="button" class="nav-parent-btn">Setup</button>
+    <div class="nav-children">
+      <a href="/time/services" class="<%= active === 'services' ? 'active' : '' %>">Services</a>
+      <a href="/time/integrations" class="<%= active === 'integrations' ? 'active' : '' %>">Integrations</a>
+    </div>
+  </div>
 
   <a href="/" target="_blank">View Site ↗</a>
   <form method="POST" action="/time/logout" style="padding: 12px 24px; margin:0;">
     <button type="submit" class="btn btn-outline btn-sm" style="width:100%;">Log out (<%= userName %>)</button>
   </form>
 </div>
+
+<script>
+  document.querySelectorAll('.admin-sidebar .nav-parent-btn, .admin-sidebar .nav-toggle').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      btn.closest('.nav-group').classList.toggle('open');
+    });
+  });
+</script>

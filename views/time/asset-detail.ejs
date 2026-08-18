@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title><%= asset.name %> — SiteGuard Time Tracking</title>
+<link rel="stylesheet" href="/css/style.css">
+<link rel="stylesheet" href="/css/admin-theme.css">
+</head>
+<body>
+<div class="admin-shell sg-admin-v2">
+  <%- include('../partials/time-sidebar', { active: 'assets', userName: userName, isAdmin: isAdmin }) %>
+
+  <div class="admin-main">
+    <div class="admin-topline">
+      <h1><%= asset.name %></h1>
+      <div style="display:flex; gap:12px; align-items:center;">
+        <a class="btn btn-outline btn-sm" style="text-decoration:none;" href="/time/assets/<%= asset.id %>/edit">Edit</a>
+        <a href="/time/assets" style="text-decoration:none; font-size:14px;">&larr; Back to assets</a>
+      </div>
+    </div>
+
+    <div class="grid g2">
+      <div class="admin-card">
+        <span class="badge badge-<%= asset.status === 'Active' ? 'confirmed' : asset.status === 'Retired' ? 'cancelled' : 'pending' %>"><%= asset.status %></span>
+        <div class="row"><span>Type</span><b><%= asset.asset_type || '—' %></b></div>
+        <div class="row"><span>Linked project</span><b><%= asset.project_name ? asset.client_name + ' — ' + asset.project_name : '—' %></b></div>
+        <div class="row"><span>Serial number</span><b><%= asset.serial_number || '—' %></b></div>
+        <div class="row"><span>Coordinates</span><b><%= asset.lat != null ? asset.lat.toFixed(4) + ', ' + asset.lng.toFixed(4) : '—' %></b></div>
+        <% if (asset.notes) { %><p style="margin-top:14px; color:var(--steel);"><%= asset.notes %></p><% } %>
+      </div>
+      <%- include('../partials/time-map', {
+        mapId: 'assetDetailMap',
+        height: '260px',
+        markers: asset.lat != null ? [{ lat: asset.lat, lng: asset.lng, label: asset.name, color: '#6d55e6' }] : []
+      }) %>
+    </div>
+
+    <div class="admin-card">
+      <h3>Asset history</h3>
+      <form method="POST" action="/time/assets/<%= asset.id %>/maintenance" class="form-grid" style="margin-bottom:14px;">
+        <div class="form-group"><label>Date</label><input type="date" name="date" value="<%= new Date().toISOString().slice(0,10) %>"></div>
+        <div class="form-group"><label>Description *</label><input type="text" name="description" required></div>
+        <div class="form-group"><label>Performed by</label><input type="text" name="performed_by"></div>
+        <div class="form-group"><label>Cost (€)</label><input type="number" step="0.01" name="cost"></div>
+        <div class="form-group full"><button class="btn btn-outline btn-sm" type="submit">Log Maintenance</button></div>
+      </form>
+      <div class="data-table-wrap">
+        <table class="data-table">
+          <thead><tr><th>Date</th><th>Work</th><th>Performed by</th><th>Cost</th></tr></thead>
+          <tbody>
+            <% if (maintenance.length === 0) { %>
+              <tr><td colspan="4" style="text-align:center; color:#8a8f90;">No maintenance logged yet.</td></tr>
+            <% } %>
+            <% maintenance.forEach(m => { %>
+              <tr>
+                <td><%= m.date %></td>
+                <td><%= m.description %></td>
+                <td><%= m.performed_by || '—' %></td>
+                <td><%= m.cost != null ? '€' + m.cost.toFixed(2) : '—' %></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

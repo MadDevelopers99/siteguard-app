@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reports — SiteGuard Time Tracking</title>
+<link rel="stylesheet" href="/css/style.css">
+<link rel="stylesheet" href="/css/admin-theme.css">
+</head>
+<body>
+<div class="admin-shell sg-admin-v2">
+  <%- include('../partials/time-sidebar', { active: 'reports', userName: userName, isAdmin: isAdmin }) %>
+
+  <div class="admin-main">
+    <div class="admin-topline">
+      <h1>Reports</h1>
+      <div style="display:flex; gap:8px;">
+        <a class="btn btn-outline btn-sm" style="text-decoration:none;" href="/time/reports/export.csv?tab=<%= tab %>">Export CSV</a>
+        <a class="btn btn-outline btn-sm" style="text-decoration:none;" href="/time/reports/export.pdf?tab=<%= tab %>">Export PDF</a>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <a class="tab-btn <%= tab === 'time' ? 'active' : '' %>" href="/time/reports?tab=time" style="text-decoration:none;">Time report</a>
+      <a class="tab-btn <%= tab === 'project' ? 'active' : '' %>" href="/time/reports?tab=project" style="text-decoration:none;">Project report</a>
+      <a class="tab-btn <%= tab === 'spatial' ? 'active' : '' %>" href="/time/reports?tab=spatial" style="text-decoration:none;">Spatial report</a>
+      <a class="tab-btn <%= tab === 'payroll' ? 'active' : '' %>" href="/time/reports?tab=payroll" style="text-decoration:none;">Payroll</a>
+    </div>
+
+    <% if (tab === 'time') { %>
+      <div class="grid g4">
+        <div class="card metric"><strong><%= fmtHours(time.totals.total) %></strong><span>Total hours</span></div>
+        <div class="card metric"><strong><%= fmtHours(time.totals.approved) %></strong><span>Approved hours</span></div>
+        <div class="card metric"><strong><%= fmtHours(time.totals.pending) %></strong><span>Pending hours</span></div>
+        <div class="card metric"><strong><%= time.totals.total ? Math.round((time.totals.approved / time.totals.total) * 100) : 0 %>%</strong><span>Approved share</span></div>
+      </div>
+      <div class="admin-card" style="margin-top:14px;">
+        <h3>Hours by staff</h3>
+        <div class="data-table-wrap">
+          <table class="data-table">
+            <thead><tr><th>Staff</th><th>Total</th><th>Approved</th><th>Pending</th></tr></thead>
+            <tbody>
+              <% time.rows.forEach(r => { %>
+                <tr><td><%= r.name %></td><td><%= fmtHours(r.total_minutes) %></td><td><%= fmtHours(r.approved_minutes) %></td><td><%= fmtHours(r.pending_minutes) %></td></tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    <% } else if (tab === 'project') { %>
+      <div class="admin-card">
+        <h3>Hours by project</h3>
+        <div class="bars">
+          <% projects.slice(0, 10).forEach(p => { %>
+            <i style="height:<%= Math.min(100, Math.max(4, p.loggedHours * 5)) %>%" title="<%= p.name %>: <%= p.loggedHours %>h"></i>
+          <% }) %>
+        </div>
+        <div class="data-table-wrap" style="margin-top:14px;">
+          <table class="data-table">
+            <thead><tr><th>Project</th><th>Customer</th><th>Budget</th><th>Logged</th><th>Remaining</th></tr></thead>
+            <tbody>
+              <% projects.forEach(p => { %>
+                <tr>
+                  <td><%= p.name %></td><td><%= p.client_name %></td>
+                  <td><%= p.budget_hours != null ? p.budget_hours + 'h' : '—' %></td>
+                  <td><%= p.loggedHours %>h</td>
+                  <td><%= p.remaining != null ? p.remaining + 'h' : '—' %></td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    <% } else if (tab === 'spatial') { %>
+      <div class="admin-card">
+        <h3>Regional performance</h3>
+        <p class="muted small">Region = customer city (no geocoded boundaries in this app, so this is the closest honest grouping).</p>
+        <div class="data-table-wrap">
+          <table class="data-table">
+            <thead><tr><th>Region</th><th>Projects</th><th>Hours Logged</th></tr></thead>
+            <tbody>
+              <% spatial.forEach(r => { %>
+                <tr><td><%= r.region %></td><td><%= r.project_count %></td><td><%= r.hoursLogged %>h</td></tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    <% } else if (tab === 'payroll') { %>
+      <div class="admin-card">
+        <h3>Payroll estimate</h3>
+        <p class="muted small">Approved hours × each project's hourly rate — an estimate, not a real payroll run.</p>
+        <div class="data-table-wrap">
+          <table class="data-table">
+            <thead><tr><th>Staff</th><th>Hours</th><th>Estimated Pay</th></tr></thead>
+            <tbody>
+              <% payroll.forEach(p => { %>
+                <tr><td><%= p.name %></td><td><%= p.hoursLogged %>h</td><td>€<%= p.estimated_pay.toFixed(2) %></td></tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    <% } %>
+  </div>
+</div>
+</body>
+</html>

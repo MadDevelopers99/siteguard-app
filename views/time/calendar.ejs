@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calendar & Schedule — SiteGuard Time Tracking</title>
+<link rel="stylesheet" href="/css/style.css">
+<link rel="stylesheet" href="/css/admin-theme.css">
+</head>
+<body>
+<div class="admin-shell sg-admin-v2">
+  <%- include('../partials/time-sidebar', { active: 'calendar', userName: userName, isAdmin: isAdmin }) %>
+
+  <div class="admin-main">
+    <div class="admin-topline">
+      <h1>Calendar & Schedule</h1>
+    </div>
+
+    <div class="admin-card">
+      <div class="section-title">
+        <div>
+          <a class="btn btn-outline btn-sm" style="text-decoration:none;" href="/time/calendar?week=<%= prevWeek %>">&larr;</a>
+          <b style="margin:0 10px;"><%= weekStart %> – <%= weekEnd %></b>
+          <a class="btn btn-outline btn-sm" style="text-decoration:none;" href="/time/calendar?week=<%= nextWeek %>">&rarr;</a>
+        </div>
+        <form method="POST" action="/time/calendar/day-off" style="display:flex; gap:6px;">
+          <input type="hidden" name="week" value="<%= weekStart %>">
+          <select name="time_user_id" required>
+            <% users.forEach(u => { %><option value="<%= u.id %>"><%= u.name %></option><% }) %>
+          </select>
+          <input type="date" name="date" value="<%= weekStart %>" required>
+          <button class="btn btn-sm" type="submit">+ Day Off</button>
+        </form>
+      </div>
+
+      <div style="display:grid; grid-template-columns:repeat(7,1fr); gap:10px;">
+        <% days.forEach(day => { %>
+          <div style="background:#eef2f8; padding:10px; border-radius:12px; min-height:160px;">
+            <b style="font-size:12px;"><%= day.date %></b>
+            <% day.jobs.forEach(j => { %>
+              <div class="admin-card" style="padding:8px; margin:6px 0; font-size:12px;">
+                <a href="/time/jobs/<%= j.id %>"><%= j.scheduled_start || '' %> <%= j.title %></a>
+                <div class="small muted"><%= j.assigned_name || 'Unassigned' %></div>
+              </div>
+            <% }) %>
+            <% day.entries.forEach(e => { %>
+              <div class="admin-card" style="padding:8px; margin:6px 0; font-size:12px;">
+                <%= e.staff_name %> · <%= e.project_name %>
+                <div class="small muted"><%= e.duration_minutes != null ? Math.floor(e.duration_minutes/60) + 'h ' + (e.duration_minutes%60) + 'm' : 'running…' %></div>
+              </div>
+            <% }) %>
+            <% day.daysOff.forEach(d => { %>
+              <div class="admin-card" style="padding:8px; margin:6px 0; font-size:12px; background:#fff3df;">
+                <%= d.staff_name %> — Day Off
+                <form method="POST" action="/time/calendar/day-off/<%= d.id %>/delete" style="margin-top:4px;">
+                  <input type="hidden" name="week" value="<%= weekStart %>">
+                  <button class="btn btn-outline btn-sm" type="submit" style="padding:2px 6px; font-size:11px;">Remove</button>
+                </form>
+              </div>
+            <% }) %>
+          </div>
+        <% }) %>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

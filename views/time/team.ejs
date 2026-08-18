@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Team & Live Status — SiteGuard Time Tracking</title>
+<link rel="stylesheet" href="/css/style.css">
+<link rel="stylesheet" href="/css/admin-theme.css">
+</head>
+<body>
+<div class="admin-shell sg-admin-v2">
+  <%- include('../partials/time-sidebar', { active: 'team', userName: userName, isAdmin: isAdmin }) %>
+
+  <div class="admin-main">
+    <div class="admin-topline">
+      <h1>Team & Live Status</h1>
+    </div>
+
+    <div class="split">
+      <div class="admin-card">
+        <h3>Live team status</h3>
+        <% team.forEach(t => { %>
+          <div class="row" style="align-items:flex-start;">
+            <span>
+              <b><%= t.name %></b><br>
+              <span class="small muted"><%= t.running ? t.running.client_name + ' — ' + t.running.project_name : '—' %></span>
+              <form method="POST" action="/time/team/<%= t.id %>/skills" style="margin-top:6px; display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+                <% services.forEach(s => { %>
+                  <label class="small muted" style="font-weight:400;">
+                    <input type="checkbox" name="service_ids" value="<%= s.id %>" <%= t.skillIds.includes(s.id) ? 'checked' : '' %> onchange="this.form.requestSubmit()">
+                    <%= s.name %>
+                  </label>
+                <% }) %>
+              </form>
+            </span>
+            <span class="badge badge-<%= t.status === 'On site' ? 'confirmed' : t.status === 'Travelling' ? 'pending' : 'cancelled' %>"><%= t.status %></span>
+          </div>
+        <% }) %>
+      </div>
+
+      <div>
+        <%- include('../partials/time-map', { mapId: 'teamMap', height: '520px', markers: markers }) %>
+        <div class="callout" style="margin-top:12px;">
+          <b>Privacy mode</b>
+          <p class="small muted">Precise location is only shown while a staff member has an active timer. Everyone else shows status only.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Time Tracking — SiteGuard Time Tracking</title>
+<link rel="stylesheet" href="/css/style.css">
+<link rel="stylesheet" href="/css/admin-theme.css">
+</head>
+<body>
+<div class="admin-shell sg-admin-v2">
+  <%- include('../partials/time-sidebar', { active: 'tracking', userName: userName, isAdmin: isAdmin }) %>
+
+  <div class="admin-main">
+    <div class="admin-topline">
+      <h1>Time Tracking</h1>
+    </div>
+
+    <% if (error) { %>
+      <div class="error-msg"><%= error %></div>
+    <% } %>
+
+    <div class="tabs">
+      <button type="button" class="tab-btn <%= tab === 'timer' ? 'active' : '' %>" data-tab="timer">Timer</button>
+      <button type="button" class="tab-btn <%= tab === 'manual' ? 'active' : '' %>" data-tab="manual">Manual entry</button>
+      <button type="button" class="tab-btn <%= tab === 'timesheet' ? 'active' : '' %>" data-tab="timesheet">Timesheet</button>
+      <% if (isAdmin) { %>
+        <button type="button" class="tab-btn <%= tab === 'approvals' ? 'active' : '' %>" data-tab="approvals">Approvals<% if (approvals.length) { %> (<%= approvals.length %>)<% } %></button>
+      <% } %>
+    </div>
+
+    <div class="tab-panel-wrap">
+      <div class="tab-panel" data-panel="timer" <%= tab === 'timer' ? '' : 'style="display:none;"' %>>
+        <% if (running) { %>
+          <div class="admin-card" style="border-color:var(--oa-brand, #2563eb);">
+            <h3>Timer Running</h3>
+            <p><strong><%= running.client_name %> — <%= running.project_name %></strong></p>
+            <p style="color:var(--steel);">Started at <%= running.start_time %><%= running.description ? ' — ' + running.description : '' %></p>
+            <form method="POST" action="/time/stop">
+              <button class="btn" type="submit">Stop Timer</button>
+            </form>
+          </div>
+        <% } else { %>
+          <div class="admin-card">
+            <h3>Start Timer</h3>
+            <form method="POST" action="/time/start" class="form-grid">
+              <div class="form-group">
+                <label>Project *</label>
+                <select name="project_id" required>
+                  <option value="">— choose —</option>
+                  <% projects.forEach(p => { %>
+                    <option value="<%= p.id %>"><%= p.client_name %> — <%= p.name %></option>
+                  <% }) %>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Service</label>
+                <select name="service_id">
+                  <option value="">— none —</option>
+                  <% services.forEach(s => { %>
+                    <option value="<%= s.id %>"><%= s.name %></option>
+                  <% }) %>
+                </select>
+              </div>
+              <div class="form-group full">
+                <label>Description</label>
+                <input type="text" name="description" placeholder="What are you working on?">
+              </div>
+              <div class="form-group full">
+                <button class="btn" type="submit">Start Timer</button>
+              </div>
+            </form>
+          </div>
+        <% } %>
+      </div>
+
+      <div class="tab-panel" data-panel="manual" <%= tab === 'manual' ? '' : 'style="display:none;"' %>>
+        <div class="admin-card">
+          <h3>Manual Entry</h3>
+          <form method="POST" action="/time/manual" class="form-grid">
+            <div class="form-group"><label>Date *</label><input type="date" name="date" value="<%= new Date().toISOString().slice(0,10) %>" required></div>
+            <div class="form-group"><label>Start Time *</label><input type="time" name="start_time" required></div>
+            <div class="form-group"><label>End Time *</label><input type="time" name="end_time" required></div>
+            <div class="form-group">
+              <label>Project *</label>
+              <select name="project_id" required>
+                <option value="">— choose —</option>
+                <% projects.forEach(p => { %>
+                  <option value="<%= p.id %>"><%= p.client_name %> — <%= p.name %></option>
+                <% }) %>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Service</label>
+              <select name="service_id">
+                <option value="">— none —</option>
+                <% services.forEach(s => { %>
+                  <option value="<%= s.id %>"><%= s.name %></option>
+                <% }) %>
+              </select>
+            </div>
+            <div class="form-group full"><label>Description</label><input type="text" name="description"></div>
+            <div class="form-group full">
+              <button class="btn btn-outline" type="submit">Add Manual Entry</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div class="tab-panel" data-panel="timesheet" <%= tab === 'timesheet' ? '' : 'style="display:none;"' %>>
+        <div class="admin-card">
+          <h3>My Timesheet (last 30 days)</h3>
+          <div class="data-table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr><th>Date</th><th>Project</th><th>Service</th><th>Start</th><th>End</th><th>Duration</th><th>Status</th><th></th></tr>
+              </thead>
+              <tbody>
+                <% if (timesheet.length === 0) { %>
+                  <tr><td colspan="8" style="text-align:center; color:#8a8f90;">No entries in the last 30 days.</td></tr>
+                <% } %>
+                <% timesheet.forEach(e => { %>
+                  <tr>
+                    <td><a href="/time/entries/<%= e.id %>"><%= e.date %></a></td>
+                    <td><%= e.client_name %> — <%= e.project_name %></td>
+                    <td><%= e.service_name || '—' %></td>
+                    <td><%= e.start_time %></td>
+                    <td><%= e.end_time || 'running…' %></td>
+                    <td><%= e.duration_minutes != null ? Math.floor(e.duration_minutes/60) + 'h ' + (e.duration_minutes%60) + 'm' : '—' %></td>
+                    <td><span class="badge badge-<%= e.status === 'Approved' ? 'confirmed' : e.status === 'Rejected' ? 'cancelled' : 'pending' %>"><%= e.status %></span></td>
+                    <td>
+                      <form method="POST" action="/time/<%= e.id %>/delete" style="margin:0;" onsubmit="return confirm('Delete this entry?');">
+                        <button type="submit" class="btn btn-outline btn-sm">Delete</button>
+                      </form>
+                    </td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <% if (isAdmin) { %>
+        <div class="tab-panel" data-panel="approvals" <%= tab === 'approvals' ? '' : 'style="display:none;"' %>>
+          <div class="admin-card">
+            <h3>Pending Approvals</h3>
+            <div class="data-table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr><th>Date</th><th>Staff</th><th>Project</th><th>Duration</th><th>Actions</th></tr>
+                </thead>
+                <tbody>
+                  <% if (approvals.length === 0) { %>
+                    <tr><td colspan="5" style="text-align:center; color:#8a8f90;">Nothing pending.</td></tr>
+                  <% } %>
+                  <% approvals.forEach(e => { %>
+                    <tr>
+                      <td><a href="/time/entries/<%= e.id %>"><%= e.date %></a></td>
+                      <td><%= e.staff_name %></td>
+                      <td><%= e.client_name %> — <%= e.project_name %></td>
+                      <td><%= Math.floor(e.duration_minutes/60) %>h <%= e.duration_minutes%60 %>m</td>
+                      <td style="display:flex; gap:6px;">
+                        <form method="POST" action="/time/entries/<%= e.id %>/approve" style="margin:0;">
+                          <button type="submit" class="btn btn-sm">Approve</button>
+                        </form>
+                        <form method="POST" action="/time/entries/<%= e.id %>/reject" style="margin:0;">
+                          <button type="submit" class="btn btn-outline btn-sm">Reject</button>
+                        </form>
+                      </td>
+                    </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      <% } %>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const key = btn.dataset.tab;
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b === btn));
+      document.querySelectorAll('.tab-panel').forEach(p => {
+        p.style.display = p.dataset.panel === key ? '' : 'none';
+      });
+      const url = new URL(window.location);
+      url.searchParams.set('tab', key);
+      window.history.replaceState({}, '', url);
+    });
+  });
+</script>
+</body>
+</html>

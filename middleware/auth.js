@@ -36,4 +36,25 @@ function requireTimeUser(req, res, next) {
   return res.redirect("/time/login");
 }
 
-module.exports = { requireAdmin, requireMainAdmin, requireDriver, requireAnyRole, requireTimeUser };
+// Gates the Time Tracking Admin Dashboard + entry approve/reject — everything
+// else in the portal stays open to any logged-in time user (no broader RBAC).
+function requireTimeAdmin(req, res, next) {
+  if (!req.session || !req.session.timeUserId) {
+    return res.redirect("/time/login");
+  }
+  const db = require("../db/database");
+  const user = db.prepare("SELECT is_admin FROM time_users WHERE id = ?").get(req.session.timeUserId);
+  if (user && user.is_admin) {
+    return next();
+  }
+  return res.status(403).send("Time Tracking admin access required.");
+}
+
+module.exports = {
+  requireAdmin,
+  requireMainAdmin,
+  requireDriver,
+  requireAnyRole,
+  requireTimeUser,
+  requireTimeAdmin
+};

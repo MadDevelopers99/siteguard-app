@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title><%= geofence && geofence.id ? 'Edit Geofence' : 'New Geofence' %> — SiteGuard Time Tracking</title>
+<link rel="stylesheet" href="/css/style.css">
+<link rel="stylesheet" href="/css/admin-theme.css">
+</head>
+<body>
+<div class="admin-shell sg-admin-v2">
+  <%- include('../partials/time-sidebar', { active: 'geofences', userName: userName, isAdmin: isAdmin }) %>
+
+  <div class="admin-main">
+    <div class="admin-topline">
+      <h1><%= geofence && geofence.id ? 'Edit Geofence' : 'New Geofence' %></h1>
+      <a href="/time/geofences" style="text-decoration:none; font-size:14px;">&larr; Back to geofences</a>
+    </div>
+
+    <% if (error) { %>
+      <div class="error-msg"><%= error %></div>
+    <% } %>
+
+    <form method="POST" action="<%= geofence && geofence.id ? '/time/geofences/' + geofence.id : '/time/geofences' %>">
+      <div class="admin-card">
+        <div class="form-group" style="margin-bottom:14px;">
+          <label>Project *</label>
+          <select name="project_id" required>
+            <option value="">— choose —</option>
+            <% projects.forEach(p => { %>
+              <option value="<%= p.id %>" <%= geofence && String(geofence.project_id) === String(p.id) ? 'selected' : '' %>><%= p.client_name %> — <%= p.name %></option>
+            <% }) %>
+          </select>
+        </div>
+
+        <%- include('../partials/time-map', {
+          mapId: 'geofencePickMap',
+          height: '320px',
+          pickMode: true,
+          latInputId: 'geofenceFormLat',
+          lngInputId: 'geofenceFormLng',
+          pickInitial: geofence && geofence.lat ? [geofence.lat, geofence.lng] : null,
+          center: geofence && geofence.lat ? [geofence.lat, geofence.lng] : null,
+          markers: [],
+          geofences: geofence && geofence.lat ? [{ lat: geofence.lat, lng: geofence.lng, radiusMeters: geofence.radius_meters, name: geofence.name }] : []
+        }) %>
+        <input type="hidden" id="geofenceFormLat" name="lat" value="<%= geofence ? geofence.lat : '' %>">
+        <input type="hidden" id="geofenceFormLng" name="lng" value="<%= geofence ? geofence.lng : '' %>">
+
+        <div class="form-grid" style="margin-top:14px;">
+          <div class="form-group"><label>Name</label><input type="text" name="name" value="<%= geofence ? geofence.name : 'Site' %>"></div>
+          <div class="form-group"><label>Radius (meters)</label><input type="number" step="10" min="10" name="radius_meters" value="<%= geofence ? geofence.radius_meters : 150 %>"></div>
+          <div class="form-group">
+            <label>Arrival behavior</label>
+            <select name="arrival_behavior">
+              <% GEOFENCE_ARRIVAL_OPTIONS.forEach(o => { %>
+                <option value="<%= o %>" <%= geofence && geofence.arrival_behavior === o ? 'selected' : '' %>><%= o %></option>
+              <% }) %>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Departure behavior</label>
+            <select name="departure_behavior">
+              <% GEOFENCE_DEPARTURE_OPTIONS.forEach(o => { %>
+                <option value="<%= o %>" <%= geofence && geofence.departure_behavior === o ? 'selected' : '' %>><%= o %></option>
+              <% }) %>
+            </select>
+          </div>
+          <div class="form-group"><label>Location retention (days)</label><input type="number" step="1" min="1" name="retention_days" value="<%= geofence ? geofence.retention_days : 90 %>"></div>
+          <div class="form-group">
+            <label><input type="checkbox" name="check_in_required" value="1" <%= geofence && geofence.check_in_required ? 'checked' : '' %>> Check-in required</label>
+          </div>
+        </div>
+      </div>
+      <button class="btn" type="submit" style="font-size:16px; padding:12px 24px;"><%= geofence && geofence.id ? 'Save Changes' : 'Create Geofence' %></button>
+    </form>
+  </div>
+</div>
+</body>
+</html>
