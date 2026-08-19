@@ -73,6 +73,25 @@ async function ocrImageInput(file, filePath) {
   return filePath;
 }
 
+// Plain Tesseract.recognize() with defaults treats the photo as a page of
+// prose, so it often misses a plate that's a small sparse text region among
+// a bumper/background — SPARSE_TEXT mode looks for isolated text blocks
+// anywhere in the frame instead. The character whitelist also cuts out a lot
+// of false-positive "text" that OCR otherwise imagines in shadows/textures.
+async function recognizePlateText(input) {
+  const worker = await Tesseract.createWorker("eng");
+  try {
+    await worker.setParameters({
+      tessedit_pageseg_mode: Tesseract.PSM.SPARSE_TEXT,
+      tessedit_char_whitelist: "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789- "
+    });
+    const { data } = await worker.recognize(input);
+    return data.text;
+  } finally {
+    await worker.terminate();
+  }
+}
+
 router.post("/upload", upload.single("file"), (req, res) => {
   const { entity_type, entity_id, category, gps_location } = req.body;
   if (!req.file || !entity_type || !entity_id) {
@@ -93,9 +112,10 @@ router.post("/upload", upload.single("file"), (req, res) => {
     const filePath = path.join(uploadsDir, req.file.filename);
     const file = req.file;
     ocrImageInput(file, filePath)
-      .then((input) => Tesseract.recognize(input, "eng"))
-      .then(({ data }) => {
-        const candidate = extractPlateCandidate(data.text);
+      .then((input) => recognizePlateText(input))
+      .then((rawText) => {
+        console.log(`Plate OCR raw text for parked_vehicle ${entity_id}:`, JSON.stringify(rawText));
+        const candidate = extractPlateCandidate(rawText);
         if (candidate) {
           db.prepare(
             `UPDATE parked_vehicles SET plate_number_ocr_raw = ?, plate_number = COALESCE(NULLIF(plate_number, ''), ?)
