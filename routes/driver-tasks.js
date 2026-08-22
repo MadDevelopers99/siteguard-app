@@ -10,7 +10,13 @@ const {
 } = require("../utils/constants");
 const { taskFlags } = require("../utils/task-flow");
 const { suggestOrder } = require("../utils/route-suggest");
-const { TYRE_DIRECTION_OPTIONS, angleForHour } = require("../utils/parked-vehicle");
+const {
+  TYRE_DIRECTION_OPTIONS,
+  angleForHour,
+  VEHICLE_COLOR_OPTIONS,
+  VEHICLE_BRAND_OPTIONS,
+  VEHICLE_BRAND_MODELS
+} = require("../utils/parked-vehicle");
 const {
   driverOwnsOrder,
   listDriverTasks,
@@ -468,7 +474,10 @@ router.get("/:id/parked-vehicles/:pvId/edit", (req, res) => {
     photo,
     error: req.query.error || null,
     driverName: req.session.driverName,
-    TYRE_DIRECTION_OPTIONS
+    TYRE_DIRECTION_OPTIONS,
+    VEHICLE_COLOR_OPTIONS,
+    VEHICLE_BRAND_OPTIONS,
+    VEHICLE_BRAND_MODELS
   });
 });
 

@@ -58,15 +58,42 @@
         </div>
         <div class="driver-field">
           <label>Color</label>
-          <input type="text" name="vehicle_color" value="<%= vehicle.vehicle_color || '' %>" placeholder="e.g. Black, or Unknown">
+          <select name="vehicle_color">
+            <option value="">— choose —</option>
+            <% VEHICLE_COLOR_OPTIONS.forEach(c => { %>
+              <option value="<%= c %>" <%= vehicle.vehicle_color === c ? 'selected' : '' %>><%= c %></option>
+            <% }) %>
+            <% if (vehicle.vehicle_color && !VEHICLE_COLOR_OPTIONS.includes(vehicle.vehicle_color)) { %>
+              <option value="<%= vehicle.vehicle_color %>" selected><%= vehicle.vehicle_color %></option>
+            <% } %>
+          </select>
         </div>
         <div class="driver-field">
           <label>Brand</label>
-          <input type="text" name="vehicle_brand" value="<%= vehicle.vehicle_brand || '' %>" placeholder="e.g. BMW">
+          <select name="vehicle_brand" id="brandSelect">
+            <option value="">— choose —</option>
+            <% VEHICLE_BRAND_OPTIONS.forEach(b => { %>
+              <option value="<%= b %>" <%= vehicle.vehicle_brand === b ? 'selected' : '' %>><%= b %></option>
+            <% }) %>
+            <% if (vehicle.vehicle_brand && !VEHICLE_BRAND_OPTIONS.includes(vehicle.vehicle_brand)) { %>
+              <option value="<%= vehicle.vehicle_brand %>" selected><%= vehicle.vehicle_brand %></option>
+            <% } %>
+          </select>
         </div>
         <div class="driver-field">
           <label>Model</label>
-          <input type="text" name="vehicle_model" value="<%= vehicle.vehicle_model || '' %>" placeholder="e.g. 3 Series">
+          <%
+            const currentModels = VEHICLE_BRAND_MODELS[vehicle.vehicle_brand] || [];
+          %>
+          <select name="vehicle_model" id="modelSelect">
+            <option value="">— choose brand first —</option>
+            <% currentModels.forEach(m => { %>
+              <option value="<%= m %>" <%= vehicle.vehicle_model === m ? 'selected' : '' %>><%= m %></option>
+            <% }) %>
+            <% if (vehicle.vehicle_model && !currentModels.includes(vehicle.vehicle_model)) { %>
+              <option value="<%= vehicle.vehicle_model %>" selected><%= vehicle.vehicle_model %></option>
+            <% } %>
+          </select>
         </div>
 
         <div class="driver-field">
@@ -115,6 +142,19 @@
 </div>
 
 <script>
+  // Repopulate the Model dropdown whenever Brand changes, so it only ever
+  // lists models that actually belong to the selected make.
+  (function () {
+    const BRAND_MODELS = <%- JSON.stringify(VEHICLE_BRAND_MODELS) %>;
+    const brandSelect = document.getElementById('brandSelect');
+    const modelSelect = document.getElementById('modelSelect');
+    brandSelect.addEventListener('change', () => {
+      const models = BRAND_MODELS[brandSelect.value] || [];
+      modelSelect.innerHTML = '<option value="">— choose —</option>' +
+        models.map((m) => `<option value="${m}">${m}</option>`).join('');
+    });
+  })();
+
   const tyreInput = document.getElementById('tyreDirectionInput');
   const line = document.getElementById('clockLine');
   const label = document.getElementById('selectedDirectionLabel');
