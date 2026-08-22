@@ -25,15 +25,26 @@
       <% if (photo) { %>
         <p><a href="/admin/documents/<%= photo.id %>/download">View current photo</a></p>
       <% } %>
-      <form method="POST" action="/admin/documents/upload" enctype="multipart/form-data">
-        <input type="hidden" name="entity_type" value="parked_vehicle">
-        <input type="hidden" name="entity_id" value="<%= vehicle.id %>">
-        <input type="hidden" name="category" value="Rear Photo">
+
+      <div id="photoPickStep">
         <div class="driver-field">
-          <input type="file" name="file" accept="image/*" capture="environment" required>
+          <input type="file" id="rearPhotoInput" accept="image/*" capture="environment">
         </div>
-        <button class="driver-btn-lg" type="submit"><%= photo ? 'Retake Photo' : 'Take Rear Photo' %></button>
-      </form>
+      </div>
+
+      <div id="cropStep" style="display:none;">
+        <p style="color:#8a8f90; font-size:13px;">Drag a box tightly around the plate — a close-up crop reads far more reliably than the full photo.</p>
+        <canvas id="cropCanvas" style="max-width:100%; touch-action:none; border-radius:8px; display:block;"></canvas>
+        <div style="display:flex; gap:8px; margin-top:10px;">
+          <button type="button" class="btn btn-outline btn-sm" id="redoCropBtn">Redraw Box</button>
+          <button type="button" class="btn btn-outline btn-sm" id="skipCropBtn">Upload Without Cropping</button>
+        </div>
+        <button class="driver-btn-lg" type="button" id="confirmUploadBtn" style="margin-top:10px;" disabled>Upload Photo</button>
+      </div>
+
+      <div id="uploadingStep" style="display:none;">
+        <p style="color:#8a8f90;">Uploading…</p>
+      </div>
     </div>
 
     <div class="driver-card">
@@ -125,6 +136,141 @@
     line.style.display = 'none';
     label.textContent = 'Selected: Unknown';
   });
+
+  // Drag-to-crop the rear photo before uploading. A tight close-up of just
+  // the plate reads far more reliably than the full vehicle photo, where the
+  // plate is a small region among bumper/background clutter — this is what
+  // actually fixes angle/distance OCR misses, not just OCR tuning.
+  (function () {
+    const fileInput = document.getElementById('rearPhotoInput');
+    const pickStep = document.getElementById('photoPickStep');
+    const cropStep = document.getElementById('cropStep');
+    const uploadingStep = document.getElementById('uploadingStep');
+    const canvas = document.getElementById('cropCanvas');
+    const ctx = canvas.getContext('2d');
+    const confirmBtn = document.getElementById('confirmUploadBtn');
+    const redoBtn = document.getElementById('redoCropBtn');
+    const skipBtn = document.getElementById('skipCropBtn');
+
+    let img = null;
+    let selectedFile = null;
+    let displayScale = 1;
+    let rect = null;
+    let dragging = false;
+    let startPt = null;
+
+    function drawBase() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    }
+
+    function drawWithRect(r) {
+      drawBase();
+      ctx.strokeStyle = '#ffcc00';
+      ctx.lineWidth = 3;
+      ctx.strokeRect(r.x, r.y, r.w, r.h);
+      ctx.fillStyle = 'rgba(255,204,0,0.15)';
+      ctx.fillRect(r.x, r.y, r.w, r.h);
+    }
+
+    function pointerPos(e) {
+      const cRect = canvas.getBoundingClientRect();
+      const t = e.touches ? e.touches[0] : e;
+      return {
+        x: (t.clientX - cRect.left) * (canvas.width / cRect.width),
+        y: (t.clientY - cRect.top) * (canvas.height / cRect.height)
+      };
+    }
+
+    function start(e) {
+      if (!img) return;
+      dragging = true;
+      startPt = pointerPos(e);
+      e.preventDefault();
+    }
+    function move(e) {
+      if (!dragging) return;
+      const p = pointerPos(e);
+      rect = {
+        x: Math.min(startPt.x, p.x),
+        y: Math.min(startPt.y, p.y),
+        w: Math.abs(p.x - startPt.x),
+        h: Math.abs(p.y - startPt.y)
+      };
+      drawWithRect(rect);
+      e.preventDefault();
+    }
+    function end() {
+      dragging = false;
+      confirmBtn.disabled = !(rect && rect.w > 20 && rect.h > 10);
+    }
+
+    canvas.addEventListener('mousedown', start);
+    canvas.addEventListener('mousemove', move);
+    canvas.addEventListener('mouseup', end);
+    canvas.addEventListener('touchstart', start, { passive: false });
+    canvas.addEventListener('touchmove', move, { passive: false });
+    canvas.addEventListener('touchend', end);
+
+    fileInput.addEventListener('change', () => {
+      const file = fileInput.files[0];
+      if (!file) return;
+      selectedFile = file;
+      const url = URL.createObjectURL(file);
+      img = new Image();
+      img.onload = () => {
+        const maxW = Math.min(window.innerWidth - 48, 600);
+        displayScale = Math.min(1, maxW / img.naturalWidth);
+        canvas.width = Math.round(img.naturalWidth * displayScale);
+        canvas.height = Math.round(img.naturalHeight * displayScale);
+        drawBase();
+        rect = null;
+        confirmBtn.disabled = true;
+        pickStep.style.display = 'none';
+        cropStep.style.display = '';
+      };
+      img.src = url;
+    });
+
+    redoBtn.addEventListener('click', () => {
+      rect = null;
+      confirmBtn.disabled = true;
+      drawBase();
+    });
+
+    function doUpload(cropBlob) {
+      cropStep.style.display = 'none';
+      uploadingStep.style.display = '';
+      const fd = new FormData();
+      fd.append('entity_type', 'parked_vehicle');
+      fd.append('entity_id', '<%= vehicle.id %>');
+      fd.append('category', 'Rear Photo');
+      fd.append('file', selectedFile);
+      if (cropBlob) fd.append('plate_crop', cropBlob, 'plate_crop.jpg');
+      fetch('/admin/documents/upload', { method: 'POST', body: fd })
+        .then((r) => { if (!r.ok) throw new Error('Upload failed'); window.location.reload(); })
+        .catch(() => {
+          alert("Upload failed — check your connection and try again.");
+          uploadingStep.style.display = 'none';
+          cropStep.style.display = '';
+        });
+    }
+
+    skipBtn.addEventListener('click', () => doUpload(null));
+
+    confirmBtn.addEventListener('click', () => {
+      if (!rect) return;
+      const sx = rect.x / displayScale;
+      const sy = rect.y / displayScale;
+      const sw = rect.w / displayScale;
+      const sh = rect.h / displayScale;
+      const off = document.createElement('canvas');
+      off.width = sw;
+      off.height = sh;
+      off.getContext('2d').drawImage(img, sx, sy, sw, sh, 0, 0, sw, sh);
+      off.toBlob((blob) => doUpload(blob), 'image/jpeg', 0.92);
+    });
+  })();
 
   // The rear-photo plate scan now runs in the background after upload (so a
   // large phone photo never delays the page), so poll briefly for the result

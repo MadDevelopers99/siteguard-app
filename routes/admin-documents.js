@@ -18,6 +18,13 @@ const storage = multer.diskStorage({
   }
 });
 const upload = multer({ storage, limits: { fileSize: 20 * 1024 * 1024 } });
+// "plate_crop" is an optional second file: a driver-drawn close-up crop of
+// just the plate, used only to improve OCR input quality — the full "file"
+// is still what gets saved as the actual document record either way.
+const uploadWithPlateCrop = upload.fields([
+  { name: "file", maxCount: 1 },
+  { name: "plate_crop", maxCount: 1 }
+]);
 
 function uploaderName(req) {
   return req.session.adminName || req.session.mainAdminName || req.session.driverName || "User";
@@ -92,29 +99,35 @@ async function recognizePlateText(input) {
   }
 }
 
-router.post("/upload", upload.single("file"), (req, res) => {
+router.post("/upload", uploadWithPlateCrop, (req, res) => {
   const { entity_type, entity_id, category, gps_location } = req.body;
-  if (!req.file || !entity_type || !entity_id) {
+  const mainFile = req.files && req.files.file && req.files.file[0];
+  const cropFile = req.files && req.files.plate_crop && req.files.plate_crop[0];
+
+  if (!mainFile || !entity_type || !entity_id) {
     return res.status(400).send("Missing file or target.");
   }
 
   db.prepare(
     `INSERT INTO documents (entity_type, entity_id, category, original_name, stored_filename, uploaded_by, status, gps_location)
      VALUES (?, ?, ?, ?, ?, ?, 'Uploaded', ?)`
-  ).run(entity_type, entity_id, category || "Other", req.file.originalname, req.file.filename, uploaderName(req), gps_location || null);
+  ).run(entity_type, entity_id, category || "Other", mainFile.originalname, mainFile.filename, uploaderName(req), gps_location || null);
 
   const backTo = backToFor(req, entity_type, entity_id);
 
   // Best-effort plate scan for parked-vehicle rear photos — runs in the
   // background so a slow/large phone photo never delays the upload response.
   // Never blocks or breaks the upload if OCR fails or the file isn't an image.
-  if (entity_type === "parked_vehicle" && req.file.mimetype && req.file.mimetype.startsWith("image/")) {
-    const filePath = path.join(uploadsDir, req.file.filename);
-    const file = req.file;
-    ocrImageInput(file, filePath)
+  // Prefer the driver-drawn crop when one was submitted: OCR on a tight
+  // close-up of just the plate is far more reliable than scanning the whole
+  // rear-of-vehicle photo, where the plate is a small region among clutter.
+  const ocrFile = cropFile || mainFile;
+  if (entity_type === "parked_vehicle" && ocrFile.mimetype && ocrFile.mimetype.startsWith("image/")) {
+    const filePath = path.join(uploadsDir, ocrFile.filename);
+    ocrImageInput(ocrFile, filePath)
       .then((input) => recognizePlateText(input))
       .then((rawText) => {
-        console.log(`Plate OCR raw text for parked_vehicle ${entity_id}:`, JSON.stringify(rawText));
+        console.log(`Plate OCR raw text for parked_vehicle ${entity_id} (cropped=${!!cropFile}):`, JSON.stringify(rawText));
         const candidate = extractPlateCandidate(rawText);
         if (candidate) {
           db.prepare(
@@ -123,7 +136,11 @@ router.post("/upload", upload.single("file"), (req, res) => {
           ).run(candidate, candidate, entity_id);
         }
       })
-      .catch((err) => console.error(`Plate OCR failed for parked_vehicle ${entity_id}:`, err.message));
+      .catch((err) => console.error(`Plate OCR failed for parked_vehicle ${entity_id}:`, err.message))
+      .finally(() => {
+        // The crop is only ever an OCR input, never a saved document — clean it up either way.
+        if (cropFile) fs.unlink(filePath, () => {});
+      });
   }
 
   res.redirect(backTo);
